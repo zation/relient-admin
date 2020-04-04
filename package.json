@@ -1,6 +1,6 @@
 {
   "name": "relient-admin",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "Liu Yang <zation1@gmail.com>",
   "license": "MIT",
   "keywords": [
@@ -17,7 +17,7 @@
     "url": "git://github.com/zation/relient-admin.git"
   },
   "dependencies": {
-    "@ant-design/icons": "^4.0.5",
+    "@ant-design/icons": ">=4.0.5",
     "antd": ">=4.1.0",
     "bignumber.js": ">=9.0.0",
     "final-form": ">=4.19.1",
@@ -31,8 +31,8 @@
     "react-redux": "^7.2.0",
     "redux": ">=4.0.5",
     "redux-actions": ">=2.6.5",
-    "relient": "^4.1.8",
-    "universal-router": "^9.0.1"
+    "relient": ">=4.2.8",
+    "universal-router": ">=9.0.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",

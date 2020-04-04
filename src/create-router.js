@@ -36,7 +36,7 @@ export default ({ routes, auth, baseUrl = '', ...options }) => new UniversalRout
         return authResult;
       }
     } else if (requireAuth && !getEntity('auth.isLogin')(state)) {
-      return { redirect: `${baseUrl}/auth/login` };
+      return { redirect: '/auth/login' };
     }
 
     if (component) {
