@@ -1,8 +1,11 @@
 import UniversalRouter from 'universal-router';
 import { isFunction, isArray } from 'lodash/fp';
+import { getEntity } from 'relient/selectors';
 import { setFeature } from './actions/feature';
 
-export default ({ routes, auth }) => new UniversalRouter(routes, {
+export default ({ routes, auth, baseUrl = '', ...options }) => new UniversalRouter(routes, {
+  ...options,
+  baseUrl,
   async resolveRoute(context) {
     const {
       route,
@@ -26,10 +29,16 @@ export default ({ routes, auth }) => new UniversalRouter(routes, {
     if (feature) {
       dispatch(setFeature(feature));
     }
-    const authResult = auth({ requireAuth, state });
-    if (authResult) {
-      return authResult;
+
+    if (auth) {
+      const authResult = auth({ requireAuth, state });
+      if (authResult) {
+        return authResult;
+      }
+    } else if (requireAuth && !getEntity('auth.isLogin')(state)) {
+      return { redirect: `${baseUrl}/auth/login` };
     }
+
     if (component) {
       return route;
     }

@@ -1,12 +1,9 @@
 import React from 'react';
 import { string, func, shape, arrayOf, array, number, oneOfType, object, bool, elementType, any } from 'prop-types';
 import { Input, Button, Select, DatePicker } from 'antd';
-import useStyles from 'isomorphic-style-loader/useStyles';
 import { map, flow, join, prop } from 'lodash/fp';
 import Link from './link';
 import FormModal from './form-modal';
-
-import s from './table-header.less';
 
 const { Search } = Input;
 const { Option } = Select;
@@ -27,122 +24,118 @@ const result = ({
   closeEditor,
   onCreateSubmit,
   onEditSubmit,
-}) => {
-  useStyles(s);
+}) => (
+  <div className="relient-admin-table-header">
+    {creator && (creator.component || FormModal)({
+      title: creator.title || '创建',
+      visible: creatorVisible,
+      onCancel: closeCreator,
+      onSubmit: onCreateSubmit,
+      initialValues: creator.initialValues,
+      fields: creator.fields,
+      layout: creator.layout,
+    })}
 
-  return (
-    <div className={s.Root}>
-      {creator && (creator.component || FormModal)({
-        title: creator.title || '创建',
-        visible: creatorVisible,
-        onCancel: closeCreator,
-        onSubmit: onCreateSubmit,
-        initialValues: creator.initialValues,
-        fields: creator.fields,
-        layout: creator.layout,
-      })}
+    {editor && (editor.component || FormModal)({
+      title: editor.title || '编辑',
+      visible: editorVisible,
+      onCancel: closeEditor,
+      onSubmit: onEditSubmit,
+      initialValues: editor.initialValues,
+      fields: editor.fields,
+      layout: editor.layout,
+    })}
 
-      {editor && (editor.component || FormModal)({
-        title: editor.title || '编辑',
-        visible: editorVisible,
-        onCancel: closeEditor,
-        onSubmit: onEditSubmit,
-        initialValues: editor.initialValues,
-        fields: editor.fields,
-        layout: editor.layout,
-      })}
-
-      <div className={s.operations}>
-        {query && (
-          <div>
-            {!query.fussy && (
-              <Select
-                onSelect={query.onFieldChange}
-                value={query.field}
-                style={{ marginRight: 10 }}
-                dropdownMatchSelectWidth={false}
-              >
-                {map(({ key, text }) => (
-                  <Option
-                    value={key}
-                    key={key}
-                  >
-                    {text}
-                  </Option>
-                ))(query.fields)}
-              </Select>
-            )}
-            <Search
-              style={{ width: query.width || 300 }}
-              placeholder={query.placeholder || (query.fussy ? `根据 ${flow(map(prop('text')), join('、'))(query.fields)} 搜索` : '搜索')}
-              onChange={query.onValueChange}
-              value={query.value}
-            />
-          </div>
-        )}
-
-        {filter && map(({
-          label,
-          options,
-          placeholder,
-          dataKey,
-          value,
-          dropdownMatchSelectWidth = false,
-        }) => (
-          <div key={dataKey}>
-            <span style={{ marginRight: 10 }}>{label}</span>
+    <div className="relient-admin-table-header-operations">
+      {query && (
+        <div>
+          {!query.fussy && (
             <Select
-              onSelect={(selectedValue) => filter.onSelect(selectedValue, dataKey)}
-              placeholder={placeholder}
-              value={value}
-              dropdownMatchSelectWidth={dropdownMatchSelectWidth}
+              onSelect={query.onFieldChange}
+              value={query.field}
+              style={{ marginRight: 10 }}
+              dropdownMatchSelectWidth={false}
             >
-              {map(({ text, value: optionValue, disabled, className: optionClassName }) => (
+              {map(({ key, text }) => (
                 <Option
-                  value={optionValue}
-                  key={optionValue}
-                  disabled={disabled}
-                  className={optionClassName}
+                  value={key}
+                  key={key}
                 >
                   {text}
                 </Option>
-              ))(options)}
+              ))(query.fields)}
             </Select>
-          </div>
-        ))(filter.items)}
-
-        {datePicker && map(({ label, dataKey, disabledDate }) => (
-          <div key={dataKey}>
-            <span style={{ marginRight: 10 }}>{label}</span>
-            <RangePicker
-              format="YYYY-MM-DD"
-              onChange={(_, selectedValue) => datePicker.onSelect(selectedValue, dataKey)}
-              disabledDate={disabledDate}
-            />
-          </div>
-        ))(datePicker.items)}
-
-        {reset && (
-          <Button onClick={reset}>重置</Button>
-        )}
-      </div>
-
-      {creator && (
-        <Button type="primary" size="large" onClick={openCreator}>
-          {creator.title || '创建'}
-        </Button>
+          )}
+          <Search
+            style={{ width: query.width || 300 }}
+            placeholder={query.placeholder || (query.fussy ? `根据 ${flow(map(prop('text')), join('、'))(query.fields)} 搜索` : '搜索')}
+            onChange={query.onValueChange}
+            value={query.value}
+          />
+        </div>
       )}
 
-      {createLink && (
-        <Link to={createLink.link}>
-          <Button type="primary" size="large">
-            {createLink.text}
-          </Button>
-        </Link>
+      {filter && map(({
+        label,
+        options,
+        placeholder,
+        dataKey,
+        value,
+        dropdownMatchSelectWidth = false,
+      }) => (
+        <div key={dataKey}>
+          <span style={{ marginRight: 10 }}>{label}</span>
+          <Select
+            onSelect={(selectedValue) => filter.onSelect(selectedValue, dataKey)}
+            placeholder={placeholder}
+            value={value}
+            dropdownMatchSelectWidth={dropdownMatchSelectWidth}
+          >
+            {map(({ text, value: optionValue, disabled, className: optionClassName }) => (
+              <Option
+                value={optionValue}
+                key={optionValue}
+                disabled={disabled}
+                className={optionClassName}
+              >
+                {text}
+              </Option>
+            ))(options)}
+          </Select>
+        </div>
+      ))(filter.items)}
+
+      {datePicker && map(({ label, dataKey, disabledDate }) => (
+        <div key={dataKey}>
+          <span style={{ marginRight: 10 }}>{label}</span>
+          <RangePicker
+            format="YYYY-MM-DD"
+            onChange={(_, selectedValue) => datePicker.onSelect(selectedValue, dataKey)}
+            disabledDate={disabledDate}
+          />
+        </div>
+      ))(datePicker.items)}
+
+      {reset && (
+        <Button onClick={reset}>重置</Button>
       )}
     </div>
-  );
-};
+
+    {creator && (
+      <Button type="primary" size="large" onClick={openCreator}>
+        {creator.title || '创建'}
+      </Button>
+    )}
+
+    {createLink && (
+      <Link to={createLink.link}>
+        <Button type="primary" size="large">
+          {createLink.text}
+        </Button>
+      </Link>
+    )}
+  </div>
+);
 
 result.propTypes = {
   query: shape({

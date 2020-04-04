@@ -1,5 +1,6 @@
 export Form from './form';
 export FormModal from './form-modal';
+export FormDrawer from './form-drawer';
 export Link from './link';
 export TableHeader from './table-header';
 export CheckBox from './fields/checkbox';

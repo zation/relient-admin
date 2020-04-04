@@ -1,13 +1,15 @@
-import { slice } from 'lodash/fp';
-
-export default ({ page, size }, items) => {
-  const sizeNumber = Number(size);
-  const pageNumber = Number(page);
-  const content = slice(pageNumber * sizeNumber, (pageNumber + 1) * sizeNumber)(items);
+export default (query) => (content) => {
+  const size = Number(query.size);
+  const page = Number(query.page);
   return {
-    content,
-    number: pageNumber,
-    size: sizeNumber,
-    totalElements: items.length,
+    size,
+    content: content.slice(page * size, (page + 1) * size),
+    number: page,
+    totalPages: Math.ceil(content.length / size),
+    totalElements: content.length,
+    sort: {
+      sorted: false,
+      unsorted: true,
+    },
   };
 };

@@ -4,13 +4,10 @@ import { Form, Upload, Message } from 'antd';
 import cookie from 'js-cookie';
 import { map, prop } from 'lodash/fp';
 import getStaticFileUrl from 'relient/static-file-url';
-import useStyles from 'isomorphic-style-loader/useStyles';
 import { PlusOutlined } from '@ant-design/icons';
 import AUTHORIZATION from '../../constants/authorization';
 import { getFieldInfo } from '../../utils';
 import { DomainContext } from '../../contexts';
-
-import s from './single-uploader.less';
 
 const { Item } = Form;
 const { Dragger } = Upload;
@@ -29,7 +26,6 @@ const result = ({
   tips,
   action,
 }) => {
-  useStyles(s);
   const { cdnDomain } = useContext(DomainContext);
   const { validateStatus, help } = getFieldInfo({ touched, error, tips });
 
@@ -42,7 +38,7 @@ const result = ({
       validateStatus={validateStatus}
       help={help}
       required={required}
-      className={s.Root}
+      className="relient-admin-single-uploader"
     >
       <div
         style={{

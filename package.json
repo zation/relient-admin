@@ -1,6 +1,6 @@
 {
   "name": "relient-admin",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Liu Yang <zation1@gmail.com>",
   "license": "MIT",
   "keywords": [
@@ -20,7 +20,7 @@
     "@ant-design/icons": "^4.0.5",
     "antd": ">=4.1.0",
     "bignumber.js": ">=9.0.0",
-    "isomorphic-style-loader": "^5.1.0",
+    "final-form": ">=4.19.1",
     "js-cookie": "^2.2.1",
     "lodash": ">=4.17.15",
     "moment": ">=2.24.0",
@@ -47,6 +47,7 @@
     "@babel/preset-env": "^7.9.0",
     "@babel/preset-react": "^7.9.4",
     "babel-eslint": "^10.1.0",
+    "babel-plugin-import": "^1.13.0",
     "babel-plugin-lodash": "^3.3.4",
     "eslint": "^6.8.0",
     "eslint-config-airbnb": "^18.1.0",
@@ -69,7 +70,7 @@
   "scripts": {
     "lint": "eslint --ignore-pattern \"!**/.*\" .",
     "fix": "yarn run lint --fix",
-    "build": "rm -rf ./dist && mkdir ./dist && cp ./package.json ./README.md ./dist/ && babel ./src --out-dir ./dist --source-maps inline",
+    "build": "rm -rf ./dist && mkdir ./dist && cp ./src/style.less ./package.json ./README.md ./dist/ && babel ./src --out-dir ./dist --source-maps inline",
     "pub": "npm run build && npm publish ./dist --registry=https://registry.npmjs.org/"
   }
 }

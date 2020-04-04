@@ -13,6 +13,7 @@ module.exports = {
     '@babel/react',
   ],
   plugins: [
+    ['import', { libraryName: 'antd', style: false }],
     ['lodash', { id: ['lodash'] }],
     ['@babel/plugin-proposal-decorators', { legacy: true }],
     '@babel/plugin-proposal-function-sent',

@@ -1,10 +1,11 @@
 import { flow, map, last, prop, join } from 'lodash/fp';
-import getConfig from 'relient/config';
 
 let features = [];
+let baseUrl = '';
 
-export const setFeatures = (newFeatures) => {
+export const setFeatures = (newFeatures, newBaseUrl = baseUrl) => {
   features = newFeatures;
+  baseUrl = newBaseUrl;
 };
 
 export const getSelectedFeatures = (key, items = features, previous = []) => {
@@ -27,7 +28,7 @@ export const getSelectedFeatures = (key, items = features, previous = []) => {
 export const getFeatureBy = (attribute) => (key) => {
   const selectedFeatures = getSelectedFeatures(key);
   if (attribute === 'link') {
-    return `${getConfig('path') || ''}/${flow(map(prop('link')), join('/'))(selectedFeatures)}`;
+    return `${baseUrl}/${flow(map(prop('link')), join('/'))(selectedFeatures)}`;
   }
   return flow(last, prop(attribute))(selectedFeatures);
 };
