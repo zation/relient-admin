@@ -52,6 +52,8 @@ import { useBasicTable } from './utils';
 //     fields: array,
 //     layout: object,
 //     component: ReactComponent,
+//     checkEditing: bool,
+//     checkingMessage: string,
 //   },
 //   editor: {
 //     title: string,
@@ -61,6 +63,8 @@ import { useBasicTable } from './utils';
 //     layout: object,
 //     getFields: func,
 //     component: ReactComponent,
+//     checkEditing: bool,
+//     checkingMessage: string,
 //   },
 // })
 
@@ -70,9 +74,17 @@ export default ({
   filters = [],
   createLink,
   datePickers,
-  creator: { onSubmit: createSubmit } = {},
+  creator: {
+    onSubmit: createSubmit,
+    checkEditing: creatorCheckEditing,
+    checkingMessage: creatorCheckingMessage,
+  } = {},
   creator,
-  editor: { onSubmit: editSubmit } = {},
+  editor: {
+    onSubmit: editSubmit,
+    checkEditing: editorCheckEditing,
+    checkingMessage: editorCheckingMessage,
+  } = {},
   editor,
 } = {}) => {
   const {
@@ -92,7 +104,14 @@ export default ({
     openEditor,
     closeEditor,
     reset,
-  } = useBasicTable({ fields, filters });
+  } = useBasicTable({
+    fields,
+    filters,
+    creatorCheckingMessage,
+    creatorCheckEditing,
+    editorCheckingMessage,
+    editorCheckEditing,
+  });
 
   const onQueryFieldChange = useCallback((fieldKey) => {
     if (isFunction(onFieldChange)) {

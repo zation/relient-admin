@@ -118,6 +118,8 @@ const onQueryFetch = debounce(500, onFetch);
 //     fields: array,
 //     layout: object,
 //     component: ReactComponent,
+//     checkEditing: bool,
+//     checkingMessage: string,
 //   },
 //   editor: {
 //     formName: string,
@@ -129,6 +131,8 @@ const onQueryFetch = debounce(500, onFetch);
 //     shouldReload: bool,
 //     getFields: func,
 //     component: ReactComponent,
+//     checkEditing: bool,
+//     checkingMessage: string,
 //   },
 // }
 
@@ -141,9 +145,18 @@ export default ({
   pagination: { getDataSource, size },
   paginationInitialData,
   readAction,
-  creator: { onSubmit: createSubmit } = {},
+  creator: {
+    onSubmit: createSubmit,
+    checkEditing: creatorCheckEditing,
+    checkingMessage: creatorCheckingMessage,
+  } = {},
   creator,
-  editor: { onSubmit: editSubmit, shouldReload } = {},
+  editor: {
+    onSubmit: editSubmit,
+    shouldReload,
+    checkEditing: editorCheckEditing,
+    checkingMessage: editorCheckingMessage,
+  } = {},
   editor,
 } = {}) => {
   const defaultQueryField = flow(first, prop('key'))(fields);
@@ -175,7 +188,14 @@ export default ({
     openEditor,
     closeEditor,
     reset,
-  } = useBasicTable({ fields, filters });
+  } = useBasicTable({
+    fields,
+    filters,
+    creatorCheckingMessage,
+    creatorCheckEditing,
+    editorCheckingMessage,
+    editorCheckEditing,
+  });
 
   const onQueryFieldChange = useCallback(async (fieldKey) => {
     setQueryField(fieldKey);

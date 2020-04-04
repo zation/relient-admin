@@ -13,6 +13,10 @@ export const a = 1;
 export const useBasicTable = ({
   fields,
   filters,
+  creatorCheckingMessage,
+  creatorCheckEditing,
+  editorCheckingMessage,
+  editorCheckEditing,
 }) => {
   const defaultQueryField = flow(first, prop('key'))(fields);
   const defaultFilterValues = flow(
@@ -31,15 +35,30 @@ export const useBasicTable = ({
   const [editItem, setEditItem] = useState(null);
 
   const openCreator = useCallback(() => setCreatorVisible(true), []);
-  const closeCreator = useCallback(() => setCreatorVisible(false), []);
+  const closeCreator = useCallback(() => {
+    if (global.isFormEditing && creatorCheckEditing) {
+      if (global.confirm(creatorCheckingMessage || '确认离开正在编辑的表单吗？')) {
+        setCreatorVisible(false);
+      }
+    } else {
+      setCreatorVisible(false);
+    }
+  }, [creatorCheckEditing, creatorCheckingMessage]);
   const openEditor = useCallback((item) => {
     setEditorVisible(true);
     setEditItem(item);
   }, []);
   const closeEditor = useCallback(() => {
-    setEditorVisible(false);
-    setEditItem(null);
-  }, []);
+    if (global.isFormEditing && editorCheckEditing) {
+      if (global.confirm(editorCheckingMessage || '确认离开正在编辑的表单吗？')) {
+        setEditorVisible(false);
+        setEditItem(null);
+      }
+    } else {
+      setEditorVisible(false);
+      setEditItem(null);
+    }
+  }, [editorCheckEditing, editorCheckingMessage]);
   const reset = useCallback(async () => {
     setDates([]);
     setQueryField(defaultQueryField);
