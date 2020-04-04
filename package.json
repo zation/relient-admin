@@ -1,0 +1,75 @@
+{
+  "name": "relient-admin",
+  "version": "0.0.1",
+  "author": "Liu Yang <zation1@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "react",
+    "redux",
+    "i18n"
+  ],
+  "engines": {
+    "node": ">=10.0",
+    "npm": ">=5.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/zation/relient-admin.git"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^4.0.5",
+    "antd": ">=4.1.0",
+    "bignumber.js": ">=9.0.0",
+    "isomorphic-style-loader": "^5.1.0",
+    "js-cookie": "^2.2.1",
+    "lodash": ">=4.17.15",
+    "moment": ">=2.24.0",
+    "prop-types": ">=15.7.2",
+    "react": ">=16.13.1",
+    "react-dom": ">=16.13.1",
+    "react-final-form": "^6.4.0",
+    "react-redux": "^7.2.0",
+    "redux": ">=4.0.5",
+    "redux-actions": ">=2.6.5",
+    "relient": "^4.1.8",
+    "universal-router": "^9.0.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.0",
+    "@babel/plugin-proposal-decorators": "^7.8.3",
+    "@babel/plugin-proposal-export-default-from": "^7.8.3",
+    "@babel/plugin-proposal-export-namespace-from": "^7.8.3",
+    "@babel/plugin-proposal-function-sent": "^7.8.3",
+    "@babel/plugin-proposal-numeric-separator": "^7.8.3",
+    "@babel/plugin-proposal-object-rest-spread": "^7.9.0",
+    "@babel/plugin-proposal-throw-expressions": "^7.8.3",
+    "@babel/preset-env": "^7.9.0",
+    "@babel/preset-react": "^7.9.4",
+    "babel-eslint": "^10.1.0",
+    "babel-plugin-lodash": "^3.3.4",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb": "^18.1.0",
+    "eslint-plugin-css-modules": "^2.11.0",
+    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.5.1",
+    "eslint-plugin-react-hooks": "^2.5.1",
+    "husky": "^4.2.3",
+    "lint-staged": "^10.0.8"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": "eslint --fix"
+  },
+  "scripts": {
+    "lint": "eslint --ignore-pattern \"!**/.*\" .",
+    "fix": "yarn run lint --fix",
+    "build": "rm -rf ./dist && mkdir ./dist && cp ./package.json ./README.md ./dist/ && babel ./src --out-dir ./dist --source-maps inline",
+    "pub": "npm run build && npm publish ./dist --registry=https://registry.npmjs.org/"
+  }
+}

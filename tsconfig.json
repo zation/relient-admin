@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "strictNullChecks": true,
+    "declaration": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "inlineSourceMap": true
+  }
+}
