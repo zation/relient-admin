@@ -76,13 +76,11 @@ export default ({
   datePickers,
   creator: {
     onSubmit: createSubmit,
-    checkEditing: creatorCheckEditing,
     checkingMessage: creatorCheckingMessage,
   } = {},
   creator,
   editor: {
     onSubmit: editSubmit,
-    checkEditing: editorCheckEditing,
     checkingMessage: editorCheckingMessage,
   } = {},
   editor,
@@ -108,9 +106,7 @@ export default ({
     fields,
     filters,
     creatorCheckingMessage,
-    creatorCheckEditing,
     editorCheckingMessage,
-    editorCheckEditing,
   });
 
   const onQueryFieldChange = useCallback((fieldKey) => {

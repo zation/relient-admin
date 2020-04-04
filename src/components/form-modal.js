@@ -16,6 +16,7 @@ const result = ({
   initialValues,
   title,
   layout = defaultLayout,
+  checkEditing,
 }) => (
   <Modal
     destroyOnClose
@@ -25,6 +26,7 @@ const result = ({
     onCancel={onCancel}
   >
     <Form
+      checkEditing={checkEditing}
       onSubmit={onSubmit}
       initialValues={initialValues}
       fields={fields}
@@ -41,6 +43,7 @@ result.propTypes = {
   initialValues: object,
   title: string.isRequired,
   layout: object,
+  checkEditing: bool,
 };
 
 result.displayName = __filename;

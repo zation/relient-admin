@@ -17,6 +17,7 @@ const result = ({
   title,
   layout = defaultLayout,
   width = 500,
+  checkEditing,
 }) => (
   <Drawer
     destroyOnClose
@@ -27,6 +28,7 @@ const result = ({
     width={width}
   >
     <Form
+      checkEditing={checkEditing}
       onSubmit={onSubmit}
       initialValues={initialValues}
       fields={fields}
@@ -44,6 +46,7 @@ result.propTypes = {
   title: string.isRequired,
   layout: object,
   width: number,
+  checkEditing: bool,
 };
 
 result.displayName = __filename;

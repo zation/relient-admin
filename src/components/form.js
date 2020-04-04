@@ -27,16 +27,17 @@ const result = ({
   onSubmit,
   fields,
   layout = defaultLayout,
+  checkEditing,
 }) => (
   <FinalForm onSubmit={onSubmit} initialValues={initialValues}>
     {({ handleSubmit, submitting, form }) => {
       const { dirty, submitSucceeded } = form.getState();
       useEffect(() => {
-        global.isFormEditing = dirty && !submitSucceeded;
+        global.isFormEditing = checkEditing && dirty && !submitSucceeded;
         return () => {
           global.isFormEditing = false;
         };
-      }, [dirty, submitSucceeded]);
+      }, [dirty, submitSucceeded, checkEditing]);
       return (
         <Form onSubmit={handleSubmit}>
           {map((field) => {
@@ -91,6 +92,7 @@ result.propTypes = {
     func,
   ])),
   layout: object,
+  checkEditing: bool,
 };
 
 result.displayName = __filename;

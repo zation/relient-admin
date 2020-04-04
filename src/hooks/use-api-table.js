@@ -147,14 +147,12 @@ export default ({
   readAction,
   creator: {
     onSubmit: createSubmit,
-    checkEditing: creatorCheckEditing,
     checkingMessage: creatorCheckingMessage,
   } = {},
   creator,
   editor: {
     onSubmit: editSubmit,
     shouldReload,
-    checkEditing: editorCheckEditing,
     checkingMessage: editorCheckingMessage,
   } = {},
   editor,
@@ -192,9 +190,7 @@ export default ({
     fields,
     filters,
     creatorCheckingMessage,
-    creatorCheckEditing,
     editorCheckingMessage,
-    editorCheckEditing,
   });
 
   const onQueryFieldChange = useCallback(async (fieldKey) => {

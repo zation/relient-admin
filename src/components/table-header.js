@@ -34,6 +34,7 @@ const result = ({
       initialValues: creator.initialValues,
       fields: creator.fields,
       layout: creator.layout,
+      checkEditing: creator.checkEditing,
     })}
 
     {editor && (editor.component || FormModal)({
@@ -44,6 +45,7 @@ const result = ({
       initialValues: editor.initialValues,
       fields: editor.fields,
       layout: editor.layout,
+      checkEditing: editor.checkEditing,
     })}
 
     <div className="relient-admin-table-header-operations">
