@@ -1,6 +1,6 @@
 {
   "name": "relient-admin",
-  "version": "0.0.4",
+  "version": "0.0.8",
   "author": "Liu Yang <zation1@gmail.com>",
   "license": "MIT",
   "keywords": [
@@ -31,7 +31,7 @@
     "react-redux": "^7.2.0",
     "redux": ">=4.0.5",
     "redux-actions": ">=2.6.5",
-    "relient": ">=4.2.8",
+    "relient": ">=4.2.12",
     "universal-router": ">=9.0.1"
   },
   "devDependencies": {
@@ -68,9 +68,9 @@
     "*.{js,jsx,ts,tsx}": "eslint --fix"
   },
   "scripts": {
-    "lint": "eslint --ignore-pattern \"!**/.*\" .",
-    "fix": "yarn run lint --fix",
+    "lint": "eslint --ignore-path .gitignore --ignore-pattern \"!**/.*\" .",
+    "fix": "npm run lint --fix",
     "build": "rm -rf ./dist && mkdir ./dist && cp ./src/style.less ./package.json ./README.md ./dist/ && babel ./src --out-dir ./dist --source-maps inline",
-    "pub": "npm run build && npm publish ./dist --registry=https://registry.npmjs.org/"
+    "pub": "npm run lint && npm run build && npm publish ./dist --registry=https://registry.npmjs.org/"
   }
 }

@@ -3,7 +3,6 @@ import { object, string, bool, func } from 'prop-types';
 import { Form, Upload, Message } from 'antd';
 import cookie from 'js-cookie';
 import { map, prop } from 'lodash/fp';
-import getStaticFileUrl from 'relient/static-file-url';
 import { PlusOutlined } from '@ant-design/icons';
 import AUTHORIZATION from '../../constants/authorization';
 import { getFieldInfo } from '../../utils';
@@ -44,7 +43,7 @@ const result = ({
         style={{
           height: 120,
           width: 120,
-          backgroundImage: cdnDomain ? `url(${cdnDomain}${value})` : (value || `url(${getStaticFileUrl(value)})`),
+          backgroundImage: `url(${cdnDomain}${value})`,
           backgroundSize: 'contain',
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',

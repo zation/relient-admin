@@ -1,6 +1,7 @@
 import UniversalRouter from 'universal-router';
 import { isFunction, isArray } from 'lodash/fp';
 import { getEntity } from 'relient/selectors';
+import { getWithBaseUrl } from 'relient/url';
 import { setFeature } from './actions/feature';
 
 export default ({ routes, auth, baseUrl = '', ...options }) => new UniversalRouter(routes, {
@@ -16,6 +17,7 @@ export default ({ routes, auth, baseUrl = '', ...options }) => new UniversalRout
         feature,
         requireAuth,
         component,
+        redirect,
       },
       store: { dispatch, getState },
       params,
@@ -36,9 +38,12 @@ export default ({ routes, auth, baseUrl = '', ...options }) => new UniversalRout
         return authResult;
       }
     } else if (requireAuth && !getEntity('auth.isLogin')(state)) {
-      return { redirect: '/auth/login' };
+      return { redirect: getWithBaseUrl('/auth/login', baseUrl) };
     }
 
+    if (redirect || redirect === '') {
+      return { ...route, redirect: getWithBaseUrl(redirect, baseUrl) };
+    }
     if (component) {
       return route;
     }
@@ -56,6 +61,9 @@ export default ({ routes, auth, baseUrl = '', ...options }) => new UniversalRout
       const result = await action(context);
       if (result.feature) {
         dispatch(setFeature(result.feature));
+      }
+      if (result.redirect || result.redirect === '') {
+        result.redirect = getWithBaseUrl(redirect, baseUrl);
       }
       return { ...context.route, ...result };
     }

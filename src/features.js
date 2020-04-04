@@ -1,4 +1,5 @@
 import { flow, map, last, prop, join } from 'lodash/fp';
+import { getWithBaseUrl } from 'relient/url';
 
 let features = [];
 let baseUrl = '';
@@ -28,7 +29,7 @@ export const getSelectedFeatures = (key, items = features, previous = []) => {
 export const getFeatureBy = (attribute) => (key) => {
   const selectedFeatures = getSelectedFeatures(key);
   if (attribute === 'link') {
-    return `${baseUrl}/${flow(map(prop('link')), join('/'))(selectedFeatures)}`.replace(/([^:]\/)\/+/g, '$1');
+    return getWithBaseUrl(flow(map(prop('link')), join('/'))(selectedFeatures), baseUrl);
   }
   return flow(last, prop(attribute))(selectedFeatures);
 };

@@ -3,7 +3,6 @@ import { Form, Upload, Message } from 'antd';
 import cookie from 'js-cookie';
 import { map, prop, concat, reject, eq } from 'lodash/fp';
 import { object, string, bool, func } from 'prop-types';
-import getStaticFileUrl from 'relient/static-file-url';
 import { PlusOutlined } from '@ant-design/icons';
 import { DomainContext } from '../../contexts';
 import { getFieldInfo } from '../../utils';
@@ -47,7 +46,7 @@ const result = ({
           listType="picture-card"
           defaultFileList={map((url) => ({
             uid: url,
-            url: cdnDomain ? `${cdnDomain}${url}` : (value || `${getStaticFileUrl(url)}`),
+            url: `${cdnDomain}${url}`,
             status: 'done',
           }))(value)}
           onChange={({ file: { response, status } }) => {
