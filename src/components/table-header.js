@@ -49,7 +49,7 @@ const result = ({
     })}
 
     <div className="relient-admin-table-header-operations">
-      {query && (
+      {query && (query.fussy || query.fields) && (
         <div>
           {!query.fussy && (
             <Select
