@@ -63,7 +63,7 @@ export default ({ routes, auth, baseUrl = '', ...options }) => new UniversalRout
         dispatch(setFeature(result.feature));
       }
       if (result.redirect || result.redirect === '') {
-        result.redirect = getWithBaseUrl(redirect, baseUrl);
+        result.redirect = getWithBaseUrl(result.redirect, baseUrl);
       }
       return { ...context.route, ...result };
     }
