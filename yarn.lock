@@ -4094,8 +4094,10 @@ regjsparser@^0.6.4:
   dependencies:
     jsesc "~0.5.0"
 
-relient@/Users/liuyang/project/relient/dist:
-  version "4.2.11"
+relient@>=4.2.13:
+  version "4.2.13"
+  resolved "https://registry.npm.taobao.org/relient/download/relient-4.2.13.tgz#9017a59d516c8a8143d6b4867025dd0a49916861"
+  integrity sha1-kBelnVFsioFD1rSGcCXdCkmRaGE=
   dependencies:
     config ">=3.3.0"
     date-fns ">=2.11.0"
