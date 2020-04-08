@@ -5,7 +5,7 @@ import cookie from 'js-cookie';
 import { map, prop } from 'lodash/fp';
 import { PlusOutlined } from '@ant-design/icons';
 import AUTHORIZATION from '../../constants/authorization';
-import { getFieldInfo } from '../../utils';
+import useFieldInfo from '../../hooks/use-field-info';
 import { DomainContext } from '../../contexts';
 
 const { Item } = Form;
@@ -16,7 +16,7 @@ const result = ({
   meta: { touched, error },
   layout: { wrapperCol, labelCol } = {},
   label,
-  placeholder = '点击上传',
+  placeholder,
   style,
   required,
   disabled,
@@ -26,7 +26,7 @@ const result = ({
   action,
 }) => {
   const { cdnDomain } = useContext(DomainContext);
-  const { validateStatus, help } = getFieldInfo({ touched, error, tips });
+  const { validateStatus, help } = useFieldInfo({ touched, error, tips });
 
   return (
     <Item
@@ -57,16 +57,13 @@ const result = ({
             action={action || `${global.location.origin}/api`}
             onChange={({ file: { response, status } }) => {
               if (status === 'done') {
-                Message.info('上传成功！');
                 if (onUploaded) {
                   onUploaded(response.url);
                 }
                 onChange(response.url);
               } else if (status === 'error') {
                 const { errors } = response;
-                Message.error(
-                  errors ? map(prop('message'))(errors) : '上传失败',
-                );
+                Message.error(map(prop('message'))(errors));
               }
             }}
             showUploadList={false}
@@ -79,7 +76,7 @@ const result = ({
             && (
               <div>
                 <PlusOutlined />
-                <p style={{ color: '#999' }}>{placeholder}</p>
+                <div>{placeholder}</div>
               </div>
             )}
           </Dragger>

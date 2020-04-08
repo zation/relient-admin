@@ -4,7 +4,8 @@ import { string, node, func, bool } from 'prop-types';
 import { propEq, omit } from 'lodash/fp';
 import { useDispatch } from 'react-redux';
 import { push, goBack } from 'relient/actions/history';
-import { getFeatureBy } from '../utils';
+import { getFeatureBy } from '../features';
+import useI18N from '../hooks/use-i18n';
 
 const isLeftClickEvent = propEq('button')(0);
 
@@ -44,6 +45,8 @@ const result = ({ to, back = false, children, feature, showIcon, onClick, target
     event.preventDefault();
     dispatch(push(to || feature));
   }, [to, feature, back, target, onClick]);
+  const i18n = useI18N();
+
   const icon = getFeatureBy('icon')(feature);
   return (
     <a
@@ -56,7 +59,7 @@ const result = ({ to, back = false, children, feature, showIcon, onClick, target
     >
       {children}
       {!children && icon && showIcon && createElement(icon)}
-      {!children && <span>{getFeatureBy('text')(feature)}</span>}
+      {!children && <span>{i18n(getFeatureBy('text')(feature))}</span>}
     </a>
   );
 };

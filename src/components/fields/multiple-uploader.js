@@ -5,7 +5,7 @@ import { map, prop, concat, reject, eq } from 'lodash/fp';
 import { object, string, bool, func } from 'prop-types';
 import { PlusOutlined } from '@ant-design/icons';
 import { DomainContext } from '../../contexts';
-import { getFieldInfo } from '../../utils';
+import useFieldInfo from '../../hooks/use-field-info';
 import AUTHORIZATION from '../../constants/authorization';
 
 const { Item } = Form;
@@ -15,7 +15,7 @@ const result = ({
   meta: { touched, error },
   layout: { wrapperCol, labelCol } = {},
   label,
-  placeholder = '点击上传',
+  placeholder,
   style,
   required,
   onUploaded,
@@ -25,7 +25,7 @@ const result = ({
   action,
 }) => {
   const { cdnDomain } = useContext(DomainContext);
-  const { validateStatus, help } = getFieldInfo({ touched, error, tips });
+  const { validateStatus, help } = useFieldInfo({ touched, error, tips });
 
   return (
     <Item
@@ -51,16 +51,13 @@ const result = ({
           }))(value)}
           onChange={({ file: { response, status } }) => {
             if (status === 'done') {
-              Message.info('上传成功！');
               if (onUploaded) {
                 onUploaded(response.url);
               }
               onChange(value ? concat(value)(response.url) : [response.url]);
             } else if (status === 'error') {
               const { errors } = response;
-              Message.error(
-                errors ? map(prop('message'))(errors) : '上传失败',
-              );
+              Message.error(map(prop('message'))(errors));
             }
           }}
           onRemove={({ uid, response }) => onChange(reject(eq(uid || response.url))(value))}

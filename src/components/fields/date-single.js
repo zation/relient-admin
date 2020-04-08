@@ -2,7 +2,7 @@ import React from 'react';
 import { string, object, bool, func } from 'prop-types';
 import { Form, DatePicker } from 'antd';
 import moment from 'moment';
-import { getFieldInfo } from '../../utils';
+import useFieldInfo from '../../hooks/use-field-info';
 
 const { Item } = Form;
 
@@ -18,7 +18,7 @@ const result = ({
   tips,
   format = 'YYYY-MM-DD',
 }) => {
-  const { validateStatus, help } = getFieldInfo({ touched, error, tips });
+  const { validateStatus, help } = useFieldInfo({ touched, error, tips });
 
   return (
     <Item

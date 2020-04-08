@@ -1,35 +1,29 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useEffect } from 'react';
+import React, { useEffect, createElement } from 'react';
+import { Alert, Button, Drawer, Form, Modal } from 'antd';
+import { func, bool, array, object, number, oneOf } from 'prop-types';
+import { isFunction, map } from 'lodash/fp';
 import { Field, Form as FinalForm } from 'react-final-form';
-import { Form, Button, Alert } from 'antd';
-import {
-  func,
-  object,
-  arrayOf,
-  shape,
-  string,
-  oneOfType,
-  bool,
-  any,
-  array,
-} from 'prop-types';
-import { map, isFunction } from 'lodash/fp';
-import useI18N from '../hooks/use-i18n';
 import Input from './fields/input';
+import useI18N from '../hooks/use-i18n';
 import useSubmit from '../hooks/use-submit';
 
-const { Item } = Form;
 const defaultLayout = {
   labelCol: { span: 8 },
-  wrapperCol: { span: 8 },
+  wrapperCol: { span: 14 },
 };
 
 const result = ({
-  initialValues,
   onSubmit,
+  visible,
+  onCancel,
   fields,
+  initialValues,
+  type,
   layout = defaultLayout,
+  width = 528,
   checkEditing,
+  ...props
 }) => {
   const submit = useSubmit(onSubmit);
   const i18n = useI18N();
@@ -37,14 +31,44 @@ const result = ({
   return (
     <FinalForm onSubmit={submit} initialValues={initialValues}>
       {({ handleSubmit, submitting, form, submitError }) => {
-        const { dirty, submitSucceeded } = form.getState();
+        const { dirty, submitSucceeded, pristine, hasValidationErrors } = form.getState();
         useEffect(() => {
           global.isFormEditing = checkEditing && dirty && !submitSucceeded;
           return () => {
             global.isFormEditing = false;
           };
         }, [dirty, submitSucceeded, checkEditing]);
-        return (
+
+        return createElement(type, {
+          destroyOnClose: true,
+          visible,
+          footer: (
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Button
+                htmlType="button"
+                onClick={onCancel}
+                type="primary"
+                ghost
+              >
+                {i18n('cancel')}
+              </Button>
+              <Button
+                htmlType="submit"
+                onClick={handleSubmit}
+                style={{ marginLeft: 20 }}
+                type="primary"
+                loading={submitting}
+                disabled={pristine || hasValidationErrors}
+              >
+                {i18n('submit')}
+              </Button>
+            </div>
+          ),
+          onClose: onCancel,
+          onCancel,
+          width,
+          ...props,
+        }, (
           <Form onSubmit={handleSubmit}>
             {submitError && (
               <Alert
@@ -67,29 +91,13 @@ const result = ({
                   name={name}
                   htmlType={htmlType}
                   component={Input}
-                  size="large"
                   layout={layout}
                   {...rest}
                 />
               );
             })(fields)}
-            <Item wrapperCol={{ span: 10, offset: 8 }}>
-              <Button
-                size="large"
-                htmlType="submit"
-                onClick={handleSubmit}
-                style={{ marginRight: 10 }}
-                type="primary"
-                loading={submitting}
-              >
-                {i18n('submit')}
-              </Button>
-              <Button size="large" htmlType="button" onClick={form.reset}>
-                {i18n('reset')}
-              </Button>
-            </Item>
           </Form>
-        );
+        ));
       }}
     </FinalForm>
   );
@@ -97,22 +105,14 @@ const result = ({
 
 result.propTypes = {
   onSubmit: func.isRequired,
+  visible: bool.isRequired,
+  onCancel: func.isRequired,
+  fields: array.isRequired,
   initialValues: object,
-  fields: arrayOf(oneOfType([
-    shape({
-      name: string.isRequired,
-      label: string.isRequired,
-      htmlType: string,
-      options: array,
-      placeholder: string,
-      validate: oneOfType([func, array]),
-      required: bool,
-      component: any,
-    }),
-    func,
-  ])),
   layout: object,
+  width: number,
   checkEditing: bool,
+  type: oneOf([Drawer, Modal]),
 };
 
 result.displayName = __filename;

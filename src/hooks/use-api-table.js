@@ -20,7 +20,7 @@ import {
 } from 'lodash/fp';
 import { Message } from 'antd';
 import TableHeader from '../components/table-header';
-import { useBasicTable } from './utils';
+import useBasicTable from './use-basic-table';
 
 const omitEmpty = omitBy((val) => (isNil(val) || val === ''));
 
@@ -117,7 +117,7 @@ const onQueryFetch = debounce(500, onFetch);
 //     onSubmit: func,
 //     fields: array,
 //     layout: object,
-//     component: ReactComponent,
+//     type: ReactComponent,
 //     checkEditing: bool,
 //     checkingMessage: string,
 //   },
@@ -130,7 +130,7 @@ const onQueryFetch = debounce(500, onFetch);
 //     layout: object,
 //     shouldReload: bool,
 //     getFields: func,
-//     component: ReactComponent,
+//     type: ReactComponent,
 //     checkEditing: bool,
 //     checkingMessage: string,
 //   },

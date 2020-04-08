@@ -1,9 +1,10 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { string, func, shape, arrayOf, array, number, oneOfType, object, bool, elementType, any } from 'prop-types';
 import { Input, Button, Select, DatePicker } from 'antd';
 import { map, flow, join, prop } from 'lodash/fp';
 import Link from './link';
-import FormModal from './form-modal';
+import FormPop from './form-pop';
 
 const { Search } = Input;
 const { Option } = Select;
@@ -26,27 +27,23 @@ const result = ({
   onEditSubmit,
 }) => (
   <div className="relient-admin-table-header">
-    {creator && (creator.component || FormModal)({
-      title: creator.title || '创建',
-      visible: creatorVisible,
-      onCancel: closeCreator,
-      onSubmit: onCreateSubmit,
-      initialValues: creator.initialValues,
-      fields: creator.fields,
-      layout: creator.layout,
-      checkEditing: creator.checkEditing,
-    })}
+    {creator && (
+      <FormPop
+        {...creator}
+        visible={creatorVisible}
+        onCancel={closeCreator}
+        onSubmit={onCreateSubmit}
+      />
+    )}
 
-    {editor && (editor.component || FormModal)({
-      title: editor.title || '编辑',
-      visible: editorVisible,
-      onCancel: closeEditor,
-      onSubmit: onEditSubmit,
-      initialValues: editor.initialValues,
-      fields: editor.fields,
-      layout: editor.layout,
-      checkEditing: editor.checkEditing,
-    })}
+    {editor && (
+      <FormPop
+        {...editor}
+        visible={editorVisible}
+        onCancel={closeEditor}
+        onSubmit={onEditSubmit}
+      />
+    )}
 
     <div className="relient-admin-table-header-operations">
       {query && (query.fussy || query.fields) && (

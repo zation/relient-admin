@@ -17,7 +17,7 @@ import {
 } from 'lodash/fp';
 import { Message } from 'antd';
 import TableHeader from '../components/table-header';
-import { useBasicTable } from './utils';
+import useBasicTable from './use-basic-table';
 
 // {
 //   query: {

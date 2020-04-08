@@ -1,7 +1,7 @@
 import { object, bool, string, node } from 'prop-types';
 import React from 'react';
 import { Form, Checkbox } from 'antd';
-import { getFieldInfo } from '../../utils';
+import useFieldInfo from '../../hooks/use-field-info';
 
 const { Item } = Form;
 
@@ -14,7 +14,7 @@ const result = ({
   disabled,
   tips,
 }) => {
-  const { validateStatus, help } = getFieldInfo({ touched, error, tips });
+  const { validateStatus, help } = useFieldInfo({ touched, error, tips });
 
   return (
     <Item

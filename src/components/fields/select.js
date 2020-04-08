@@ -3,7 +3,7 @@ import React from 'react';
 import { object, string, bool, array, func, node } from 'prop-types';
 import { Form, Select } from 'antd';
 import { map } from 'lodash/fp';
-import { getFieldInfo } from '../../utils';
+import useFieldInfo from '../../hooks/use-field-info';
 
 const { Item } = Form;
 const { Option, OptGroup } = Select;
@@ -36,7 +36,7 @@ const result = ({
   size,
   extra,
 }) => {
-  const { validateStatus, help } = getFieldInfo({ touched, error, tips });
+  const { validateStatus, help } = useFieldInfo({ touched, error, tips });
 
   return (
     <Item

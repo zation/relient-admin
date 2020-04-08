@@ -2,7 +2,7 @@ import React from 'react';
 import { object, string, arrayOf, shape, bool } from 'prop-types';
 import { Form, Checkbox } from 'antd';
 import { map } from 'lodash/fp';
-import { getFieldInfo } from '../../utils';
+import useFieldInfo from '../../hooks/use-field-info';
 
 const { Item } = Form;
 const { Group } = Checkbox;
@@ -16,7 +16,7 @@ const result = ({
   required,
   disabled,
 }) => {
-  const { validateStatus, help } = getFieldInfo({ touched, error, tips });
+  const { validateStatus, help } = useFieldInfo({ touched, error, tips });
 
   return (
     <Item

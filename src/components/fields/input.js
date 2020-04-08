@@ -3,7 +3,7 @@
 import React from 'react';
 import { object, string, bool, node } from 'prop-types';
 import { Form, Input } from 'antd';
-import { getFieldInfo } from '../../utils';
+import useFieldInfo from '../../hooks/use-field-info';
 
 const { Item } = Form;
 
@@ -24,7 +24,7 @@ const result = ({
   addonAfter,
   addonBefore,
 }) => {
-  const { validateStatus, help } = getFieldInfo({ touched, error, tips });
+  const { validateStatus, help } = useFieldInfo({ touched, error, tips });
 
   return (
     <Item

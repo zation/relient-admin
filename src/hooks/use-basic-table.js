@@ -8,9 +8,7 @@ import {
   reject,
 } from 'lodash/fp';
 
-export const a = 1;
-
-export const useBasicTable = ({
+export default ({
   fields,
   filters,
   creatorCheckingMessage,
