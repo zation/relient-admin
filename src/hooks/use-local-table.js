@@ -35,14 +35,14 @@ import useBasicTable from './use-basic-table';
 //     options: [{ text: string, value: string }],
 //     defaultValue: value,
 //     dropdownMatchSelectWidth: bool,
-//     onFilterChange: func,
+//     onChange: func,
 //     disabled: bool,
 //   }],
 //   createLink: { text: string, link: string },
 //   datePickers: [{
 //     dataKey: string,
 //     label: string,
-//     onDateChange: func,
+//     onChange: func,
 //     disabledDate: func,
 //   }],
 //   creator: {
@@ -86,8 +86,8 @@ export default ({
   editor,
 } = {}) => {
   const {
-    dates,
-    setDates,
+    dateValues,
+    setDateValues,
     queryField,
     setQueryField,
     queryValue,
@@ -131,7 +131,7 @@ export default ({
     onValueChange,
   ]);
   const onFilterValueChange = useCallback((value, dataKey) => {
-    const onChange = flow(find(propEq('dataKey', dataKey)), prop('onFilterChange'))(filters);
+    const onChange = flow(find(propEq('dataKey', dataKey)), prop('onChange'))(filters);
     if (isFunction(onChange)) {
       onChange(value);
     }
@@ -141,25 +141,26 @@ export default ({
         dataKey,
         value,
       }),
-    )(filters));
+    )(filterValues));
   }, [
     filters,
+    filterValues,
   ]);
   const onDateChange = useCallback((value, dataKey) => {
-    const onChange = flow(find(propEq('dataKey', dataKey)), prop('onDateChange'))(datePickers);
+    const onChange = flow(find(propEq('dataKey', dataKey)), prop('onChange'))(datePickers);
     if (isFunction(onChange)) {
       onChange(value);
     }
-    setDates(flow(
+    setDateValues(flow(
       reject(propEq('dataKey')(dataKey)),
       concat({
         dataKey,
         value,
       }),
-    )(dates));
+    )(dateValues));
   }, [
     datePickers,
-    dates,
+    dateValues,
   ]);
   const onCreateSubmit = useCallback(async (values) => {
     await createSubmit(values);
@@ -196,12 +197,12 @@ export default ({
       }
 
       let filterResult = true;
-      if (filters.length > 0) {
-        filterResult = every(({ dataKey, value }) => value === '' || isNil(value) || propEq(dataKey, value)(item))(filters);
+      if (filterValues.length > 0) {
+        filterResult = every(({ dataKey, value }) => value === '' || isNil(value) || propEq(dataKey, value)(item))(filterValues);
       }
 
       let datesResult = true;
-      if (dates.length > 0) {
+      if (dateValues.length > 0) {
         datesResult = every(({ dataKey, value }) => {
           if (value && value.length > 1) {
             const selectedDate = prop(dataKey)(item);
@@ -209,7 +210,7 @@ export default ({
             return startDate.isBefore(selectedDate) && endDate.isAfter(selectedDate);
           }
           return true;
-        })(dates);
+        })(dateValues);
       }
 
       return filterResult && queryResult && datesResult;
@@ -217,8 +218,8 @@ export default ({
   ), [
     queryValue,
     queryField,
-    filters,
-    dates,
+    filterValues,
+    dateValues,
   ]);
 
   return {
@@ -268,7 +269,7 @@ export default ({
       datePicker={{
         items: map(({ dataKey, ...others }) => ({
           dataKey,
-          value: flow(find(propEq('dataKey')(dataKey)), prop('value'))(dates),
+          value: flow(find(propEq('dataKey')(dataKey)), prop('value'))(dateValues),
           ...others,
         }))(datePickers),
         onSelect: onDateChange,

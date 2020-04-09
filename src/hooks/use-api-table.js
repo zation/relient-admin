@@ -4,11 +4,9 @@ import {
   concat,
   debounce,
   find,
-  first,
   flow,
   isFunction,
   isNil,
-  isUndefined,
   keyBy,
   map,
   mapValues,
@@ -157,21 +155,13 @@ export default ({
   } = {},
   editor,
 } = {}) => {
-  const defaultQueryField = flow(first, prop('key'))(fields);
-  const defaultFilterValues = flow(
-    reject(flow(prop('defaultValue'), isUndefined)),
-    map(({ defaultValue, dataKey }) => ({
-      dataKey,
-      value: defaultValue,
-    })),
-  )(filters);
   const [pageData, setPageData] = useState(paginationInitialData);
   const data = useSelector((state) => getDataSource(state)(pageData.ids));
   const [isLoading, setIsLoading] = useState(false);
 
   const {
-    dates,
-    setDates,
+    dateValues,
+    setDateValues,
     queryField,
     setQueryField,
     queryValue,
@@ -186,6 +176,8 @@ export default ({
     openEditor,
     closeEditor,
     reset,
+    defaultQueryField,
+    defaultFilterValues,
   } = useBasicTable({
     fields,
     filters,
@@ -209,7 +201,7 @@ export default ({
       setPageData,
       size,
       filterValues,
-      dates,
+      dateValues,
       0,
       setIsLoading,
       fussyKey,
@@ -218,7 +210,7 @@ export default ({
     readAction,
     size,
     filterValues,
-    dates,
+    dateValues,
     onFieldChange,
     onValueChange,
     fussyKey,
@@ -235,7 +227,7 @@ export default ({
       setPageData,
       size,
       filterValues,
-      dates,
+      dateValues,
       0,
       setIsLoading,
       fussyKey,
@@ -246,7 +238,7 @@ export default ({
     readAction,
     size,
     filterValues,
-    dates,
+    dateValues,
     fussyKey,
   ]);
   const onFilterValueChange = useCallback(async (value, dataKey) => {
@@ -260,7 +252,7 @@ export default ({
         dataKey,
         value,
       }),
-    )(filters);
+    )(filterValues);
     setFilterValues(newFilterValues);
     await onFetch(
       queryValue,
@@ -269,7 +261,7 @@ export default ({
       setPageData,
       size,
       newFilterValues,
-      dates,
+      dateValues,
       0,
       setIsLoading,
       fussyKey,
@@ -280,8 +272,9 @@ export default ({
     queryField,
     readAction,
     size,
-    dates,
+    dateValues,
     fussyKey,
+    filterValues,
   ]);
   const onDateChange = useCallback(async (value, dataKey) => {
     const onChange = flow(find(propEq('dataKey', dataKey)), prop('onDateChange'))(datePickers);
@@ -294,8 +287,8 @@ export default ({
         dataKey,
         value,
       }),
-    )(dates);
-    setDates(newDates);
+    )(dateValues);
+    setDateValues(newDates);
     await onFetch(
       queryValue,
       queryField,
@@ -310,7 +303,7 @@ export default ({
     );
   }, [
     datePickers,
-    dates,
+    dateValues,
     queryValue,
     queryField,
     readAction,
@@ -347,7 +340,7 @@ export default ({
     setPageData,
     size,
     filterValues,
-    dates,
+    dateValues,
     page - 1,
     setIsLoading,
     fussyKey,
@@ -357,7 +350,7 @@ export default ({
     readAction,
     size,
     filterValues,
-    dates,
+    dateValues,
     fussyKey,
   ]);
   const onReload = useCallback(() => onFetch(
@@ -367,7 +360,7 @@ export default ({
     setPageData,
     size,
     filterValues,
-    dates,
+    dateValues,
     pageData.current,
     setIsLoading,
     fussyKey,
@@ -377,7 +370,7 @@ export default ({
     readAction,
     size,
     filterValues,
-    dates,
+    dateValues,
     pageData.current,
     fussyKey,
   ]);
@@ -390,7 +383,7 @@ export default ({
       setPageData,
       size,
       filterValues,
-      dates,
+      dateValues,
       0,
       setIsLoading,
       fussyKey,
@@ -404,7 +397,7 @@ export default ({
     readAction,
     size,
     filterValues,
-    dates,
+    dateValues,
     fussyKey,
   ]);
   const onEditSubmit = useCallback(async (values) => {
@@ -464,7 +457,7 @@ export default ({
       datePicker={{
         items: map(({ dataKey, ...others }) => ({
           dataKey,
-          value: flow(find(propEq('dataKey')(dataKey)), prop('value'))(dates),
+          value: flow(find(propEq('dataKey')(dataKey)), prop('value'))(dateValues),
           ...others,
         }))(datePickers),
         onSelect: onDateChange,

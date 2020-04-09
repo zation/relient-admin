@@ -22,7 +22,7 @@ export default ({
       value: defaultValue,
     })),
   )(filters);
-  const [dates, setDates] = useState([]);
+  const [dateValues, setDateValues] = useState([]);
   const [queryField, setQueryField] = useState(defaultQueryField);
   const [queryValue, setQueryValue] = useState('');
   const [filterValues, setFilterValues] = useState(defaultFilterValues);
@@ -56,7 +56,7 @@ export default ({
     }
   }, [editorCheckingMessage]);
   const reset = useCallback(async () => {
-    setDates([]);
+    setDateValues([]);
     setQueryField(defaultQueryField);
     setQueryValue('');
     setFilterValues(defaultFilterValues);
@@ -69,8 +69,10 @@ export default ({
   ]);
 
   return {
-    dates,
-    setDates,
+    defaultFilterValues,
+    defaultQueryField,
+    dateValues,
+    setDateValues,
     queryField,
     setQueryField,
     queryValue,
