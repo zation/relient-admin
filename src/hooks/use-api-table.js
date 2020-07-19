@@ -18,7 +18,7 @@ import {
   join,
 } from 'lodash/fp';
 import { Message } from 'antd';
-import { DEFAULT_PAGE } from 'relient-admin/constants/pagination';
+import { DEFAULT_PAGE } from '../constants/pagination';
 import TableHeader from '../components/table-header';
 import useBasicTable from './use-basic-table';
 import useI18N from './use-i18n';
@@ -46,7 +46,7 @@ const onFetch = async (
   queryField,
   readAction,
   setPageData,
-  originSize,
+  size,
   filterValues,
   dates,
   page,
@@ -57,11 +57,11 @@ const onFetch = async (
   const {
     content,
     number,
-    size,
+    size: newSize,
     totalElements,
   } = await readAction(omitEmpty({
     [fussyKey || queryField]: queryValue,
-    size: originSize,
+    size,
     page,
     ...getFilterParams(filterValues),
     ...getDateParams(dates),
@@ -69,7 +69,7 @@ const onFetch = async (
   setIsLoading(false);
   setPageData({
     current: number,
-    size,
+    size: newSize,
     total: totalElements,
     ids: map(prop('id'))(content),
   });
@@ -103,7 +103,8 @@ const onQueryFetch = debounce(500, onFetch);
 //     onDateChange: func,
 //     disabledDate: func,
 //   }],
-//   pagination: { size: number, getDataSource: func },
+//   getDataSource: func,
+//   pagination: { size: number, showTotal: func },
 //   paginationInitialData: {
 //     ids: array,
 //     current: number,
@@ -111,6 +112,21 @@ const onQueryFetch = debounce(500, onFetch);
 //     total: number
 //   },
 //   readAction: func,
+//   details: {
+//     title: string,
+//     editable: object,
+//     items: array,
+//     itemTitleStyle: object,
+//     itemDataStyle: object,
+//     editButtonText: string,
+//     children: node,
+//     level: string or array,
+//     levelMove: number or array or func,
+//     id: string,
+//     onClose: func,
+//     onOpen: func,
+//     getDataSource: func,
+//   },
 //   creator: {
 //     formName: string,
 //     title: string,
@@ -123,11 +139,14 @@ const onQueryFetch = debounce(500, onFetch);
 //     checkingMessage: string,
 //     footer: func,
 //     validate: func,
+//     onClose: func,
+//     onOpen: func,
 //   },
 //   editor: {
 //     formName: string,
 //     title: string,
 //     initialValues: object,
+//     getInitialValues: func,
 //     onSubmit: func,
 //     fields: array,
 //     layout: object,
@@ -138,6 +157,8 @@ const onQueryFetch = debounce(500, onFetch);
 //     checkingMessage: string,
 //     footer: func,
 //     validate: func,
+//     onClose: func,
+//     onOpen: func,
 //   },
 // }
 
@@ -147,12 +168,14 @@ export default ({
   filters,
   createButton,
   datePickers,
-  pagination: { getDataSource, size, ...pagination },
+  getDataSource,
+  pagination,
   paginationInitialData,
   paginationInitialData: {
     current: initialCurrent,
     total: initialTotal,
     ids: initialIds,
+    size: initialSize,
   },
   readAction,
   creator: {
@@ -168,17 +191,25 @@ export default ({
     checkingMessage: editorCheckingMessage,
     onClose: editorOnClose,
     onOpen: editorOnOpen,
+    getInitialValues: getEditorInitialValues,
   } = {},
   editor,
+  details,
+  details: {
+    getDataSource: getDetailsDataSource,
+    onOpen: detailsOnOpen,
+    onClose: detailsOnClose,
+  } = {},
 } = {}) => {
   const [pageData, setPageData] = useState(paginationInitialData);
   useEffect(() => {
     if (initialCurrent !== pageData.current
       || initialTotal !== pageData.total
-      || join(',')(initialIds) !== join(',')(pageData.ids)) {
+      || join(',')(initialIds) !== join(',')(pageData.ids)
+      || initialSize !== pageData.size) {
       setPageData(paginationInitialData);
     }
-  }, [initialCurrent, initialTotal, join(',')(initialIds)]);
+  }, [initialSize, initialCurrent, initialTotal, join(',')(initialIds)]);
   const data = useSelector((state) => getDataSource(state)(pageData.ids));
   const [isLoading, setIsLoading] = useState(false);
   const i18n = useI18N();
@@ -202,6 +233,10 @@ export default ({
     reset,
     defaultQueryField,
     defaultFilterValues,
+    openDetails,
+    closeDetails,
+    detailsVisible,
+    detailsItem,
   } = useBasicTable({
     fields,
     filters,
@@ -211,6 +246,8 @@ export default ({
     editorOnClose,
     creatorOnOpen,
     creatorOnClose,
+    detailsOnClose,
+    detailsOnOpen,
   });
 
   const onQueryFieldChange = useCallback(async (fieldKey) => {
@@ -227,7 +264,7 @@ export default ({
       fieldKey,
       readAction,
       setPageData,
-      size,
+      pageData.size,
       filterValues,
       dateValues,
       DEFAULT_PAGE,
@@ -236,7 +273,7 @@ export default ({
     );
   }, [
     readAction,
-    size,
+    pageData.size,
     filterValues,
     dateValues,
     onFieldChange,
@@ -253,7 +290,7 @@ export default ({
       queryField,
       readAction,
       setPageData,
-      size,
+      pageData.size,
       filterValues,
       dateValues,
       DEFAULT_PAGE,
@@ -264,7 +301,7 @@ export default ({
     onValueChange,
     queryField,
     readAction,
-    size,
+    pageData.size,
     filterValues,
     dateValues,
     fussyKey,
@@ -293,7 +330,7 @@ export default ({
       queryField,
       readAction,
       setPageData,
-      size,
+      pageData.size,
       newFilterValues,
       dateValues,
       DEFAULT_PAGE,
@@ -305,7 +342,7 @@ export default ({
     queryValue,
     queryField,
     readAction,
-    size,
+    pageData.size,
     dateValues,
     fussyKey,
     filterValues,
@@ -334,7 +371,7 @@ export default ({
       queryField,
       readAction,
       setPageData,
-      size,
+      pageData.size,
       filterValues,
       newDates,
       DEFAULT_PAGE,
@@ -347,7 +384,7 @@ export default ({
     queryValue,
     queryField,
     readAction,
-    size,
+    pageData.size,
     filterValues,
     fussyKey,
   ]);
@@ -359,7 +396,7 @@ export default ({
       defaultQueryField,
       readAction,
       setPageData,
-      size,
+      pageData.size,
       defaultFilterValues,
       [],
       DEFAULT_PAGE,
@@ -373,17 +410,18 @@ export default ({
     reset,
     fussyKey,
   ]);
-  const onPageChange = useCallback((page) => {
-    if (pageData.current !== page - 1) {
+  const onPageChange = useCallback((page, pageSize) => {
+    const { current, size } = pageData;
+    if (current !== page - 1 || size !== pageSize) {
       onFetch(
         queryValue,
         queryField,
         readAction,
         setPageData,
-        size,
+        pageSize,
         filterValues,
         dateValues,
-        page,
+        page - 1,
         setIsLoading,
         fussyKey,
       );
@@ -392,7 +430,7 @@ export default ({
     queryValue,
     queryField,
     readAction,
-    size,
+    pageData.size,
     filterValues,
     dateValues,
     fussyKey,
@@ -403,17 +441,17 @@ export default ({
     queryField,
     readAction,
     setPageData,
-    size,
+    pageData.size,
     filterValues,
     dateValues,
-    pageData.current + 1,
+    pageData.current,
     setIsLoading,
     fussyKey,
   ), [
     queryValue,
     queryField,
     readAction,
-    size,
+    pageData.size,
     filterValues,
     dateValues,
     pageData.current,
@@ -426,7 +464,7 @@ export default ({
       queryField,
       readAction,
       setPageData,
-      size,
+      pageData.size,
       filterValues,
       dateValues,
       DEFAULT_PAGE,
@@ -440,7 +478,7 @@ export default ({
     queryValue,
     queryField,
     readAction,
-    size,
+    pageData.size,
     filterValues,
     dateValues,
     fussyKey,
@@ -463,6 +501,7 @@ export default ({
     data,
     openCreator,
     openEditor,
+    openDetails,
     reload: onReload,
     reset: onReset,
     isLoading,
@@ -470,8 +509,8 @@ export default ({
     changeFilterValue: onFilterValueChange,
     changeDate: onDateChange,
     pagination: {
-      showTotal: (total) => `${i18n('total')} ${total}`,
-      pageSize: size,
+      showTotal: (total) => `${i18n('totalPage', { total })}`,
+      pageSize: pageData.size,
       current: pageData.current + 1,
       total: pageData.total,
       onChange: onPageChange,
@@ -511,15 +550,26 @@ export default ({
         }))(datePickers),
         onSelect: onDateChange,
       }}
+      details={details && {
+        ...details,
+        dataSource: getDetailsDataSource
+          ? getDataSource(detailsItem)
+          : detailsItem,
+      }}
+      closeDetails={closeDetails}
+      detailsVisible={detailsVisible}
       creator={creator}
       editor={editor && {
         ...editor,
-        initialValues: editItem,
+        initialValues: getEditorInitialValues
+          ? getEditorInitialValues(editItem)
+          : editItem,
       }}
       onCreateSubmit={onCreateSubmit}
       onEditSubmit={onEditSubmit}
       creatorVisible={creatorVisible}
       editorVisible={editorVisible}
+      openEditor={openEditor}
       openCreator={openCreator}
       closeCreator={closeCreator}
       closeEditor={closeEditor}

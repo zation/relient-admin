@@ -1,5 +1,5 @@
 import React from 'react';
-import { object, string, arrayOf, shape, bool } from 'prop-types';
+import { object, string, arrayOf, shape, bool, node } from 'prop-types';
 import { Form, Checkbox } from 'antd';
 import { map } from 'lodash/fp';
 import useFieldInfo from '../../hooks/use-field-info';
@@ -13,12 +13,12 @@ const result = ({
   input: { onChange, value },
   meta: { touched, error, submitError },
   layout: { wrapperCol, labelCol } = defaultFieldLayout,
-  tips,
+  extra,
   options,
   required,
   disabled,
 }) => {
-  const { validateStatus, help } = useFieldInfo({ touched, error, tips, submitError });
+  const { validateStatus, help } = useFieldInfo({ touched, error, submitError });
 
   return (
     <Item
@@ -29,6 +29,7 @@ const result = ({
       validateStatus={validateStatus}
       help={help}
       required={required}
+      extra={extra}
     >
       <Group onChange={onChange} value={value || []} disabled={disabled}>
         {map((option) => (
@@ -43,7 +44,7 @@ result.propTypes = {
   input: object.isRequired,
   meta: object.isRequired,
   layout: object,
-  tips: string,
+  extra: node,
   options: arrayOf(shape({
     value: string,
     text: string,
@@ -54,6 +55,5 @@ result.propTypes = {
 };
 
 result.displayName = __filename;
-
 
 export default result;

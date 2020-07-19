@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { Form as FinalForm } from 'react-final-form';
 import { Form, Button } from 'antd';
@@ -12,6 +13,7 @@ import {
   array, arrayOf,
 } from 'prop-types';
 import { map } from 'lodash/fp';
+import arrayMutators from 'final-form-arrays';
 import useI18N from '../hooks/use-i18n';
 import useSubmit from '../hooks/use-submit';
 import useIsFormEditing from '../hooks/use-is-form-editing';
@@ -31,7 +33,7 @@ const result = ({
   const i18n = useI18N();
 
   return (
-    <FinalForm onSubmit={submit} initialValues={initialValues}>
+    <FinalForm onSubmit={submit} initialValues={initialValues} mutators={{ ...arrayMutators }}>
       {({ handleSubmit, form }) => {
         const {
           dirty,
@@ -47,8 +49,7 @@ const result = ({
             <Error errors={submitError} />
 
             {map((field) => (
-              <Field key={field.name} form={form} {...field} />),
-            )(fields || getFields(form))}
+              <Field key={field.name} {...field} />))(fields || getFields(form))}
 
             <Item wrapperCol={{ span: 10, offset: 8 }}>
               <Button
@@ -77,8 +78,8 @@ result.propTypes = {
   onSubmit: func.isRequired,
   initialValues: object,
   fields: arrayOf(shape({
-    name: string.isRequired,
-    label: string.isRequired,
+    name: string,
+    label: string,
     htmlType: string,
     options: array,
     placeholder: string,

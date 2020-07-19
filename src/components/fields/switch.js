@@ -1,5 +1,5 @@
 import React from 'react';
-import { string, object, bool } from 'prop-types';
+import { string, object, bool, node } from 'prop-types';
 import { Form, Switch } from 'antd';
 import useFieldInfo from '../../hooks/use-field-info';
 import defaultFieldLayout from '../../constants/default-field-layout';
@@ -14,9 +14,9 @@ const result = ({
   required,
   disabled,
   inputStyle,
-  tips,
+  extra,
 }) => {
-  const { validateStatus, help } = useFieldInfo({ touched, error, tips, submitError });
+  const { validateStatus, help } = useFieldInfo({ touched, error, submitError });
 
   return (
     <Item
@@ -27,6 +27,7 @@ const result = ({
       validateStatus={validateStatus}
       help={help}
       required={required}
+      extra={extra}
     >
       <Switch
         checked={!!value}
@@ -43,7 +44,7 @@ result.propTypes = {
   meta: object.isRequired,
   layout: object,
   label: string,
-  tips: string,
+  extra: node,
   required: bool,
   disabled: bool,
   inputStyle: object,

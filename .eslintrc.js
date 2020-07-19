@@ -7,6 +7,10 @@ module.exports = {
     'css-modules',
   ],
 
+  globals: {
+    __BROWSER__: true,
+  },
+
   extends: [
     'airbnb',
     'plugin:css-modules/recommended',

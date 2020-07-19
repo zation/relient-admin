@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Form, Upload, Message } from 'antd';
 import cookie from 'js-cookie';
 import { map, prop, reject, findIndex } from 'lodash/fp';
-import { object, string, bool, func } from 'prop-types';
+import { object, string, bool, func, node } from 'prop-types';
 import { PlusOutlined } from '@ant-design/icons';
 import Carousel, { Modal, ModalGateway } from 'react-images';
 import { View } from '../images';
@@ -23,13 +23,13 @@ const result = ({
   style,
   required,
   onUploaded,
-  tips,
+  extra,
   disabled,
   accept,
   action,
 }) => {
   const { cdnDomain } = useContext(DomainContext);
-  const { validateStatus, help } = useFieldInfo({ touched, error, tips, submitError });
+  const { validateStatus, help } = useFieldInfo({ touched, error, submitError });
   const [currentIndex, setCurrentIndex] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -42,6 +42,7 @@ const result = ({
       validateStatus={validateStatus}
       help={help}
       required={required}
+      extra={extra}
     >
       <div
         className="clearfix"
@@ -115,7 +116,7 @@ result.propTypes = {
   disabled: bool,
   accept: string,
   onUploaded: func,
-  tips: string,
+  extra: node,
   action: string,
   fileType: string,
 };

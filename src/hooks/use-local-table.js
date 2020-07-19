@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   concat,
   every,
@@ -48,6 +48,21 @@ import { DEFAULT_SIZE } from '../constants/pagination';
 //     onChange: func,
 //     disabledDate: func,
 //   }],
+//   details: {
+//     title: string,
+//     editable: object,
+//     items: array,
+//     itemTitleStyle: object,
+//     itemDataStyle: object,
+//     editButtonText: string,
+//     children: node,
+//     level: string or array,
+//     levelMove: number or array or func,
+//     id: string,
+//     onClose: func,
+//     onOpen: func,
+//     getDataSource: func,
+//   },
 //   creator: {
 //     title: string,
 //     initialValues: object,
@@ -59,10 +74,13 @@ import { DEFAULT_SIZE } from '../constants/pagination';
 //     checkingMessage: string,
 //     footer: func,
 //     validate: func,
+//     onClose: func,
+//     onOpen: func,
 //   },
 //   editor: {
 //     title: string,
 //     initialValues: object,
+//     getInitialValues: func,
 //     onSubmit: func,
 //     fields: array,
 //     layout: object,
@@ -72,6 +90,8 @@ import { DEFAULT_SIZE } from '../constants/pagination';
 //     checkingMessage: string,
 //     footer: func,
 //     validate: func,
+//     onClose: func,
+//     onOpen: func,
 //   },
 //   pagination: { pageSize, showTotal }
 // })
@@ -83,6 +103,10 @@ export default ({
   createButton,
   datePickers,
   pagination,
+  paginationInitialData: {
+    current: initialCurrent = 1,
+    size: initialSize = DEFAULT_SIZE,
+  } = {},
   creator: {
     onSubmit: createSubmit,
     checkingMessage: creatorCheckingMessage,
@@ -95,8 +119,15 @@ export default ({
     checkingMessage: editorCheckingMessage,
     onClose: editorOnClose,
     onOpen: editorOnOpen,
+    getInitialValues: getEditorInitialValues,
   } = {},
   editor,
+  details,
+  details: {
+    getDataSource: getDetailsDataSource,
+    onOpen: detailsOnOpen,
+    onClose: detailsOnClose,
+  } = {},
 } = {}) => {
   const {
     dateValues,
@@ -114,6 +145,10 @@ export default ({
     closeCreator,
     openEditor,
     closeEditor,
+    openDetails,
+    closeDetails,
+    detailsVisible,
+    detailsItem,
     reset,
   } = useBasicTable({
     fields,
@@ -124,9 +159,28 @@ export default ({
     editorOnClose,
     creatorOnOpen,
     creatorOnClose,
+    detailsOnClose,
+    detailsOnOpen,
   });
   const i18n = useI18N();
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(initialCurrent);
+  const [pageSize, setPageSize] = useState(initialSize);
+  useEffect(() => {
+    if (initialSize !== pageSize) {
+      setPageSize(initialSize);
+    }
+    if (initialCurrent !== currentPage) {
+      setCurrentPage(initialCurrent);
+    }
+  }, [initialSize, initialCurrent]);
+  const onPageChange = useCallback((newCurrentPage, newPageSize) => {
+    if (newCurrentPage !== currentPage) {
+      setCurrentPage(newCurrentPage);
+    }
+    if (newPageSize !== pageSize) {
+      setPageSize(newPageSize);
+    }
+  }, [currentPage, pageSize]);
 
   const onQueryFieldChange = useCallback((fieldKey) => {
     if (isFunction(onFieldChange)) {
@@ -254,11 +308,12 @@ export default ({
     changeFilterValue: onFilterValueChange,
     openCreator,
     openEditor,
+    openDetails,
     reset,
     pagination: {
-      showTotal: (total) => `${i18n('total')} ${total}`,
-      pageSize: DEFAULT_SIZE,
-      onChange: setCurrentPage,
+      showTotal: (total) => `${i18n('totalPage', { total })}`,
+      pageSize,
+      onChange: onPageChange,
       current: currentPage,
       ...pagination,
     },
@@ -286,13 +341,24 @@ export default ({
       }}
       editor={editor && {
         ...editor,
-        initialValues: editItem,
+        initialValues: getEditorInitialValues
+          ? getEditorInitialValues(editItem)
+          : editItem,
       }}
+      details={details && {
+        ...details,
+        dataSource: getDetailsDataSource
+          ? getDataSource(detailsItem)
+          : detailsItem,
+      }}
+      closeDetails={closeDetails}
+      detailsVisible={detailsVisible}
       creator={creator}
       onCreateSubmit={onCreateSubmit}
       onEditSubmit={onEditSubmit}
       creatorVisible={creatorVisible}
       editorVisible={editorVisible}
+      openEditor={openEditor}
       openCreator={openCreator}
       closeCreator={closeCreator}
       closeEditor={closeEditor}

@@ -1,4 +1,4 @@
-import { object, bool, string, node } from 'prop-types';
+import { object, bool, node } from 'prop-types';
 import React from 'react';
 import { Form, Checkbox } from 'antd';
 import useFieldInfo from '../../hooks/use-field-info';
@@ -13,9 +13,9 @@ const result = ({
   label,
   required,
   disabled,
-  tips,
+  extra,
 }) => {
-  const { validateStatus, help } = useFieldInfo({ touched, error, tips, submitError });
+  const { validateStatus, help } = useFieldInfo({ touched, error, submitError });
 
   return (
     <Item
@@ -25,6 +25,7 @@ const result = ({
       validateStatus={validateStatus}
       help={help}
       required={required}
+      extra={extra}
     >
       <Checkbox onChange={onChange} disabled={disabled}>{label}</Checkbox>
     </Item>
@@ -38,7 +39,7 @@ result.propTypes = {
   label: node,
   required: bool,
   disabled: bool,
-  tips: string,
+  extra: node,
 };
 
 result.displayName = __filename;

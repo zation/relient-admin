@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { object, string, bool, func, oneOfType } from 'prop-types';
+import { object, string, bool, func, oneOfType, node } from 'prop-types';
 import { Form, Input } from 'antd';
 import useFieldInfo from '../../hooks/use-field-info';
 import defaultFieldLayout from '../../constants/default-field-layout';
@@ -13,7 +13,7 @@ const result = ({
   meta: { touched, error, submitError },
   layout: { wrapperCol, labelCol } = defaultFieldLayout,
   label,
-  tips,
+  extra,
   placeholder,
   required,
   disabled,
@@ -21,7 +21,7 @@ const result = ({
   onPressEnter,
   autosize,
 }) => {
-  const { validateStatus, help } = useFieldInfo({ touched, error, tips, submitError });
+  const { validateStatus, help } = useFieldInfo({ touched, error, submitError });
 
   return (
     <Item
@@ -32,6 +32,7 @@ const result = ({
       validateStatus={validateStatus}
       help={help}
       required={required}
+      extra={extra}
     >
       <TextArea
         {...input}
@@ -50,7 +51,7 @@ result.propTypes = {
   meta: object.isRequired,
   layout: object,
   label: string,
-  tips: string,
+  extra: node,
   placeholder: string,
   required: bool,
   disabled: bool,

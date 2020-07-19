@@ -19,3 +19,4 @@ export Switch from './fields/switch';
 export TextArea from './fields/text-area';
 export TimeSingle from './fields/time-single';
 export Cascader from './fields/cascader';
+export Editor from './fields/editor';

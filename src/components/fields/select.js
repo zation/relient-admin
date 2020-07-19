@@ -25,7 +25,7 @@ const result = ({
   meta: { touched, error, submitError },
   layout: { wrapperCol, labelCol } = defaultFieldLayout,
   label,
-  tips,
+  extra,
   required,
   disabled,
   showSearch,
@@ -35,10 +35,9 @@ const result = ({
   onSelect,
   filterOption,
   size,
-  extra,
   defaultActiveFirstOption,
 }) => {
-  const { validateStatus, help } = useFieldInfo({ touched, error, tips, submitError });
+  const { validateStatus, help } = useFieldInfo({ touched, error, submitError });
 
   return (
     <Item
@@ -83,7 +82,6 @@ result.propTypes = {
   meta: object.isRequired,
   layout: object,
   label: string,
-  tips: string,
   required: bool,
   disabled: bool,
   showSearch: bool,

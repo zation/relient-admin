@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import {
   string,
@@ -17,6 +18,7 @@ import { map, flow, join, prop } from 'lodash/fp';
 import useI18N from '../hooks/use-i18n';
 import Link from './link';
 import FormPop from './form-pop';
+import Details from './details';
 
 const { Search } = Input;
 const { Option } = Select;
@@ -28,34 +30,47 @@ const result = ({
   filter,
   reset,
   datePicker,
-  creatorVisible,
-  editorVisible,
+  details,
+  detailsVisible,
+  closeDetails,
   creator,
-  editor,
+  creatorVisible,
   openCreator,
   closeCreator,
-  closeEditor,
   onCreateSubmit,
+  editor,
+  editorVisible,
+  openEditor,
+  closeEditor,
   onEditSubmit,
 }) => {
   const i18n = useI18N();
 
   return (
-    <div className="relient-admin-table-header">
-      {creator && creatorVisible && (
+    <div className="relient-admin-table-header-root">
+      {details && (
+        <Details
+          {...details}
+          visible={detailsVisible}
+          openEditor={() => openEditor(details.dataSource)}
+          close={closeDetails}
+        />
+      )}
+
+      {creator && (
         <FormPop
           {...creator}
           visible={creatorVisible}
-          onCancel={closeCreator}
+          close={closeCreator}
           onSubmit={onCreateSubmit}
         />
       )}
 
-      {editor && editorVisible && (
+      {editor && (
         <FormPop
           {...editor}
           visible={editorVisible}
-          onCancel={closeEditor}
+          close={closeEditor}
           onSubmit={onEditSubmit}
         />
       )}
@@ -140,7 +155,7 @@ const result = ({
             )}
             <Search
               style={{ width: query.width || 362 }}
-              placeholder={query.placeholder || (query.fussy ? i18n('searchBy', { keyWords: flow(map(prop('text')), join('、'))(query.fields) }) : i18n('search'))}
+              placeholder={query.placeholder || (query.fussy ? i18n('searchBy', { keywords: flow(map(prop('text')), join('、'))(query.fields) }) : i18n('search'))}
               onChange={query.onValueChange}
               value={query.value}
             />
@@ -182,6 +197,9 @@ result.propTypes = {
     })).isRequired,
     onSelect: func.isRequired,
   }),
+  details: object,
+  detailsVisible: bool,
+  closeDetails: func,
   creator: shape({
     component: elementType,
     title: string,
@@ -223,6 +241,7 @@ result.propTypes = {
     layout: object,
   }),
   openCreator: func,
+  openEditor: func,
   closeCreator: func,
   closeEditor: func,
   creatorVisible: bool,

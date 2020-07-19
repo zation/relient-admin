@@ -1,5 +1,5 @@
 import React from 'react';
-import { string, object, bool, func } from 'prop-types';
+import { string, object, bool, func, node } from 'prop-types';
 import { Form, DatePicker } from 'antd';
 import moment from 'moment';
 import useFieldInfo from '../../hooks/use-field-info';
@@ -17,11 +17,11 @@ const result = ({
   placeholder = [],
   required,
   disabled,
-  tips,
+  extra,
   disabledDate,
   format = 'YYYY-MM-DD',
 }) => {
-  const { validateStatus, help } = useFieldInfo({ touched, error, tips, submitError });
+  const { validateStatus, help } = useFieldInfo({ touched, error, submitError });
 
   return (
     <Item
@@ -32,6 +32,7 @@ const result = ({
       validateStatus={validateStatus}
       help={help}
       required={required}
+      extra={extra}
     >
       <RangePicker
         format={format}
@@ -55,7 +56,7 @@ result.propTypes = {
   placeholder: string,
   required: bool,
   disabled: bool,
-  tips: string,
+  extra: node,
   format: string,
   disabledDate: func,
 };

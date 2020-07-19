@@ -12,7 +12,6 @@ const result = ({
   meta: { touched, error, submitError },
   layout: { wrapperCol, labelCol } = defaultFieldLayout,
   label,
-  tips,
   required,
   disabled,
   showSearch,
@@ -21,7 +20,7 @@ const result = ({
   size,
   extra,
 }) => {
-  const { validateStatus, help } = useFieldInfo({ touched, error, tips, submitError });
+  const { validateStatus, help } = useFieldInfo({ touched, error, submitError });
 
   return (
     <Item

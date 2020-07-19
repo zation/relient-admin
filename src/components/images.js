@@ -1,18 +1,16 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events */
 import React, { useContext, useState } from 'react';
 import { array, number, shape, string, func, bool } from 'prop-types';
 import { map, prop } from 'lodash/fp';
-import { DomainContext } from 'relient-admin/contexts';
-import Carousel, { Modal, ModalGateway, Div, Img } from 'libs/react-images';
 import { className } from 'react-images/lib/utils';
-import useStyles from 'isomorphic-style-loader/useStyles';
 import QRCode from 'react-qr-code';
-import s from './images.less';
+import { DomainContext } from '../contexts';
+import Carousel, { Modal, ModalGateway, Div, Img } from '../libs/react-images';
 
 const mapWithIndex = map.convert({ cap: false });
 
 export const View = (props) => {
   const { data, formatters, getStyles, index, isFullscreen, isModal } = props;
-  useStyles(s);
   const { cdnDomain } = useContext(DomainContext);
 
   return (
@@ -21,7 +19,7 @@ export const View = (props) => {
       className={className('view', { isFullscreen, isModal })}
     >
       {data.qrCode ? (
-        <Div className={s.QRCodeContainer}>
+        <Div className="relient-admin-images-qr-code-container">
           <QRCode value={data.qrCode} />
         </Div>
       ) : (
@@ -56,23 +54,21 @@ const result = ({
   thumbGap = 10,
   width,
 }) => {
-  useStyles(s);
   const { cdnDomain } = useContext(DomainContext);
   const [currentIndex, setCurrentIndex] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
 
   return (
     <>
-      <div style={thumbGap ? { marginBottom: `-${thumbGap}px` } : undefined} className={s.Images}>
+      <div style={thumbGap ? { marginBottom: `-${thumbGap}px` } : undefined} className="relient-admin-images-root">
         {mapWithIndex(({ file, qrCode }, index) => (
-          // eslint-disable-next-line jsx-a11y/no-static-element-interactions
           <div
             key={index}
             onClick={() => {
               setModalVisible(true);
               setCurrentIndex(index);
             }}
-            className={s.ImageContainer}
+            className="relient-admin-images-image-container"
             style={{ margin: `0 ${thumbGap}px ${thumbGap}px 0` }}
           >
             {file ? (

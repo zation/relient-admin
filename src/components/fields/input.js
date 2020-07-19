@@ -12,7 +12,6 @@ const result = ({
   meta: { touched, error, submitError },
   layout: { wrapperCol, labelCol } = defaultFieldLayout,
   label,
-  tips,
   placeholder,
   htmlType,
   required,
@@ -26,7 +25,7 @@ const result = ({
   autoComplete,
   extra,
 }) => {
-  const { validateStatus, help } = useFieldInfo({ touched, error, tips, submitError });
+  const { validateStatus, help } = useFieldInfo({ touched, error, submitError });
 
   return (
     <Item
@@ -37,6 +36,7 @@ const result = ({
       validateStatus={validateStatus}
       help={help}
       required={required}
+      extra={extra}
     >
       {createElement(htmlType === 'password' ? Password : Input, {
         type: htmlType,
@@ -51,7 +51,6 @@ const result = ({
         autoComplete,
         ...input,
       })}
-      {extra}
     </Item>
   );
 };
@@ -61,7 +60,6 @@ result.propTypes = {
   meta: object.isRequired,
   layout: object,
   label: string,
-  tips: string,
   placeholder: string,
   htmlType: string.isRequired,
   required: bool,

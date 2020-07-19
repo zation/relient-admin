@@ -1,4 +1,4 @@
-import { object, string, func } from 'prop-types';
+import { object, string, func, node } from 'prop-types';
 import React from 'react';
 import { Form } from 'antd';
 import { identity } from 'lodash/fp';
@@ -10,7 +10,7 @@ const result = ({
   input: { value } = {},
   layout: { wrapperCol, labelCol } = defaultFieldLayout,
   label,
-  tips,
+  extra,
   render = identity,
   renderContent,
 }) => (
@@ -18,7 +18,7 @@ const result = ({
     labelCol={labelCol}
     wrapperCol={wrapperCol}
     label={label}
-    help={tips}
+    extra={extra}
   >
     {renderContent ? renderContent(value) : (
       <span className="ant-form-text">{render ? render(value) : value}</span>)}
@@ -29,7 +29,7 @@ result.propTypes = {
   input: object,
   layout: object,
   label: string,
-  tips: string,
+  extra: node,
   renderContent: func,
   render: func,
 };

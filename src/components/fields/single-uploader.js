@@ -25,13 +25,12 @@ const result = ({
   disabled,
   accept,
   onUploaded,
-  tips,
   action,
   fileType,
   extra,
 }) => {
   const { cdnDomain } = useContext(DomainContext);
-  const { validateStatus, help } = useFieldInfo({ touched, error, tips, submitError });
+  const { validateStatus, help } = useFieldInfo({ touched, error, submitError });
 
   return (
     <Item
@@ -43,6 +42,7 @@ const result = ({
       help={help}
       required={required}
       className={className}
+      extra={extra}
     >
       <div
         style={{
@@ -85,7 +85,6 @@ const result = ({
                 <div className={placeholderClassName}>{placeholder}</div>
               </div>
             )}
-            {extra}
           </Dragger>
         )}
       </div>
@@ -104,7 +103,6 @@ result.propTypes = {
   disabled: bool,
   accept: string,
   onUploaded: func,
-  tips: string,
   action: string,
   placeholderClassName: string,
   className: string,
