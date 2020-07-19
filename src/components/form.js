@@ -1,34 +1,30 @@
-/* eslint-disable react/jsx-props-no-spreading */
-import React, { useEffect } from 'react';
-import { Field, Form as FinalForm } from 'react-final-form';
-import { Form, Button, Alert } from 'antd';
+import React from 'react';
+import { Form as FinalForm } from 'react-final-form';
+import { Form, Button } from 'antd';
 import {
   func,
   object,
-  arrayOf,
   shape,
   string,
   oneOfType,
   bool,
   any,
-  array,
+  array, arrayOf,
 } from 'prop-types';
-import { map, isFunction } from 'lodash/fp';
+import { map } from 'lodash/fp';
 import useI18N from '../hooks/use-i18n';
-import Input from './fields/input';
 import useSubmit from '../hooks/use-submit';
+import useIsFormEditing from '../hooks/use-is-form-editing';
+import Error from './form-error';
+import Field from './field';
 
 const { Item } = Form;
-const defaultLayout = {
-  labelCol: { span: 8 },
-  wrapperCol: { span: 8 },
-};
 
 const result = ({
   initialValues,
   onSubmit,
   fields,
-  layout = defaultLayout,
+  getFields,
   checkEditing,
 }) => {
   const submit = useSubmit(onSubmit);
@@ -36,43 +32,24 @@ const result = ({
 
   return (
     <FinalForm onSubmit={submit} initialValues={initialValues}>
-      {({ handleSubmit, submitting, form, submitError }) => {
-        const { dirty, submitSucceeded } = form.getState();
-        useEffect(() => {
-          global.isFormEditing = checkEditing && dirty && !submitSucceeded;
-          return () => {
-            global.isFormEditing = false;
-          };
-        }, [dirty, submitSucceeded, checkEditing]);
+      {({ handleSubmit, form }) => {
+        const {
+          dirty,
+          submitSucceeded,
+          submitting,
+          pristine,
+          hasValidationErrors,
+          submitError,
+        } = form.getState();
+        useIsFormEditing({ dirty, submitSucceeded, checkEditing });
         return (
           <Form onSubmit={handleSubmit}>
-            {submitError && (
-              <Alert
-                style={{ marginBottom: 20 }}
-                message={submitError.length > 1
-                  ? (
-                    <ul style={{ margin: 0 }}>
-                      {map((error) => <li>{error}</li>)(submitError)}
-                    </ul>
-                  ) : submitError[0]}
-                type="warning"
-              />
-            )}
+            <Error errors={submitError} />
 
-            {map((field) => {
-              const { name, htmlType = 'text', ...rest } = isFunction(field) ? field({ form }) : field;
-              return (
-                <Field
-                  key={name}
-                  name={name}
-                  htmlType={htmlType}
-                  component={Input}
-                  size="large"
-                  layout={layout}
-                  {...rest}
-                />
-              );
-            })(fields)}
+            {map((field) => (
+              <Field key={field.name} form={form} {...field} />),
+            )(fields || getFields(form))}
+
             <Item wrapperCol={{ span: 10, offset: 8 }}>
               <Button
                 size="large"
@@ -81,6 +58,7 @@ const result = ({
                 style={{ marginRight: 10 }}
                 type="primary"
                 loading={submitting}
+                disabled={pristine || hasValidationErrors}
               >
                 {i18n('submit')}
               </Button>
@@ -98,19 +76,19 @@ const result = ({
 result.propTypes = {
   onSubmit: func.isRequired,
   initialValues: object,
-  fields: arrayOf(oneOfType([
-    shape({
-      name: string.isRequired,
-      label: string.isRequired,
-      htmlType: string,
-      options: array,
-      placeholder: string,
-      validate: oneOfType([func, array]),
-      required: bool,
-      component: any,
-    }),
-    func,
-  ])),
+  fields: arrayOf(shape({
+    name: string.isRequired,
+    label: string.isRequired,
+    htmlType: string,
+    options: array,
+    placeholder: string,
+    validate: oneOfType([func, array]),
+    required: bool,
+    isArray: bool,
+    component: any,
+    fields: array,
+  })),
+  getFields: func,
   layout: object,
   checkEditing: bool,
 };

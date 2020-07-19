@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   concat,
   every,
@@ -18,6 +18,8 @@ import {
 import { Message } from 'antd';
 import TableHeader from '../components/table-header';
 import useBasicTable from './use-basic-table';
+import useI18N from './use-i18n';
+import { DEFAULT_SIZE } from '../constants/pagination';
 
 // {
 //   query: {
@@ -36,9 +38,10 @@ import useBasicTable from './use-basic-table';
 //     defaultValue: value,
 //     dropdownMatchSelectWidth: bool,
 //     onChange: func,
+//     onFilter: func,
 //     disabled: bool,
 //   }],
-//   createLink: { text: string, link: string },
+//   createButton: { text: string, link: string, onClick: func },
 //   datePickers: [{
 //     dataKey: string,
 //     label: string,
@@ -51,9 +54,11 @@ import useBasicTable from './use-basic-table';
 //     onSubmit: func,
 //     fields: array,
 //     layout: object,
-//     component: ReactComponent,
+//     component: Drawer | Modal,
 //     checkEditing: bool,
 //     checkingMessage: string,
+//     footer: func,
+//     validate: func,
 //   },
 //   editor: {
 //     title: string,
@@ -62,26 +67,34 @@ import useBasicTable from './use-basic-table';
 //     fields: array,
 //     layout: object,
 //     getFields: func,
-//     component: ReactComponent,
+//     component: Drawer | Modal,
 //     checkEditing: bool,
 //     checkingMessage: string,
+//     footer: func,
+//     validate: func,
 //   },
+//   pagination: { pageSize, showTotal }
 // })
 
 export default ({
   query: { onFieldChange, onValueChange, fields, width, fussy } = {},
   showReset,
   filters = [],
-  createLink,
+  createButton,
   datePickers,
+  pagination,
   creator: {
     onSubmit: createSubmit,
     checkingMessage: creatorCheckingMessage,
+    onClose: creatorOnClose,
+    onOpen: creatorOnOpen,
   } = {},
   creator,
   editor: {
     onSubmit: editSubmit,
     checkingMessage: editorCheckingMessage,
+    onClose: editorOnClose,
+    onOpen: editorOnOpen,
   } = {},
   editor,
 } = {}) => {
@@ -107,7 +120,13 @@ export default ({
     filters,
     creatorCheckingMessage,
     editorCheckingMessage,
+    editorOnOpen,
+    editorOnClose,
+    creatorOnOpen,
+    creatorOnClose,
   });
+  const i18n = useI18N();
+  const [currentPage, setCurrentPage] = useState(1);
 
   const onQueryFieldChange = useCallback((fieldKey) => {
     if (isFunction(onFieldChange)) {
@@ -126,6 +145,7 @@ export default ({
     if (isFunction(onValueChange)) {
       onValueChange(value);
     }
+    setCurrentPage(1);
     setQueryValue(value);
   }, [
     onValueChange,
@@ -135,6 +155,7 @@ export default ({
     if (isFunction(onChange)) {
       onChange(value);
     }
+    setCurrentPage(1);
     setFilterValues(flow(
       reject(propEq('dataKey')(dataKey)),
       concat({
@@ -151,6 +172,7 @@ export default ({
     if (isFunction(onChange)) {
       onChange(value);
     }
+    setCurrentPage(1);
     setDateValues(flow(
       reject(propEq('dataKey')(dataKey)),
       concat({
@@ -165,14 +187,14 @@ export default ({
   const onCreateSubmit = useCallback(async (values) => {
     await createSubmit(values);
     closeCreator();
-    Message.success('创建成功');
+    Message.success(i18n('createSuccess'));
   }, [
     createSubmit,
   ]);
   const onEditSubmit = useCallback(async (values) => {
     await editSubmit({ ...values, id: editItem.id }, values, editItem);
     closeEditor();
-    Message.success('编辑成功');
+    Message.success(i18n('editSuccess'));
   }, [
     editSubmit,
     editItem,
@@ -198,7 +220,10 @@ export default ({
 
       let filterResult = true;
       if (filterValues.length > 0) {
-        filterResult = every(({ dataKey, value }) => value === '' || isNil(value) || propEq(dataKey, value)(item))(filterValues);
+        filterResult = every(({ dataKey, value }) => {
+          const onFilter = flow(find(propEq('dataKey', dataKey)), prop('onFilter'))(filters);
+          return value === '' || isNil(value) || (onFilter ? onFilter(item, dataKey, value) : propEq(dataKey, value)(item));
+        })(filterValues);
       }
 
       let datesResult = true;
@@ -220,15 +245,22 @@ export default ({
     queryField,
     filterValues,
     dateValues,
+    filters,
   ]);
 
   return {
     getDataSource,
     filterValues,
+    changeFilterValue: onFilterValueChange,
+    openCreator,
     openEditor,
     reset,
     pagination: {
-      showTotal: (total) => `总数 ${total}`,
+      showTotal: (total) => `${i18n('total')} ${total}`,
+      pageSize: DEFAULT_SIZE,
+      onChange: setCurrentPage,
+      current: currentPage,
+      ...pagination,
     },
     tableHeader: <TableHeader
       query={{
@@ -240,14 +272,14 @@ export default ({
         width,
         fussy,
       }}
-      createLink={createLink}
+      createButton={createButton}
       filter={{
         items: map(({
           dataKey,
           ...others
         }) => ({
           dataKey,
-          value: flow(find(propEq('dataKey')(dataKey)), prop('value'))(filters),
+          value: flow(find(propEq('dataKey')(dataKey)), prop('value'))(filterValues),
           ...others,
         }))(filters),
         onSelect: onFilterValueChange,
@@ -255,7 +287,6 @@ export default ({
       editor={editor && {
         ...editor,
         initialValues: editItem,
-        fields: editor.getFields ? editor.getFields(editItem) : editor.fields,
       }}
       creator={creator}
       onCreateSubmit={onCreateSubmit}

@@ -2,19 +2,20 @@ import { object, bool, string, node } from 'prop-types';
 import React from 'react';
 import { Form, Checkbox } from 'antd';
 import useFieldInfo from '../../hooks/use-field-info';
+import defaultFieldLayout from '../../constants/default-field-layout';
 
 const { Item } = Form;
 
 const result = ({
   input: { onChange },
-  meta: { touched, error },
-  layout: { wrapperCol, labelCol } = {},
+  meta: { touched, error, submitError },
+  layout: { wrapperCol, labelCol } = defaultFieldLayout,
   label,
   required,
   disabled,
   tips,
 }) => {
-  const { validateStatus, help } = useFieldInfo({ touched, error, tips });
+  const { validateStatus, help } = useFieldInfo({ touched, error, tips, submitError });
 
   return (
     <Item

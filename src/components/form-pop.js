@@ -1,48 +1,69 @@
-/* eslint-disable react/jsx-props-no-spreading */
-import React, { useEffect, createElement } from 'react';
-import { Alert, Button, Drawer, Form, Modal } from 'antd';
-import { func, bool, array, object, number, oneOf } from 'prop-types';
-import { isFunction, map } from 'lodash/fp';
-import { Field, Form as FinalForm } from 'react-final-form';
-import Input from './fields/input';
+import React, { createElement } from 'react';
+import { Button, Drawer, Form, Modal } from 'antd';
+import {
+  func,
+  bool,
+  array,
+  object,
+  number,
+  oneOf,
+  shape,
+  string,
+  oneOfType,
+  any,
+  arrayOf,
+} from 'prop-types';
+import { map } from 'lodash/fp';
+import { Form as FinalForm } from 'react-final-form';
 import useI18N from '../hooks/use-i18n';
 import useSubmit from '../hooks/use-submit';
-
-const defaultLayout = {
-  labelCol: { span: 8 },
-  wrapperCol: { span: 14 },
-};
+import useIsFormEditing from '../hooks/use-is-form-editing';
+import Error from './form-error';
+import Field from './field';
 
 const result = ({
   onSubmit,
   visible,
   onCancel,
   fields,
+  getFields,
   initialValues,
-  type,
-  layout = defaultLayout,
+  component,
   width = 528,
   checkEditing,
+  footer,
+  decorators,
+  keepDirtyOnReinitialize,
+  levelMove = 370,
+  validate,
   ...props
 }) => {
   const submit = useSubmit(onSubmit);
   const i18n = useI18N();
 
   return (
-    <FinalForm onSubmit={submit} initialValues={initialValues}>
-      {({ handleSubmit, submitting, form, submitError }) => {
-        const { dirty, submitSucceeded, pristine, hasValidationErrors } = form.getState();
-        useEffect(() => {
-          global.isFormEditing = checkEditing && dirty && !submitSucceeded;
-          return () => {
-            global.isFormEditing = false;
-          };
-        }, [dirty, submitSucceeded, checkEditing]);
+    <FinalForm
+      onSubmit={submit}
+      initialValues={initialValues}
+      decorators={decorators}
+      keepDirtyOnReinitialize={keepDirtyOnReinitialize}
+      validate={validate}
+    >
+      {({ handleSubmit, form }) => {
+        const {
+          dirty,
+          submitSucceeded,
+          submitting,
+          pristine,
+          hasValidationErrors,
+          submitError,
+        } = form.getState();
+        useIsFormEditing({ dirty, submitSucceeded, checkEditing, visible });
 
-        return createElement(type, {
-          destroyOnClose: true,
+        return createElement(component, {
           visible,
-          footer: (
+          maskClosable: false,
+          footer: footer ? footer({ onCancel, form, handleSubmit }) : (
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <Button
                 htmlType="button"
@@ -67,35 +88,15 @@ const result = ({
           onClose: onCancel,
           onCancel,
           width,
+          levelMove,
           ...props,
         }, (
           <Form onSubmit={handleSubmit}>
-            {submitError && (
-              <Alert
-                style={{ marginBottom: 20 }}
-                message={submitError.length > 1
-                  ? (
-                    <ul style={{ margin: 0 }}>
-                      {map((error) => <li>{error}</li>)(submitError)}
-                    </ul>
-                  ) : submitError[0]}
-                type="warning"
-              />
-            )}
+            <Error errors={submitError} />
 
-            {map((field) => {
-              const { name, htmlType = 'text', ...rest } = isFunction(field) ? field({ form }) : field;
-              return (
-                <Field
-                  key={name}
-                  name={name}
-                  htmlType={htmlType}
-                  component={Input}
-                  layout={layout}
-                  {...rest}
-                />
-              );
-            })(fields)}
+            {map((field) => (
+              <Field key={field.name} form={form} {...field} />),
+            )(fields || getFields(form))}
           </Form>
         ));
       }}
@@ -105,14 +106,31 @@ const result = ({
 
 result.propTypes = {
   onSubmit: func.isRequired,
+  initialValues: object,
+  fields: arrayOf(shape({
+    name: string.isRequired,
+    label: string.isRequired,
+    htmlType: string,
+    options: array,
+    placeholder: string,
+    validate: oneOfType([func, array]),
+    required: bool,
+    isArray: bool,
+    component: any,
+    fields: array,
+  })),
+  getFields: func,
+  layout: object,
+  checkEditing: bool,
   visible: bool.isRequired,
   onCancel: func.isRequired,
-  fields: array.isRequired,
-  initialValues: object,
-  layout: object,
   width: number,
-  checkEditing: bool,
-  type: oneOf([Drawer, Modal]),
+  component: oneOf([Drawer, Modal]).isRequired,
+  footer: func,
+  decorators: arrayOf(func),
+  levelMove: oneOfType([number, array, func]),
+  keepDirtyOnReinitialize: bool,
+  validate: func,
 };
 
 result.displayName = __filename;

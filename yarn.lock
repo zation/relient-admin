@@ -933,6 +933,13 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
+"@babel/runtime@^7.1.5":
+  version "7.10.5"
+  resolved "https://registry.npm.taobao.org/@babel/runtime/download/@babel/runtime-7.10.5.tgz?cache=0&sync_timestamp=1594750760245&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40babel%2Fruntime%2Fdownload%2F%40babel%2Fruntime-7.10.5.tgz#303d8bd440ecd5a491eae6117fd3367698674c5c"
+  integrity sha1-MD2L1EDs1aSR6uYRf9M2dphnTFw=
+  dependencies:
+    regenerator-runtime "^0.13.4"
+
 "@babel/template@^7.8.3", "@babel/template@^7.8.6":
   version "7.8.6"
   resolved "https://registry.npm.taobao.org/@babel/template/download/@babel/template-7.8.6.tgz?cache=0&sync_timestamp=1582806154512&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40babel%2Ftemplate%2Fdownload%2F%40babel%2Ftemplate-7.8.6.tgz#86b22af15f828dfb086474f964dcc3e39c43ce2b"
@@ -3918,6 +3925,13 @@ react-dom@>=16.13.1:
     prop-types "^15.6.2"
     scheduler "^0.19.1"
 
+react-final-form-listeners@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.npm.taobao.org/react-final-form-listeners/download/react-final-form-listeners-1.0.2.tgz#b52da984300281cf1f69a6412e86df6249e2bf1c"
+  integrity sha1-tS2phDACgc8faaZBLobfYknivxw=
+  dependencies:
+    "@babel/runtime" "^7.1.5"
+
 react-final-form@^6.4.0:
   version "6.4.0"
   resolved "https://registry.npm.taobao.org/react-final-form/download/react-final-form-6.4.0.tgz#7f9064c10a8bee6a02cd3e9b8aff06fa07f9c908"
@@ -4094,10 +4108,10 @@ regjsparser@^0.6.4:
   dependencies:
     jsesc "~0.5.0"
 
-relient@>=4.2.13:
-  version "4.2.13"
-  resolved "https://registry.npm.taobao.org/relient/download/relient-4.2.13.tgz#9017a59d516c8a8143d6b4867025dd0a49916861"
-  integrity sha1-kBelnVFsioFD1rSGcCXdCkmRaGE=
+relient@>=4.2.14:
+  version "4.2.18"
+  resolved "https://registry.npm.taobao.org/relient/download/relient-4.2.18.tgz#fbb6ed6994be182074c09b698971cad50487d08a"
+  integrity sha1-+7btaZS+GCB0wJtpiXHK1QSH0Io=
   dependencies:
     config ">=3.3.0"
     date-fns ">=2.11.0"

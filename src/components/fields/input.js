@@ -1,16 +1,16 @@
-/* eslint-disable react/jsx-props-no-spreading */
-
-import React from 'react';
+import React, { createElement } from 'react';
 import { object, string, bool, node } from 'prop-types';
 import { Form, Input } from 'antd';
 import useFieldInfo from '../../hooks/use-field-info';
+import defaultFieldLayout from '../../constants/default-field-layout';
 
+const { Password } = Input;
 const { Item } = Form;
 
 const result = ({
   input,
-  meta: { touched, error },
-  layout: { wrapperCol, labelCol } = {},
+  meta: { touched, error, submitError },
+  layout: { wrapperCol, labelCol } = defaultFieldLayout,
   label,
   tips,
   placeholder,
@@ -23,8 +23,10 @@ const result = ({
   suffix,
   addonAfter,
   addonBefore,
+  autoComplete,
+  extra,
 }) => {
-  const { validateStatus, help } = useFieldInfo({ touched, error, tips });
+  const { validateStatus, help } = useFieldInfo({ touched, error, tips, submitError });
 
   return (
     <Item
@@ -36,18 +38,20 @@ const result = ({
       help={help}
       required={required}
     >
-      <Input
-        type={htmlType}
-        {...input}
-        placeholder={placeholder}
-        disabled={disabled}
-        style={inputStyle}
-        prefix={prefix}
-        size={size}
-        suffix={suffix}
-        addonAfter={addonAfter}
-        addonBefore={addonBefore}
-      />
+      {createElement(htmlType === 'password' ? Password : Input, {
+        type: htmlType,
+        placeholder,
+        disabled,
+        style: inputStyle,
+        prefix,
+        size,
+        suffix,
+        addonAfter,
+        addonBefore,
+        autoComplete,
+        ...input,
+      })}
+      {extra}
     </Item>
   );
 };
@@ -68,6 +72,8 @@ result.propTypes = {
   size: string,
   addonAfter: node,
   addonBefore: node,
+  autoComplete: string,
+  extra: node,
 };
 
 result.displayName = __filename;

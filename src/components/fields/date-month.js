@@ -3,14 +3,15 @@ import { string, object, bool, func } from 'prop-types';
 import { Form, DatePicker } from 'antd';
 import moment from 'moment';
 import useFieldInfo from '../../hooks/use-field-info';
+import defaultFieldLayout from '../../constants/default-field-layout';
 
 const { Item } = Form;
 const { MonthPicker } = DatePicker;
 
 const result = ({
   input,
-  meta: { touched, error },
-  layout: { wrapperCol, labelCol } = {},
+  meta: { touched, error, submitError },
+  layout: { wrapperCol, labelCol } = defaultFieldLayout,
   label,
   placeholder,
   required,
@@ -19,7 +20,7 @@ const result = ({
   tips,
   format = 'YYYY-MM',
 }) => {
-  const { validateStatus, help } = useFieldInfo({ touched, error, tips });
+  const { validateStatus, help } = useFieldInfo({ touched, error, tips, submitError });
 
   return (
     <Item

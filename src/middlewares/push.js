@@ -1,8 +1,9 @@
 import { PUSH } from 'relient/actions/history';
 import { startsWith } from 'lodash/fp';
+import { getWithBaseUrl } from 'relient/url';
 import { getFeatureBy } from '../features';
 
-export default () => (next) => (action) => {
+export default (baseUrl) => () => (next) => (action) => {
   const {
     payload,
     type,
@@ -11,7 +12,7 @@ export default () => (next) => (action) => {
   if (type === PUSH && !startsWith('.')(payload) && !startsWith('/')(payload)) {
     return next({
       ...action,
-      payload: getFeatureBy('link')(payload),
+      payload: getWithBaseUrl(getFeatureBy('link')(payload), baseUrl),
     });
   }
 

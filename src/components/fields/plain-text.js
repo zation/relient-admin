@@ -1,17 +1,17 @@
-import { object, string, func, node } from 'prop-types';
+import { object, string, func } from 'prop-types';
 import React from 'react';
 import { Form } from 'antd';
-import { identity, isUndefined } from 'lodash/fp';
+import { identity } from 'lodash/fp';
+import defaultFieldLayout from '../../constants/default-field-layout';
 
 const { Item } = Form;
 
 const result = ({
   input: { value } = {},
-  layout: { wrapperCol, labelCol } = {},
+  layout: { wrapperCol, labelCol } = defaultFieldLayout,
   label,
   tips,
   render = identity,
-  value: constValue,
   renderContent,
 }) => (
   <Item
@@ -20,8 +20,8 @@ const result = ({
     label={label}
     help={tips}
   >
-    {renderContent ? renderContent(constValue) : (
-      <span className="ant-form-text">{isUndefined(constValue) ? render(value) : constValue}</span>)}
+    {renderContent ? renderContent(value) : (
+      <span className="ant-form-text">{render ? render(value) : value}</span>)}
   </Item>
 );
 
@@ -32,7 +32,6 @@ result.propTypes = {
   tips: string,
   renderContent: func,
   render: func,
-  value: node,
 };
 
 result.displayName = __filename;

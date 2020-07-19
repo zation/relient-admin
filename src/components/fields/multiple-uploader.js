@@ -1,19 +1,23 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Form, Upload, Message } from 'antd';
 import cookie from 'js-cookie';
-import { map, prop, concat, reject, eq } from 'lodash/fp';
+import { map, prop, reject, findIndex } from 'lodash/fp';
 import { object, string, bool, func } from 'prop-types';
 import { PlusOutlined } from '@ant-design/icons';
+import Carousel, { Modal, ModalGateway } from 'react-images';
+import { View } from '../images';
 import { DomainContext } from '../../contexts';
 import useFieldInfo from '../../hooks/use-field-info';
 import AUTHORIZATION from '../../constants/authorization';
+import defaultFieldLayout from '../../constants/default-field-layout';
 
 const { Item } = Form;
 
 const result = ({
   input: { onChange, value },
-  meta: { touched, error },
-  layout: { wrapperCol, labelCol } = {},
+  meta: { touched, error, submitError },
+  layout: { wrapperCol, labelCol } = defaultFieldLayout,
+  fileType,
   label,
   placeholder,
   style,
@@ -25,7 +29,9 @@ const result = ({
   action,
 }) => {
   const { cdnDomain } = useContext(DomainContext);
-  const { validateStatus, help } = useFieldInfo({ touched, error, tips });
+  const { validateStatus, help } = useFieldInfo({ touched, error, tips, submitError });
+  const [currentIndex, setCurrentIndex] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   return (
     <Item
@@ -42,25 +48,33 @@ const result = ({
         style={style}
       >
         <Upload
-          action={action || `${global.location.origin}/api`}
+          action={action || `${global.location.origin}/api/resource`}
           listType="picture-card"
-          defaultFileList={map((url) => ({
+          data={{ fileType }}
+          defaultFileList={map(({ url }) => ({
             uid: url,
             url: `${cdnDomain}${url}`,
             status: 'done',
           }))(value)}
-          onChange={({ file: { response, status } }) => {
+          onChange={({ file: { uid, response, status } }) => {
             if (status === 'done') {
               if (onUploaded) {
                 onUploaded(response.url);
               }
-              onChange(value ? concat(value)(response.url) : [response.url]);
+              const newFile = { ...response, uid };
+              onChange(value ? [...value, newFile] : [newFile]);
             } else if (status === 'error') {
               const { errors } = response;
               Message.error(map(prop('message'))(errors));
             }
           }}
-          onRemove={({ uid, response }) => onChange(reject(eq(uid || response.url))(value))}
+          onPreview={({ uid }) => {
+            setCurrentIndex(findIndex((file) => file.url === uid || file.uid === uid)(value));
+            setModalVisible(true);
+          }}
+          onRemove={({ uid }) => onChange(
+            reject((file) => file.url === uid || file.uid === uid)(value),
+          )}
           accept={accept}
           headers={{ 'x-auth-token': cookie.get(AUTHORIZATION) }}
           name="file"
@@ -74,6 +88,17 @@ const result = ({
               </div>
             )}
         </Upload>
+        <ModalGateway>
+          {modalVisible && (
+            <Modal onClose={() => setModalVisible(false)}>
+              <Carousel
+                components={{ View }}
+                currentIndex={currentIndex}
+                views={value}
+              />
+            </Modal>
+          )}
+        </ModalGateway>
       </div>
     </Item>
   );
@@ -92,6 +117,7 @@ result.propTypes = {
   onUploaded: func,
   tips: string,
   action: string,
+  fileType: string,
 };
 
 result.displayName = __filename;

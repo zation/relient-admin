@@ -1,7 +1,7 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { string, object, bool, func } from 'prop-types';
-import { Form, TimePicker } from 'antd';
-import moment from 'moment';
+import { object, string, bool, array, node, func } from 'prop-types';
+import { Form, Cascader } from 'antd';
 import useFieldInfo from '../../hooks/use-field-info';
 import defaultFieldLayout from '../../constants/default-field-layout';
 
@@ -12,16 +12,14 @@ const result = ({
   meta: { touched, error, submitError },
   layout: { wrapperCol, labelCol } = defaultFieldLayout,
   label,
-  placeholder,
+  tips,
   required,
   disabled,
-  disabledDate,
-  hourStep,
-  minuteStep,
-  secondStep,
-  defaultOpenValue,
-  tips,
-  format = 'HH:mm:ss',
+  showSearch,
+  displayRender,
+  options,
+  size,
+  extra,
 }) => {
   const { validateStatus, help } = useFieldInfo({ touched, error, tips, submitError });
 
@@ -34,18 +32,16 @@ const result = ({
       validateStatus={validateStatus}
       help={help}
       required={required}
+      extra={extra}
     >
-      <TimePicker
-        defaultOpenValue={defaultOpenValue}
-        value={input.value ? moment(input.value, format) : undefined}
-        onChange={(_, value) => input.onChange(value)}
-        placeholder={placeholder}
+      <Cascader
+        options={options}
+        showSearch={showSearch}
         disabled={disabled}
-        disabledDate={disabledDate}
-        hourStep={hourStep}
-        minuteStep={minuteStep}
-        secondStep={secondStep}
-        format={format}
+        size={size}
+        allowClear={false}
+        displayRender={displayRender}
+        {...input}
       />
     </Item>
   );
@@ -56,16 +52,15 @@ result.propTypes = {
   meta: object.isRequired,
   layout: object,
   label: string,
-  placeholder: string,
+  tips: string,
   required: bool,
   disabled: bool,
-  tips: string,
-  format: string,
-  disabledDate: func,
-  hourStep: Number,
-  minuteStep: Number,
-  secondStep: Number,
-  defaultOpenValue: string,
+  matchInputWidth: bool,
+  showSearch: bool,
+  displayRender: func,
+  options: array,
+  size: string,
+  extra: node,
 };
 
 result.displayName = __filename;

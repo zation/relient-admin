@@ -12,5 +12,5 @@ export default ({ update }) => useCallback(async ({
     id,
     status: status === ACTIVE ? INACTIVE : ACTIVE,
   });
-  Message.success(i18n('updateSuccess'));
+  Message.success(i18n('editSuccess'));
 }, [update]);

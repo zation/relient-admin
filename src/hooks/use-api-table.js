@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import {
   concat,
@@ -15,10 +15,13 @@ import {
   propEq,
   reduce,
   reject,
+  join,
 } from 'lodash/fp';
 import { Message } from 'antd';
+import { DEFAULT_PAGE } from 'relient-admin/constants/pagination';
 import TableHeader from '../components/table-header';
 import useBasicTable from './use-basic-table';
+import useI18N from './use-i18n';
 
 const omitEmpty = omitBy((val) => (isNil(val) || val === ''));
 
@@ -93,7 +96,7 @@ const onQueryFetch = debounce(500, onFetch);
 //     onFilterChange: func,
 //     disabled: bool,
 //   }],
-//   createLink: { text: string, link: string },
+//   createButton: { text: string, link: string, onClick: func },
 //   datePickers: [{
 //     dataKey: string,
 //     label: string,
@@ -115,9 +118,11 @@ const onQueryFetch = debounce(500, onFetch);
 //     onSubmit: func,
 //     fields: array,
 //     layout: object,
-//     type: ReactComponent,
+//     component: Drawer | Modal,
 //     checkEditing: bool,
 //     checkingMessage: string,
+//     footer: func,
+//     validate: func,
 //   },
 //   editor: {
 //     formName: string,
@@ -128,9 +133,11 @@ const onQueryFetch = debounce(500, onFetch);
 //     layout: object,
 //     shouldReload: bool,
 //     getFields: func,
-//     type: ReactComponent,
+//     component: Drawer | Modal,
 //     checkEditing: bool,
 //     checkingMessage: string,
+//     footer: func,
+//     validate: func,
 //   },
 // }
 
@@ -138,26 +145,43 @@ export default ({
   query: { onFieldChange, onValueChange, fields, width, placeholder, fussyKey } = {},
   showReset,
   filters,
-  createLink,
+  createButton,
   datePickers,
-  pagination: { getDataSource, size },
+  pagination: { getDataSource, size, ...pagination },
   paginationInitialData,
+  paginationInitialData: {
+    current: initialCurrent,
+    total: initialTotal,
+    ids: initialIds,
+  },
   readAction,
   creator: {
     onSubmit: createSubmit,
     checkingMessage: creatorCheckingMessage,
+    onClose: creatorOnClose,
+    onOpen: creatorOnOpen,
   } = {},
   creator,
   editor: {
     onSubmit: editSubmit,
     shouldReload,
     checkingMessage: editorCheckingMessage,
+    onClose: editorOnClose,
+    onOpen: editorOnOpen,
   } = {},
   editor,
 } = {}) => {
   const [pageData, setPageData] = useState(paginationInitialData);
+  useEffect(() => {
+    if (initialCurrent !== pageData.current
+      || initialTotal !== pageData.total
+      || join(',')(initialIds) !== join(',')(pageData.ids)) {
+      setPageData(paginationInitialData);
+    }
+  }, [initialCurrent, initialTotal, join(',')(initialIds)]);
   const data = useSelector((state) => getDataSource(state)(pageData.ids));
   const [isLoading, setIsLoading] = useState(false);
+  const i18n = useI18N();
 
   const {
     dateValues,
@@ -183,6 +207,10 @@ export default ({
     filters,
     creatorCheckingMessage,
     editorCheckingMessage,
+    editorOnOpen,
+    editorOnClose,
+    creatorOnOpen,
+    creatorOnClose,
   });
 
   const onQueryFieldChange = useCallback(async (fieldKey) => {
@@ -202,7 +230,7 @@ export default ({
       size,
       filterValues,
       dateValues,
-      0,
+      DEFAULT_PAGE,
       setIsLoading,
       fussyKey,
     );
@@ -228,7 +256,7 @@ export default ({
       size,
       filterValues,
       dateValues,
-      0,
+      DEFAULT_PAGE,
       setIsLoading,
       fussyKey,
     );
@@ -242,6 +270,12 @@ export default ({
     fussyKey,
   ]);
   const onFilterValueChange = useCallback(async (value, dataKey) => {
+    if (flow(
+      find(propEq('dataKey')(dataKey)),
+      propEq('value', value),
+    )(filterValues)) {
+      return null;
+    }
     const onChange = flow(find(propEq('dataKey', dataKey)), prop('onFilterChange'))(filters);
     if (isFunction(onChange)) {
       onChange(value);
@@ -254,7 +288,7 @@ export default ({
       }),
     )(filterValues);
     setFilterValues(newFilterValues);
-    await onFetch(
+    return onFetch(
       queryValue,
       queryField,
       readAction,
@@ -262,7 +296,7 @@ export default ({
       size,
       newFilterValues,
       dateValues,
-      0,
+      DEFAULT_PAGE,
       setIsLoading,
       fussyKey,
     );
@@ -277,6 +311,12 @@ export default ({
     filterValues,
   ]);
   const onDateChange = useCallback(async (value, dataKey) => {
+    if (flow(
+      find(propEq('dataKey')(dataKey)),
+      propEq('value', value),
+    )(filterValues)) {
+      return null;
+    }
     const onChange = flow(find(propEq('dataKey', dataKey)), prop('onDateChange'))(datePickers);
     if (isFunction(onChange)) {
       onChange(value);
@@ -289,7 +329,7 @@ export default ({
       }),
     )(dateValues);
     setDateValues(newDates);
-    await onFetch(
+    return onFetch(
       queryValue,
       queryField,
       readAction,
@@ -297,7 +337,7 @@ export default ({
       size,
       filterValues,
       newDates,
-      0,
+      DEFAULT_PAGE,
       setIsLoading,
       fussyKey,
     );
@@ -322,7 +362,7 @@ export default ({
       size,
       defaultFilterValues,
       [],
-      0,
+      DEFAULT_PAGE,
       setIsLoading,
       fussyKey,
     );
@@ -333,25 +373,30 @@ export default ({
     reset,
     fussyKey,
   ]);
-  const onPageChange = useCallback((page) => onFetch(
+  const onPageChange = useCallback((page) => {
+    if (pageData.current !== page - 1) {
+      onFetch(
+        queryValue,
+        queryField,
+        readAction,
+        setPageData,
+        size,
+        filterValues,
+        dateValues,
+        page,
+        setIsLoading,
+        fussyKey,
+      );
+    }
+  }, [
     queryValue,
     queryField,
     readAction,
-    setPageData,
-    size,
-    filterValues,
-    dateValues,
-    page - 1,
-    setIsLoading,
-    fussyKey,
-  ), [
-    queryValue,
-    queryField,
-    readAction,
     size,
     filterValues,
     dateValues,
     fussyKey,
+    pageData.current,
   ]);
   const onReload = useCallback(() => onFetch(
     queryValue,
@@ -361,7 +406,7 @@ export default ({
     size,
     filterValues,
     dateValues,
-    pageData.current,
+    pageData.current + 1,
     setIsLoading,
     fussyKey,
   ), [
@@ -384,12 +429,12 @@ export default ({
       size,
       filterValues,
       dateValues,
-      0,
+      DEFAULT_PAGE,
       setIsLoading,
       fussyKey,
     );
     closeCreator();
-    Message.success('创建成功');
+    Message.success(i18n('createSuccess'));
   }, [
     createSubmit,
     queryValue,
@@ -406,7 +451,7 @@ export default ({
       await onReload();
     }
     closeEditor();
-    Message.success('编辑成功');
+    Message.success(i18n('editSuccess'));
   }, [
     editSubmit,
     editItem,
@@ -416,18 +461,22 @@ export default ({
 
   return {
     data,
+    openCreator,
     openEditor,
     reload: onReload,
     reset: onReset,
     isLoading,
+    filterValues,
+    changeFilterValue: onFilterValueChange,
+    changeDate: onDateChange,
     pagination: {
-      showTotal: (total) => `总数 ${total}`,
-      pageSize: pageData.size,
+      showTotal: (total) => `${i18n('total')} ${total}`,
+      pageSize: size,
       current: pageData.current + 1,
       total: pageData.total,
       onChange: onPageChange,
+      ...pagination,
     },
-    filterValues,
     tableHeader: <TableHeader
       query={{
         onFieldChange: onQueryFieldChange,
@@ -439,7 +488,7 @@ export default ({
         placeholder,
         fussy: !!fussyKey,
       }}
-      createLink={createLink}
+      createButton={createButton}
       filter={{
         items: flow(
           reject(propEq('staticField', true)),
@@ -448,7 +497,7 @@ export default ({
             ...others
           }) => ({
             dataKey,
-            value: flow(find(propEq('dataKey')(dataKey)), prop('value'))(filters),
+            value: flow(find(propEq('dataKey')(dataKey)), prop('value'))(filterValues),
             ...others,
           })),
         )(filters),
@@ -466,7 +515,6 @@ export default ({
       editor={editor && {
         ...editor,
         initialValues: editItem,
-        fields: editor.getFields ? editor.getFields(editItem) : editor.fields,
       }}
       onCreateSubmit={onCreateSubmit}
       onEditSubmit={onEditSubmit}

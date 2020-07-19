@@ -1,8 +1,20 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { string, func, shape, arrayOf, array, number, oneOfType, object, bool, elementType, any } from 'prop-types';
+import {
+  string,
+  func,
+  shape,
+  arrayOf,
+  array,
+  number,
+  oneOfType,
+  object,
+  bool,
+  elementType,
+  any,
+} from 'prop-types';
 import { Input, Button, Select, DatePicker } from 'antd';
 import { map, flow, join, prop } from 'lodash/fp';
+import useI18N from '../hooks/use-i18n';
 import Link from './link';
 import FormPop from './form-pop';
 
@@ -12,7 +24,7 @@ const { RangePicker } = DatePicker;
 
 const result = ({
   query,
-  createLink,
+  createButton,
   filter,
   reset,
   datePicker,
@@ -25,116 +37,123 @@ const result = ({
   closeEditor,
   onCreateSubmit,
   onEditSubmit,
-}) => (
-  <div className="relient-admin-table-header">
-    {creator && (
-      <FormPop
-        {...creator}
-        visible={creatorVisible}
-        onCancel={closeCreator}
-        onSubmit={onCreateSubmit}
-      />
-    )}
+}) => {
+  const i18n = useI18N();
 
-    {editor && (
-      <FormPop
-        {...editor}
-        visible={editorVisible}
-        onCancel={closeEditor}
-        onSubmit={onEditSubmit}
-      />
-    )}
+  return (
+    <div className="relient-admin-table-header">
+      {creator && creatorVisible && (
+        <FormPop
+          {...creator}
+          visible={creatorVisible}
+          onCancel={closeCreator}
+          onSubmit={onCreateSubmit}
+        />
+      )}
 
-    <div className="relient-admin-table-header-operations">
-      {query && (query.fussy || query.fields) && (
-        <div>
-          {!query.fussy && (
+      {editor && editorVisible && (
+        <FormPop
+          {...editor}
+          visible={editorVisible}
+          onCancel={closeEditor}
+          onSubmit={onEditSubmit}
+        />
+      )}
+
+      <div style={{ position: 'relative', bottom: 4 }}>
+        {createButton && (createButton.link ? (
+          <Link to={createButton.link}>
+            <Button type="primary" size="large">
+              {createButton.text}
+            </Button>
+          </Link>
+        ) : (
+          <Button type="primary" size="large" onClick={createButton.onClick || openCreator}>
+            {createButton.text}
+          </Button>
+        ))}
+      </div>
+
+      <div className="relient-admin-table-header-operations">
+        {filter && map(({
+          label,
+          options,
+          placeholder,
+          dataKey,
+          value,
+          dropdownMatchSelectWidth = false,
+        }) => (
+          <div key={dataKey}>
+            <span style={{ marginRight: 10 }}>{label}</span>
             <Select
-              onSelect={query.onFieldChange}
-              value={query.field}
-              style={{ marginRight: 10 }}
-              dropdownMatchSelectWidth={false}
+              onSelect={(selectedValue) => filter.onSelect(selectedValue, dataKey)}
+              placeholder={placeholder}
+              value={value}
+              dropdownMatchSelectWidth={dropdownMatchSelectWidth}
             >
-              {map(({ key, text }) => (
+              {map(({ text, value: optionValue, disabled, className: optionClassName }) => (
                 <Option
-                  value={key}
-                  key={key}
+                  value={optionValue}
+                  key={optionValue}
+                  disabled={disabled}
+                  className={optionClassName}
                 >
                   {text}
                 </Option>
-              ))(query.fields)}
+              ))(options)}
             </Select>
-          )}
-          <Search
-            style={{ width: query.width || 300 }}
-            placeholder={query.placeholder || (query.fussy ? `根据 ${flow(map(prop('text')), join('、'))(query.fields)} 搜索` : '搜索')}
-            onChange={query.onValueChange}
-            value={query.value}
-          />
-        </div>
-      )}
+          </div>
+        ))(filter.items)}
 
-      {filter && map(({
-        label,
-        options,
-        placeholder,
-        dataKey,
-        value,
-        dropdownMatchSelectWidth = false,
-      }) => (
-        <div key={dataKey}>
-          <span style={{ marginRight: 10 }}>{label}</span>
-          <Select
-            onSelect={(selectedValue) => filter.onSelect(selectedValue, dataKey)}
-            placeholder={placeholder}
-            value={value}
-            dropdownMatchSelectWidth={dropdownMatchSelectWidth}
-          >
-            {map(({ text, value: optionValue, disabled, className: optionClassName }) => (
-              <Option
-                value={optionValue}
-                key={optionValue}
-                disabled={disabled}
-                className={optionClassName}
+        {datePicker && map(({ label, dataKey, disabledDate }) => (
+          <div key={dataKey}>
+            <span style={{ marginRight: 10 }}>{label}</span>
+            <RangePicker
+              format="YYYY-MM-DD"
+              onChange={(
+                _,
+                selectedValue,
+              ) => datePicker.onSelect(selectedValue, dataKey)}
+              disabledDate={disabledDate}
+            />
+          </div>
+        ))(datePicker.items)}
+
+        {query && (query.fussy || query.fields) && (
+          <div>
+            {!query.fussy && (
+              <Select
+                onSelect={query.onFieldChange}
+                value={query.field}
+                style={{ marginRight: 10 }}
+                dropdownMatchSelectWidth={false}
               >
-                {text}
-              </Option>
-            ))(options)}
-          </Select>
-        </div>
-      ))(filter.items)}
+                {map(({ key, text }) => (
+                  <Option
+                    value={key}
+                    key={key}
+                  >
+                    {text}
+                  </Option>
+                ))(query.fields)}
+              </Select>
+            )}
+            <Search
+              style={{ width: query.width || 362 }}
+              placeholder={query.placeholder || (query.fussy ? i18n('searchBy', { keyWords: flow(map(prop('text')), join('、'))(query.fields) }) : i18n('search'))}
+              onChange={query.onValueChange}
+              value={query.value}
+            />
+          </div>
+        )}
 
-      {datePicker && map(({ label, dataKey, disabledDate }) => (
-        <div key={dataKey}>
-          <span style={{ marginRight: 10 }}>{label}</span>
-          <RangePicker
-            format="YYYY-MM-DD"
-            onChange={(_, selectedValue) => datePicker.onSelect(selectedValue, dataKey)}
-            disabledDate={disabledDate}
-          />
-        </div>
-      ))(datePicker.items)}
-
-      {reset && (
-        <Button onClick={reset}>重置</Button>
-      )}
+        {reset && (
+          <Button onClick={reset}>{i18n('reset')}</Button>
+        )}
+      </div>
     </div>
-
-    {creator && (
-      <Button type="primary" size="large" onClick={openCreator}>
-        {creator.title || '创建'}
-      </Button>
-    )}
-
-    {createLink && (
-      <Link to={createLink.link}>
-        <Button type="primary" size="large">
-          {createLink.text}
-        </Button>
-      </Link>
-    )}
-  </div>
-);
+  );
+};
 
 result.propTypes = {
   query: shape({
@@ -147,10 +166,11 @@ result.propTypes = {
     placeholder: string,
     fussy: bool,
   }),
-  createLink: shape({
+  createButton: oneOfType([shape({
     text: string.isRequired,
-    link: string.isRequired,
-  }),
+    link: string,
+    onClick: func,
+  }), bool]),
   filter: shape({
     items: arrayOf(shape({
       label: string,
@@ -170,7 +190,7 @@ result.propTypes = {
     fields: arrayOf(oneOfType([
       shape({
         name: string.isRequired,
-        label: string.isRequired,
+        label: string,
         htmlType: string,
         options: array,
         placeholder: string,
@@ -190,7 +210,7 @@ result.propTypes = {
     fields: arrayOf(oneOfType([
       shape({
         name: string.isRequired,
-        label: string.isRequired,
+        label: string,
         htmlType: string,
         options: array,
         placeholder: string,
@@ -207,8 +227,8 @@ result.propTypes = {
   closeEditor: func,
   creatorVisible: bool,
   editorVisible: bool,
-  onCreateSubmit: func.isRequired,
-  onEditSubmit: func.isRequired,
+  onCreateSubmit: func,
+  onEditSubmit: func,
   datePicker: shape({
     items: arrayOf(shape({
       label: string,

@@ -13,6 +13,10 @@ export default ({
   filters,
   creatorCheckingMessage,
   editorCheckingMessage,
+  editorOnOpen,
+  editorOnClose,
+  creatorOnOpen,
+  creatorOnClose,
 }) => {
   const defaultQueryField = flow(first, prop('key'))(fields);
   const defaultFilterValues = flow(
@@ -30,31 +34,32 @@ export default ({
   const [editorVisible, setEditorVisible] = useState(false);
   const [editItem, setEditItem] = useState(null);
 
-  const openCreator = useCallback(() => setCreatorVisible(true), []);
-  const closeCreator = useCallback(() => {
-    if (global.isFormEditing) {
-      if (global.confirm(creatorCheckingMessage || '确认离开正在编辑的表单吗？')) {
-        setCreatorVisible(false);
-      }
-    } else {
-      setCreatorVisible(false);
+  const openCreator = useCallback(() => {
+    setCreatorVisible(true);
+    if (creatorOnOpen) {
+      creatorOnOpen();
     }
-  }, [creatorCheckingMessage]);
+  }, [creatorOnOpen]);
+  const closeCreator = useCallback(() => {
+    setCreatorVisible(false);
+    if (creatorOnClose) {
+      creatorOnClose();
+    }
+  }, [creatorCheckingMessage, creatorOnClose]);
   const openEditor = useCallback((item) => {
     setEditorVisible(true);
     setEditItem(item);
-  }, []);
-  const closeEditor = useCallback(() => {
-    if (global.isFormEditing) {
-      if (global.confirm(editorCheckingMessage || '确认离开正在编辑的表单吗？')) {
-        setEditorVisible(false);
-        setEditItem(null);
-      }
-    } else {
-      setEditorVisible(false);
-      setEditItem(null);
+    if (editorOnOpen) {
+      editorOnOpen(item);
     }
-  }, [editorCheckingMessage]);
+  }, [editorOnOpen]);
+  const closeEditor = useCallback(() => {
+    setEditorVisible(false);
+    setEditItem(null);
+    if (editorOnClose) {
+      editorOnClose();
+    }
+  }, [editorCheckingMessage, editorOnClose]);
   const reset = useCallback(async () => {
     setDateValues([]);
     setQueryField(defaultQueryField);

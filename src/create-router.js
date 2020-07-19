@@ -6,7 +6,7 @@ import { setFeature } from './actions/feature';
 
 export default ({ routes, auth, baseUrl = '', ...options }) => new UniversalRouter(routes, {
   ...options,
-  baseUrl,
+  baseUrl: baseUrl === '/' ? '' : baseUrl,
   async resolveRoute(context) {
     const {
       route,

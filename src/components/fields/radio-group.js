@@ -3,21 +3,22 @@ import { object, string, arrayOf, shape, bool } from 'prop-types';
 import { Form, Radio } from 'antd';
 import { map } from 'lodash/fp';
 import useFieldInfo from '../../hooks/use-field-info';
+import defaultFieldLayout from '../../constants/default-field-layout';
 
 const { Item } = Form;
 const { Group } = Radio;
 
 const result = ({
   input: { onChange, value },
-  meta: { touched, error },
-  layout: { wrapperCol, labelCol } = {},
+  meta: { touched, error, submitError },
+  layout: { wrapperCol, labelCol } = defaultFieldLayout,
   label,
   tips,
   options,
   required,
   disabled,
 }) => {
-  const { validateStatus, help } = useFieldInfo({ touched, error, tips });
+  const { validateStatus, help } = useFieldInfo({ touched, error, tips, submitError });
 
   return (
     <Item

@@ -1,15 +1,18 @@
 import { useCallback } from 'react';
 import { FORM_ERROR } from 'final-form';
-import { map, prop } from 'lodash/fp';
+import { map, prop, isArray, isObject } from 'lodash/fp';
 
-export default (onSubmit) => useCallback(async () => {
+export default (onSubmit, deps = []) => useCallback(async (values, form) => {
   try {
-    return await onSubmit();
+    return await onSubmit(values, form);
   } catch (e) {
     console.warn('Submission error:', e);
-    if (e) {
+    if (isArray(e)) {
       return { [FORM_ERROR]: map(prop('message'))(e) };
+    }
+    if (isObject(e)) {
+      return e;
     }
     return null;
   }
-}, [onSubmit]);
+}, [onSubmit, ...deps]);

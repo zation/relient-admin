@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { object, string, bool, func } from 'prop-types';
+import { object, string, bool, func, node } from 'prop-types';
 import { Form, Upload, Message } from 'antd';
 import cookie from 'js-cookie';
 import { map, prop } from 'lodash/fp';
@@ -7,16 +7,19 @@ import { PlusOutlined } from '@ant-design/icons';
 import AUTHORIZATION from '../../constants/authorization';
 import useFieldInfo from '../../hooks/use-field-info';
 import { DomainContext } from '../../contexts';
+import defaultFieldLayout from '../../constants/default-field-layout';
 
 const { Item } = Form;
 const { Dragger } = Upload;
 
 const result = ({
   input: { onChange, value },
-  meta: { touched, error },
-  layout: { wrapperCol, labelCol } = {},
+  meta: { touched, error, submitError },
+  layout: { wrapperCol, labelCol } = defaultFieldLayout,
   label,
   placeholder,
+  placeholderClassName,
+  className,
   style,
   required,
   disabled,
@@ -24,9 +27,11 @@ const result = ({
   onUploaded,
   tips,
   action,
+  fileType,
+  extra,
 }) => {
   const { cdnDomain } = useContext(DomainContext);
-  const { validateStatus, help } = useFieldInfo({ touched, error, tips });
+  const { validateStatus, help } = useFieldInfo({ touched, error, tips, submitError });
 
   return (
     <Item
@@ -37,13 +42,13 @@ const result = ({
       validateStatus={validateStatus}
       help={help}
       required={required}
-      className="relient-admin-single-uploader"
+      className={className}
     >
       <div
         style={{
           height: 120,
           width: 120,
-          backgroundImage: `url(${cdnDomain}${value})`,
+          backgroundImage: value ? `url('${cdnDomain}${encodeURI(value.url)}')` : undefined,
           backgroundSize: 'contain',
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
@@ -54,18 +59,19 @@ const result = ({
         {!disabled
         && (
           <Dragger
-            action={action || `${global.location.origin}/api`}
+            action={action || `${global.location.origin}/api/resource`}
             onChange={({ file: { response, status } }) => {
               if (status === 'done') {
                 if (onUploaded) {
-                  onUploaded(response.url);
+                  onUploaded(response);
                 }
-                onChange(response.url);
+                onChange(response);
               } else if (status === 'error') {
                 const { errors } = response;
                 Message.error(map(prop('message'))(errors));
               }
             }}
+            data={{ fileType }}
             showUploadList={false}
             accept={accept}
             headers={{ 'x-auth-token': cookie.get(AUTHORIZATION) }}
@@ -76,9 +82,10 @@ const result = ({
             && (
               <div>
                 <PlusOutlined />
-                <div>{placeholder}</div>
+                <div className={placeholderClassName}>{placeholder}</div>
               </div>
             )}
+            {extra}
           </Dragger>
         )}
       </div>
@@ -99,6 +106,10 @@ result.propTypes = {
   onUploaded: func,
   tips: string,
   action: string,
+  placeholderClassName: string,
+  className: string,
+  fileType: string,
+  extra: node,
 };
 
 result.displayName = __filename;

@@ -1,9 +1,11 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useCallback, createElement } from 'react';
+import React, { useCallback, createElement, useContext } from 'react';
 import { string, node, func, bool } from 'prop-types';
 import { propEq, omit } from 'lodash/fp';
 import { useDispatch } from 'react-redux';
 import { push, goBack } from 'relient/actions/history';
+import { getWithBaseUrl } from 'relient/url';
+import { BaseUrlContext } from '../contexts';
 import { getFeatureBy } from '../features';
 import useI18N from '../hooks/use-i18n';
 
@@ -16,15 +18,25 @@ const isModifiedEvent = ({
   shiftKey,
 }) => !!(metaKey || altKey || ctrlKey || shiftKey);
 
-const getHref = ({ to, feature }) => {
+const getHref = ({ to, feature, baseUrl }) => {
   if (feature) {
-    return getFeatureBy('link')(feature);
+    return getWithBaseUrl(getFeatureBy('link')(feature), baseUrl);
   }
-  return to;
+  return getWithBaseUrl(to, baseUrl);
 };
 
-const result = ({ to, back = false, children, feature, showIcon, onClick, target, ...props }) => {
+const result = ({
+  to,
+  back = false,
+  children,
+  feature,
+  showIcon,
+  onClick,
+  target,
+  ...props
+}) => {
   const dispatch = useDispatch();
+  const baseUrl = useContext(BaseUrlContext);
   const handleClick = useCallback((event) => {
     if (back) {
       event.preventDefault();
@@ -43,8 +55,8 @@ const result = ({ to, back = false, children, feature, showIcon, onClick, target
     }
 
     event.preventDefault();
-    dispatch(push(to || feature));
-  }, [to, feature, back, target, onClick]);
+    dispatch(push(to ? getWithBaseUrl(to, baseUrl) : feature));
+  }, [to, feature, back, target, onClick, baseUrl]);
   const i18n = useI18N();
 
   const icon = getFeatureBy('icon')(feature);
@@ -53,6 +65,7 @@ const result = ({ to, back = false, children, feature, showIcon, onClick, target
       href={getHref({
         to,
         feature,
+        baseUrl,
       })}
       {...omit(['push', 'back', 'goBack'])(props)}
       onClick={handleClick}
@@ -72,6 +85,7 @@ result.propTypes = {
   back: bool,
   target: string,
   showIcon: bool,
+  baseUrl: string,
 };
 
 result.displayName = __filename;

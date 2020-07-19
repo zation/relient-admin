@@ -3,23 +3,26 @@ import { object, string, arrayOf, shape, bool } from 'prop-types';
 import { Form, Checkbox } from 'antd';
 import { map } from 'lodash/fp';
 import useFieldInfo from '../../hooks/use-field-info';
+import defaultFieldLayout from '../../constants/default-field-layout';
 
 const { Item } = Form;
 const { Group } = Checkbox;
 
 const result = ({
+  label,
   input: { onChange, value },
-  meta: { touched, error },
-  layout: { wrapperCol, labelCol } = {},
+  meta: { touched, error, submitError },
+  layout: { wrapperCol, labelCol } = defaultFieldLayout,
   tips,
   options,
   required,
   disabled,
 }) => {
-  const { validateStatus, help } = useFieldInfo({ touched, error, tips });
+  const { validateStatus, help } = useFieldInfo({ touched, error, tips, submitError });
 
   return (
     <Item
+      label={label}
       labelCol={labelCol}
       wrapperCol={wrapperCol}
       hasFeedback
@@ -47,6 +50,7 @@ result.propTypes = {
   })),
   required: bool,
   disabled: bool,
+  label: string,
 };
 
 result.displayName = __filename;

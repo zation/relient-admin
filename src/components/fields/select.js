@@ -4,6 +4,7 @@ import { object, string, bool, array, func, node } from 'prop-types';
 import { Form, Select } from 'antd';
 import { map } from 'lodash/fp';
 import useFieldInfo from '../../hooks/use-field-info';
+import defaultFieldLayout from '../../constants/default-field-layout';
 
 const { Item } = Form;
 const { Option, OptGroup } = Select;
@@ -21,8 +22,8 @@ getOption.propTypes = {
 
 const result = ({
   input,
-  meta: { touched, error },
-  layout: { wrapperCol, labelCol } = {},
+  meta: { touched, error, submitError },
+  layout: { wrapperCol, labelCol } = defaultFieldLayout,
   label,
   tips,
   required,
@@ -35,8 +36,9 @@ const result = ({
   filterOption,
   size,
   extra,
+  defaultActiveFirstOption,
 }) => {
-  const { validateStatus, help } = useFieldInfo({ touched, error, tips });
+  const { validateStatus, help } = useFieldInfo({ touched, error, tips, submitError });
 
   return (
     <Item
@@ -59,6 +61,7 @@ const result = ({
         value={mode === 'multiple' || mode === 'tags' ? (input.value || []) : input.value}
         mode={mode}
         size={size}
+        defaultActiveFirstOption={defaultActiveFirstOption}
       >
         {map(({ children, group, text, value, disabled: optionDisabled, className }) => {
           if (group) {
@@ -91,6 +94,7 @@ result.propTypes = {
   onSelect: func,
   filterOption: func,
   extra: node,
+  defaultActiveFirstOption: bool,
 };
 
 result.displayName = __filename;

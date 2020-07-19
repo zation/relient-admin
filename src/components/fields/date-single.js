@@ -1,24 +1,26 @@
 import React from 'react';
-import { string, object, bool, func } from 'prop-types';
+import { string, object, bool, func, oneOfType } from 'prop-types';
 import { Form, DatePicker } from 'antd';
 import moment from 'moment';
 import useFieldInfo from '../../hooks/use-field-info';
+import defaultFieldLayout from '../../constants/default-field-layout';
 
 const { Item } = Form;
 
 const result = ({
   input,
-  meta: { touched, error },
-  layout: { wrapperCol, labelCol } = {},
+  meta: { touched, error, submitError },
+  layout: { wrapperCol, labelCol } = defaultFieldLayout,
   label,
   placeholder,
   required,
   disabled,
   disabledDate,
   tips,
-  format = 'YYYY-MM-DD',
+  dateFormat = 'YYYY-MM-DD',
+  showTime,
 }) => {
-  const { validateStatus, help } = useFieldInfo({ touched, error, tips });
+  const { validateStatus, help } = useFieldInfo({ touched, error, tips, submitError });
 
   return (
     <Item
@@ -31,12 +33,13 @@ const result = ({
       required={required}
     >
       <DatePicker
-        format={format}
-        value={input.value ? moment(input.value, format) : undefined}
+        format={dateFormat}
+        value={input.value ? moment(input.value, dateFormat) : undefined}
         onChange={(_, value) => input.onChange(value)}
         placeholder={placeholder}
         disabled={disabled}
         disabledDate={disabledDate}
+        showTime={showTime}
       />
     </Item>
   );
@@ -51,8 +54,9 @@ result.propTypes = {
   required: bool,
   disabled: bool,
   tips: string,
-  format: string,
+  dateFormat: string,
   disabledDate: func,
+  showTime: oneOfType([object, bool]),
 };
 
 result.displayName = __filename;
