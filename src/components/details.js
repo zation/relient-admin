@@ -22,7 +22,7 @@ import {
   isFunction,
   last,
 } from 'lodash/fp';
-import { useI18N } from '../hooks';
+import useI18N from '../hooks/use-i18n';
 
 const result = ({
   visible,

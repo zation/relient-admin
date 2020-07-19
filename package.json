@@ -76,7 +76,7 @@
     "*.{js,jsx,ts,tsx}": "eslint --fix"
   },
   "scripts": {
-    "lint": "eslint --ignore-path .gitignore --ignore-pattern \"!**/.*\" .",
+    "lint": "eslint --ignore-path .eslintignore --ignore-pattern \"!**/.*\" .",
     "fix": "npm run lint --fix",
     "build": "rm -rf ./dist && mkdir ./dist && lessc src/styles.less dist/styles.css && cp ./package.json ./README.md ./dist/ && babel ./src --out-dir ./dist --source-maps inline",
     "pub": "npm run lint && npm run build && npm publish ./dist --registry=https://registry.npmjs.org/"
