@@ -2589,7 +2589,7 @@ fill-range@^7.0.1:
   dependencies:
     to-regex-range "^5.0.1"
 
-final-form-arrays@^3.0.2:
+final-form-arrays@>=3.0.2:
   version "3.0.2"
   resolved "https://registry.npm.taobao.org/final-form-arrays/download/final-form-arrays-3.0.2.tgz#9f3bef778dec61432357744eb6f3abef7e7f3847"
   integrity sha1-nzvvd43sYUMjV3ROtvOr735/OEc=
