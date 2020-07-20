@@ -7,6 +7,7 @@ import {
   prop,
   reject,
 } from 'lodash/fp';
+import useDetails from './use-details';
 
 export default ({
   fields,
@@ -35,8 +36,6 @@ export default ({
   const [creatorVisible, setCreatorVisible] = useState(false);
   const [editorVisible, setEditorVisible] = useState(false);
   const [editItem, setEditItem] = useState(null);
-  const [detailsVisible, setDetailsVisible] = useState(false);
-  const [detailsItem, setDetailsItem] = useState(null);
 
   const openCreator = useCallback(() => {
     setCreatorVisible(true);
@@ -64,20 +63,6 @@ export default ({
       editorOnClose();
     }
   }, [editorCheckingMessage, editorOnClose]);
-  const openDetails = useCallback((item) => {
-    setDetailsVisible(true);
-    setDetailsItem(item);
-    if (detailsOnOpen) {
-      detailsOnOpen(item);
-    }
-  }, [detailsOnOpen]);
-  const closeDetails = useCallback(() => {
-    setDetailsVisible(false);
-    setDetailsItem(null);
-    if (detailsOnClose) {
-      detailsOnClose();
-    }
-  }, []);
   const reset = useCallback(async () => {
     setDateValues([]);
     setQueryField(defaultQueryField);
@@ -90,6 +75,13 @@ export default ({
     defaultQueryField,
     defaultFilterValues,
   ]);
+
+  const {
+    detailsItem,
+    detailsVisible,
+    openDetails,
+    closeDetails,
+  } = useDetails({ detailsOnOpen, detailsOnClose });
 
   return {
     defaultFilterValues,
