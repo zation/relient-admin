@@ -4,6 +4,7 @@ export FormPop from './form-pop';
 export FormError from './form-error';
 export Link from './link';
 export TableHeader from './table-header';
+export getSwitchStatus from './get-switch-status';
 export CheckBox from './fields/checkbox';
 export CheckBoxGroup from './fields/checkbox-group';
 export DateMonth from './fields/date-month';

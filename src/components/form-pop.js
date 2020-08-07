@@ -62,7 +62,6 @@ const result = ({
           submitSucceeded,
           submitting,
           pristine,
-          hasValidationErrors,
           submitError,
         } = form.getState();
         useIsFormEditing({ dirty, submitSucceeded, checkEditing, visible });
@@ -105,7 +104,7 @@ const result = ({
               style={{ marginLeft: 20 }}
               type="primary"
               loading={submitting}
-              disabled={pristine || hasValidationErrors}
+              disabled={pristine}
             >
               {i18n('submit')}
             </Button>
