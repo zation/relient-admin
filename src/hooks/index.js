@@ -6,3 +6,4 @@ export useFieldInfo from './use-field-info';
 export useSubmit from './use-submit';
 export useIsFormEditing from './use-is-form-editing';
 export useDetails from './use-details';
+export useTableFilter from './use-table-filter';
