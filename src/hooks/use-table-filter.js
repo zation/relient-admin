@@ -17,7 +17,7 @@ export default ({ changeFilterValue, dataKey, options }) => {
           changeFilterValue(join(',')(selectedKeys), dataKey);
           setVisible(false);
         }}
-        onReset={() => changeFilterValue(undefined, 'accountIds')}
+        onReset={() => changeFilterValue(undefined, dataKey)}
       />
     ),
   }), [visible, changeFilterValue, dataKey]);
