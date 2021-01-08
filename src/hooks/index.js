@@ -7,3 +7,4 @@ export useSubmit from './use-submit';
 export useIsFormEditing from './use-is-form-editing';
 export useDetails from './use-details';
 export useTableFilter from './use-table-filter';
+export useTableSearch from './use-table-search';
