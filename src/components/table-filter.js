@@ -1,5 +1,5 @@
 import React, { useCallback, useContext } from 'react';
-import { array, bool, func } from 'prop-types';
+import { array, string, func, bool } from 'prop-types';
 import { ConfigContext } from 'antd/lib/config-provider';
 import { Menu, Button, Checkbox, Radio } from 'antd';
 import { flow, prop } from 'lodash/fp';
@@ -39,13 +39,13 @@ function renderFilterItems(
 }
 
 const result = ({
-  filterMultiple = true,
   filters,
   selectedKeys,
   setSelectedKeys,
   clearFilters,
-  onConfirm,
   onReset,
+  onConfirm,
+  multiple = true,
 }) => {
   const { locale, getPrefixCls } = useContext(ConfigContext);
   const select = useCallback(flow(prop('selectedKeys'), setSelectedKeys), [setSelectedKeys]);
@@ -62,7 +62,7 @@ const result = ({
   return (
     <>
       <Menu
-        multiple={filterMultiple}
+        multiple={multiple}
         prefixCls={`${dropdownPrefixCls}-menu`}
         className={`${dropdownPrefixCls}-menu-without-submenu`}
         onSelect={select}
@@ -73,7 +73,7 @@ const result = ({
           filters || [],
           prefixCls,
           selectedKeys,
-          filterMultiple,
+          multiple,
         )}
       </Menu>
       <div className={`${prefixCls}-dropdown-btns`}>
@@ -89,14 +89,19 @@ const result = ({
 };
 
 result.propTypes = {
-  filterMultiple: bool,
-  filters: array,
-  selectedKeys: array,
+  // from antd
+  prefixCls: string.isRequired,
   setSelectedKeys: func,
-  onReset: func,
-  onConfirm: func,
+  selectedKeys: array,
+  confirm: func.isRequired,
   clearFilters: func,
-  confirm: func,
+  filters: array,
+  visible: bool.isRequired,
+
+  // from usage
+  onReset: func.isRequired,
+  onConfirm: func.isRequired,
+  multiple: bool,
 };
 
 result.displayName = __filename;

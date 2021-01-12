@@ -75,7 +75,7 @@ const result = ({
         />
       )}
 
-      <div style={{ position: 'relative', bottom: 4 }}>
+      <div className="relient-admin-table-header-button-wrapper">
         {createButton && (createButton.link ? (
           <Link to={createButton.link}>
             <Button type="primary" size="large">
@@ -99,7 +99,7 @@ const result = ({
           dropdownMatchSelectWidth = false,
         }) => (
           <div key={dataKey}>
-            <span style={{ marginRight: 10 }}>{label}</span>
+            <span className="relient-admin-table-header-operation-label">{label}</span>
             <Select
               onSelect={(selectedValue) => filter.onSelect(selectedValue, dataKey)}
               placeholder={placeholder}
@@ -122,7 +122,7 @@ const result = ({
 
         {datePicker && map(({ label, dataKey, disabledDate }) => (
           <div key={dataKey}>
-            <span style={{ marginRight: 10 }}>{label}</span>
+            <span className="relient-admin-table-header-operation-label">{label}</span>
             <RangePicker
               format="YYYY-MM-DD"
               onChange={(
@@ -140,7 +140,7 @@ const result = ({
               <Select
                 onSelect={query.onFieldChange}
                 value={query.field}
-                style={{ marginRight: 10 }}
+                className="relient-admin-table-header-operation-label"
                 dropdownMatchSelectWidth={false}
               >
                 {map(({ key, text }) => (

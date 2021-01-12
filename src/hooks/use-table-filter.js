@@ -1,24 +1,39 @@
-/* eslint-disable react/jsx-props-no-spreading */
+/* eslint-disable react/prop-types */
 import React, { useMemo, useState } from 'react';
 import { join } from 'lodash/fp';
 import TableFilter from '../components/table-filter';
 
-export default ({ changeFilterValue, dataKey, options }) => {
-  const [visible, setVisible] = useState(false);
+export default ({ changeFilterValue, dataKey, options, multiple }) => {
+  const [filterDropdownVisible, onFilterDropdownVisibleChange] = useState(false);
 
   return useMemo(() => ({
     filters: options,
-    filterDropdownVisible: visible,
-    onFilterDropdownVisibleChange: setVisible,
-    filterDropdown: (props) => (
+    filterDropdownVisible,
+    onFilterDropdownVisibleChange,
+    filterDropdown: ({
+      prefixCls,
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+      filters,
+      visible,
+    }) => (
       <TableFilter
-        {...props}
-        onConfirm={({ selectedKeys }) => {
+        multiple={multiple}
+        prefixCls={prefixCls}
+        setSelectedKeys={setSelectedKeys}
+        selectedKeys={selectedKeys}
+        clearFilters={clearFilters}
+        filters={filters}
+        visible={visible}
+        confirm={confirm}
+        onConfirm={() => {
           changeFilterValue(join(',')(selectedKeys), dataKey);
-          setVisible(false);
+          onFilterDropdownVisibleChange(false);
         }}
         onReset={() => changeFilterValue(undefined, dataKey)}
       />
     ),
-  }), [visible, changeFilterValue, dataKey]);
+  }), [filterDropdownVisible, changeFilterValue, dataKey, multiple]);
 };

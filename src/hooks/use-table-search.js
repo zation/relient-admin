@@ -1,23 +1,49 @@
-/* eslint-disable react/jsx-props-no-spreading */
+/* eslint-disable react/prop-types */
 import React, { useMemo, useState } from 'react';
+import { SearchOutlined } from '@ant-design/icons';
 import TableSearch from '../components/table-search';
 
-export default ({ changeFilterValue, dataKey, placeholder }) => {
-  const [visible, setVisible] = useState(false);
+export default ({ changeFilterValue, dataKey, options, icon, placeholder, width }) => {
+  const [filterDropdownVisible, onFilterDropdownVisibleChange] = useState(false);
+  const [filtered, setFiltered] = useState(false);
 
   return useMemo(() => ({
-    filterDropdownVisible: visible,
-    onFilterDropdownVisibleChange: setVisible,
-    filterDropdown: (props) => (
+    filters: options,
+    filterDropdownVisible,
+    onFilterDropdownVisibleChange,
+    filterIcon: <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
+    filterDropdown: ({
+      prefixCls,
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+      filters,
+      visible,
+    }) => (
       <TableSearch
-        {...props}
+        prefixCls={prefixCls}
+        setSelectedKeys={setSelectedKeys}
+        selectedKeys={selectedKeys}
+        clearFilters={clearFilters}
+        filters={filters}
+        visible={visible}
+        confirm={confirm}
+        icon={icon}
         placeholder={placeholder}
-        onConfirm={({ selectedKeys }) => {
-          changeFilterValue(selectedKeys, dataKey);
-          setVisible(false);
+        width={width}
+        onConfirm={(value) => {
+          changeFilterValue(value, dataKey);
+          if (value) {
+            setFiltered(true);
+          }
+          onFilterDropdownVisibleChange(false);
         }}
-        onReset={() => changeFilterValue(undefined, dataKey)}
+        onReset={() => {
+          setFiltered(false);
+          changeFilterValue(undefined, dataKey);
+        }}
       />
     ),
-  }), [visible, changeFilterValue, dataKey, placeholder]);
+  }), [filterDropdownVisible, changeFilterValue, dataKey, icon, placeholder, width]);
 };

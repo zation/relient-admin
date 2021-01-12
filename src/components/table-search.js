@@ -1,66 +1,73 @@
-import React, { useCallback, useContext } from 'react';
-import { array, func, string, node } from 'prop-types';
+import React, { useCallback, useContext, useState } from 'react';
+import { array, func, string, bool } from 'prop-types';
 import { ConfigContext } from 'antd/lib/config-provider';
-import { Input, Button, Space } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
-import { isEmpty } from 'lodash/fp';
+import { Input, Button } from 'antd';
 
 const result = ({
-  icon = <SearchOutlined />,
   width = 188,
-  setSelectedKeys,
-  selectedKeys,
   placeholder,
   clearFilters,
   onConfirm,
   onReset,
 }) => {
-  const { locale } = useContext(ConfigContext);
+  const { locale, getPrefixCls } = useContext(ConfigContext);
+
+  const [inputValue, setInputValue] = useState('');
+
+  const onInputChange = useCallback(({ target: { value } }) => setInputValue(value), []);
 
   const onFinalConfirm = useCallback(() => {
-    onConfirm(isEmpty(selectedKeys) ? { selectedKeys: undefined } : { selectedKeys });
-  }, [selectedKeys, onConfirm]);
+    onConfirm(inputValue);
+  }, [inputValue, onConfirm]);
 
   const onFinalReset = useCallback(() => {
     clearFilters();
+    setInputValue('');
     onReset();
-  }, [setSelectedKeys, clearFilters]);
+  }, [onReset, clearFilters]);
+
+  const prefixCls = getPrefixCls('table-filter');
 
   return (
-    <div style={{ padding: 8, width: { width } }}>
-      <Input
-        placeholder={placeholder}
-        value={selectedKeys[0]}
-        onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-        onPressEnter={onFinalConfirm}
-        style={{ width: { width }, marginBottom: 8, display: 'block' }}
-      />
-      <Space>
-        <Button onClick={onFinalReset} size="small" style={{ width: 90 }}>
+    <div>
+      <div style={{ padding: 8, width }}>
+        <Input
+          placeholder={placeholder}
+          value={inputValue}
+          onChange={onInputChange}
+          onPressEnter={onFinalConfirm}
+        />
+      </div>
+      <div className={`${prefixCls}-dropdown-btns`}>
+        <Button type="link" onClick={onFinalReset} size="small" disabled={inputValue === ''}>
           {locale.Table.filterReset}
         </Button>
         <Button
-          icon={icon}
           type="primary"
           size="small"
           onClick={onFinalConfirm}
-          style={{ width: 90 }}
         >
           {locale.Table.filterConfirm}
         </Button>
-      </Space>
+      </div>
     </div>
   );
 };
 
 result.propTypes = {
-  icon: node,
+  // from antd
+  prefixCls: string.isRequired,
   setSelectedKeys: func,
   selectedKeys: array,
+  confirm: func.isRequired,
   clearFilters: func,
+  filters: array,
+  visible: bool.isRequired,
+
+  // from usage
   placeholder: string,
-  onConfirm: func,
-  onReset: func,
+  onConfirm: func.isRequired,
+  onReset: func.isRequired,
   width: string,
 };
 
