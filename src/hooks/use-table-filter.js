@@ -3,13 +3,16 @@ import React, { useMemo, useState } from 'react';
 import { join } from 'lodash/fp';
 import TableFilter from '../components/table-filter';
 
-export default ({ changeFilterValue, dataKey, options, multiple }) => {
+export default ({ changeFilterValue, dataKey, options, multiple, filterIcon }) => {
   const [filterDropdownVisible, onFilterDropdownVisibleChange] = useState(false);
+  const [filteredValue, setFilteredValue] = useState(false);
 
   return useMemo(() => ({
     filters: options,
     filterDropdownVisible,
     onFilterDropdownVisibleChange,
+    filteredValue,
+    filterIcon,
     filterDropdown: ({
       prefixCls,
       setSelectedKeys,
@@ -30,10 +33,14 @@ export default ({ changeFilterValue, dataKey, options, multiple }) => {
         confirm={confirm}
         onConfirm={() => {
           changeFilterValue(join(',')(selectedKeys), dataKey);
+          setFilteredValue(selectedKeys);
           onFilterDropdownVisibleChange(false);
         }}
-        onReset={() => changeFilterValue(undefined, dataKey)}
+        onReset={() => {
+          setFilteredValue(undefined);
+          changeFilterValue(undefined, dataKey);
+        }}
       />
     ),
-  }), [filterDropdownVisible, changeFilterValue, dataKey, multiple]);
+  }), [filterDropdownVisible, changeFilterValue, dataKey, multiple, filterIcon]);
 };
