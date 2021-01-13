@@ -5,13 +5,14 @@ import TableSearch from '../components/table-search';
 
 export default ({ changeFilterValue, dataKey, options, icon, placeholder, width }) => {
   const [filterDropdownVisible, onFilterDropdownVisibleChange] = useState(false);
-  const [filtered, setFiltered] = useState(false);
+  const [filteredValue, setFilteredValue] = useState(false);
 
   return useMemo(() => ({
     filters: options,
     filterDropdownVisible,
     onFilterDropdownVisibleChange,
-    filterIcon: <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
+    filteredValue, // used for icon highlight
+    filterIcon: <SearchOutlined />,
     filterDropdown: ({
       prefixCls,
       setSelectedKeys,
@@ -34,13 +35,11 @@ export default ({ changeFilterValue, dataKey, options, icon, placeholder, width 
         width={width}
         onConfirm={(value) => {
           changeFilterValue(value, dataKey);
-          if (value) {
-            setFiltered(true);
-          }
+          setFilteredValue(value ? [value] : undefined);
           onFilterDropdownVisibleChange(false);
         }}
         onReset={() => {
-          setFiltered(false);
+          setFilteredValue(undefined);
           changeFilterValue(undefined, dataKey);
         }}
       />
