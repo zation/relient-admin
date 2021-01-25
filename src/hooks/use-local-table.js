@@ -182,6 +182,9 @@ export default ({
     }
   }, [currentPage, pageSize]);
 
+  const [customFussyQueryValue, changeCustomFussyQueryValue] = useState('');
+  const [customFussyQueryField, changeCustomFussyQueryField] = useState('');
+
   const onQueryFieldChange = useCallback((fieldKey) => {
     if (isFunction(onFieldChange)) {
       onFieldChange(fieldKey);
@@ -272,6 +275,15 @@ export default ({
         }
       }
 
+      let customFussyQueryResult = true;
+      if (customFussyQueryValue && customFussyQueryField) {
+        customFussyQueryResult = flow(
+          prop(customFussyQueryField),
+          toUpper,
+          includes(toUpper(customFussyQueryValue)),
+        )(item);
+      }
+
       let filterResult = true;
       if (filterValues.length > 0) {
         filterResult = every(({ dataKey, value }) => {
@@ -292,7 +304,7 @@ export default ({
         })(dateValues);
       }
 
-      return filterResult && queryResult && datesResult;
+      return filterResult && queryResult && datesResult && customFussyQueryResult;
     },
   ), [
     queryValue,
@@ -300,9 +312,13 @@ export default ({
     filterValues,
     dateValues,
     filters,
+    customFussyQueryField,
+    customFussyQueryValue,
   ]);
 
   return {
+    changeCustomFussyQueryField,
+    changeCustomFussyQueryValue,
     getDataSource,
     filterValues,
     changeFilterValue: onFilterValueChange,

@@ -7,8 +7,9 @@ const defaultFilterIcon = <SearchOutlined />;
 
 export default ({
   changeFilterValue,
+  changeQueryValue,
+  changeQueryField,
   dataKey,
-  options,
   filterIcon = defaultFilterIcon,
   placeholder,
   width,
@@ -18,7 +19,6 @@ export default ({
 
   return useMemo(
     () => ({
-      filters: options,
       filterDropdownVisible,
       onFilterDropdownVisibleChange,
       filteredValue, // used for icon highlight
@@ -29,7 +29,6 @@ export default ({
         selectedKeys,
         confirm,
         clearFilters,
-        filters,
         visible,
       }) => (
         <TableSearch
@@ -37,23 +36,43 @@ export default ({
           setSelectedKeys={setSelectedKeys}
           selectedKeys={selectedKeys}
           clearFilters={clearFilters}
-          filters={filters}
           visible={visible}
           confirm={confirm}
           placeholder={placeholder}
           width={width}
           onConfirm={(value) => {
-            changeFilterValue(value, dataKey);
+            if (changeFilterValue) {
+              changeFilterValue(value, dataKey);
+            }
+            if (changeQueryField && changeQueryValue) {
+              changeQueryField(dataKey);
+              changeQueryValue(value);
+            }
             setFilteredValue(value ? [value] : undefined);
             onFilterDropdownVisibleChange(false);
           }}
           onReset={() => {
+            if (changeFilterValue) {
+              changeFilterValue(undefined, dataKey);
+            }
+            if (changeQueryField && changeQueryValue) {
+              changeQueryField(dataKey);
+              changeQueryValue(undefined);
+            }
             setFilteredValue(undefined);
-            changeFilterValue(undefined, dataKey);
           }}
         />
       ),
     }),
-    [filterDropdownVisible, changeFilterValue, dataKey, filterIcon, placeholder, width],
+    [
+      filterDropdownVisible,
+      changeFilterValue,
+      dataKey,
+      filterIcon,
+      placeholder,
+      width,
+      changeQueryField,
+      changeQueryValue,
+    ],
   );
 };
