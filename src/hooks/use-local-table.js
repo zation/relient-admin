@@ -182,8 +182,24 @@ export default ({
     }
   }, [currentPage, pageSize]);
 
-  const [customFussyQueryValue, changeCustomFussyQueryValue] = useState('');
-  const [customFussyQueryField, changeCustomFussyQueryField] = useState('');
+  const [customQueries, changeCustomQueries] = useState([]);
+  // value: string
+  // field: string
+  // fussy: bool
+  const changeCustomQuery = useCallback((value, field, customFussy) => {
+    const existingQuery = find(propEq('field', field))(customQueries);
+    if (!existingQuery) {
+      changeCustomQueries([...customQueries, { field, value, fussy: customFussy }]);
+    } else if (!value) {
+      changeCustomQueries(reject(propEq('field', field))(customQueries));
+    } else if (existingQuery.value !== value) {
+      changeCustomQueries(
+        map((query) => (query.field === field
+          ? { field, value, fussy: customFussy }
+          : query))(customQueries),
+      );
+    }
+  }, [customQueries, changeCustomQueries]);
 
   const onQueryFieldChange = useCallback((fieldKey) => {
     if (isFunction(onFieldChange)) {
@@ -275,13 +291,14 @@ export default ({
         }
       }
 
-      let customFussyQueryResult = true;
-      if (customFussyQueryValue && customFussyQueryField) {
-        customFussyQueryResult = flow(
-          prop(customFussyQueryField),
-          toUpper,
-          includes(toUpper(customFussyQueryValue)),
-        )(item);
+      let customQueryResult = true;
+      if (customQueries.length > 0) {
+        customQueryResult = every(({ value, fussy: customFussy, field }) => (
+          customFussy ? flow(
+            prop(field),
+            toUpper,
+            includes(toUpper(value)),
+          )(item) : propEq(field, value)(item)))(customQueries);
       }
 
       let filterResult = true;
@@ -304,7 +321,7 @@ export default ({
         })(dateValues);
       }
 
-      return filterResult && queryResult && datesResult && customFussyQueryResult;
+      return filterResult && queryResult && datesResult && customQueryResult;
     },
   ), [
     queryValue,
@@ -312,13 +329,11 @@ export default ({
     filterValues,
     dateValues,
     filters,
-    customFussyQueryField,
-    customFussyQueryValue,
+    customQueries,
   ]);
 
   return {
-    changeCustomFussyQueryField,
-    changeCustomFussyQueryValue,
+    changeCustomQuery,
     getDataSource,
     filterValues,
     changeFilterValue: onFilterValueChange,

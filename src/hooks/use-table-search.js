@@ -7,12 +7,11 @@ const defaultFilterIcon = <SearchOutlined />;
 
 export default ({
   changeFilterValue,
-  changeQueryValue,
-  changeQueryField,
   dataKey,
   filterIcon = defaultFilterIcon,
   placeholder,
   width,
+  fussy,
 }) => {
   const [filterDropdownVisible, onFilterDropdownVisibleChange] = useState(false);
   const [filteredValue, setFilteredValue] = useState(false);
@@ -41,24 +40,12 @@ export default ({
           placeholder={placeholder}
           width={width}
           onConfirm={(value) => {
-            if (changeFilterValue) {
-              changeFilterValue(value, dataKey);
-            }
-            if (changeQueryField && changeQueryValue) {
-              changeQueryField(dataKey);
-              changeQueryValue(value);
-            }
+            changeFilterValue(value, dataKey, fussy);
             setFilteredValue(value ? [value] : undefined);
             onFilterDropdownVisibleChange(false);
           }}
           onReset={() => {
-            if (changeFilterValue) {
-              changeFilterValue(undefined, dataKey);
-            }
-            if (changeQueryField && changeQueryValue) {
-              changeQueryField(dataKey);
-              changeQueryValue(undefined);
-            }
+            changeFilterValue(undefined, dataKey, fussy);
             setFilteredValue(undefined);
           }}
         />
@@ -71,8 +58,7 @@ export default ({
       filterIcon,
       placeholder,
       width,
-      changeQueryField,
-      changeQueryValue,
+      fussy,
     ],
   );
 };
