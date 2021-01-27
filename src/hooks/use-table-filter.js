@@ -3,7 +3,7 @@ import React, { useMemo, useState } from 'react';
 import { join } from 'lodash/fp';
 import TableFilter from '../components/table-filter';
 
-export default ({ changeFilterValue, dataKey, options, multiple, filterIcon }) => {
+export default ({ changeFilterValue, dataKey, options, multiple, filterIcon, onFilter }) => {
   const [filterDropdownVisible, onFilterDropdownVisibleChange] = useState(false);
   const [filteredValue, setFilteredValue] = useState(false);
 
@@ -32,7 +32,7 @@ export default ({ changeFilterValue, dataKey, options, multiple, filterIcon }) =
         visible={visible}
         confirm={confirm}
         onConfirm={() => {
-          changeFilterValue(join(',')(selectedKeys), dataKey);
+          changeFilterValue(join(',')(selectedKeys), dataKey, onFilter);
           setFilteredValue(selectedKeys);
           onFilterDropdownVisibleChange(false);
         }}
@@ -42,5 +42,5 @@ export default ({ changeFilterValue, dataKey, options, multiple, filterIcon }) =
         }}
       />
     ),
-  }), [filterDropdownVisible, changeFilterValue, dataKey, multiple, filterIcon]);
+  }), [filterDropdownVisible, changeFilterValue, dataKey, multiple, filterIcon, onFilter]);
 };
