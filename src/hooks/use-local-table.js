@@ -183,19 +183,20 @@ export default ({
   }, [currentPage, pageSize]);
 
   const [customQueries, changeCustomQueries] = useState([]);
+
   // value: string
   // field: string
-  // fussy: bool
-  const changeCustomQuery = useCallback((value, field, customFussy) => {
+  // onFilter: function
+  const changeCustomQuery = useCallback((value, field, onFilter) => {
     const existingQuery = find(propEq('field', field))(customQueries);
     if (!existingQuery) {
-      changeCustomQueries([...customQueries, { field, value, fussy: customFussy }]);
+      changeCustomQueries([...customQueries, { field, value, onFilter }]);
     } else if (!value) {
       changeCustomQueries(reject(propEq('field', field))(customQueries));
     } else if (existingQuery.value !== value) {
       changeCustomQueries(
         map((query) => (query.field === field
-          ? { field, value, fussy: customFussy }
+          ? { field, value, onFilter }
           : query))(customQueries),
       );
     }
@@ -276,29 +277,24 @@ export default ({
     (item) => {
       let queryResult = true;
       if (queryValue) {
+        const match = (key) => flow(
+          prop(key),
+          toUpper,
+          includes(toUpper(queryValue)),
+        )(item);
         if (fussy) {
-          queryResult = any(({ key }) => flow(
-            prop(key),
-            toUpper,
-            includes(toUpper(queryValue)),
-          )(item))(fields);
+          queryResult = any(flow(prop('key'), match))(fields);
         } else if (queryField) {
-          queryResult = flow(
-            prop(queryField),
-            toUpper,
-            includes(toUpper(queryValue)),
-          )(item);
+          queryResult = match(queryField);
         }
       }
 
       let customQueryResult = true;
       if (customQueries.length > 0) {
-        customQueryResult = every(({ value, fussy: customFussy, field }) => (
-          customFussy ? flow(
-            prop(field),
-            toUpper,
-            includes(toUpper(value)),
-          )(item) : propEq(field, value)(item)))(customQueries);
+        customQueryResult = every(({ value, onFilter, field }) => (
+          onFilter
+            ? onFilter(item, field, value)
+            : propEq(field, value)(item)))(customQueries);
       }
 
       let filterResult = true;

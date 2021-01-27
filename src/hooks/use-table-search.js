@@ -11,7 +11,7 @@ export default ({
   filterIcon = defaultFilterIcon,
   placeholder,
   width,
-  fussy,
+  onFilter,
 }) => {
   const [filterDropdownVisible, onFilterDropdownVisibleChange] = useState(false);
   const [filteredValue, setFilteredValue] = useState(false);
@@ -40,12 +40,12 @@ export default ({
           placeholder={placeholder}
           width={width}
           onConfirm={(value) => {
-            changeFilterValue(value, dataKey, fussy);
+            changeFilterValue(value, dataKey, onFilter);
             setFilteredValue(value ? [value] : undefined);
             onFilterDropdownVisibleChange(false);
           }}
           onReset={() => {
-            changeFilterValue(undefined, dataKey, fussy);
+            changeFilterValue(undefined, dataKey, onFilter);
             setFilteredValue(undefined);
           }}
         />
@@ -58,7 +58,7 @@ export default ({
       filterIcon,
       placeholder,
       width,
-      fussy,
+      onFilter,
     ],
   );
 };
