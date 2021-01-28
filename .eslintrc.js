@@ -1,9 +1,10 @@
 // ESLint configuration
 // http://eslint.org/docs/user-guide/configuring
 module.exports = {
-  parser: 'babel-eslint',
+  parser: '@typescript-eslint/parser',
 
   plugins: [
+    '@typescript-eslint',
     'css-modules',
   ],
 
@@ -12,13 +13,19 @@ module.exports = {
   },
 
   extends: [
-    'airbnb',
+    'airbnb-typescript',
     'plugin:css-modules/recommended',
   ],
+
+  parserOptions: {
+    project: './tsconfig.json',
+  },
 
   env: {
     browser: true,
   },
+
+  ignorePatterns: ['.eslintrc.js'],
 
   rules: {
     'react/jsx-filename-extension': ['error', { extensions: ['.js', '.jsx'] }],
