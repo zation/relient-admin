@@ -1,27 +1,46 @@
-import UniversalRouter from 'universal-router';
-import { isFunction, isArray } from 'lodash/fp';
+import UniversalRouter, { Routes, Route, RouteContext } from 'universal-router';
+import { isFunction, isArray, has } from 'lodash/fp';
 import { getEntity } from 'relient/selectors';
 import { getWithBaseUrl } from 'relient/url';
+import type { ElementType } from 'react';
 import { setFeature } from './actions/feature';
+import type { Feature } from './features';
 
-export default ({ routes, auth, baseUrl = '', ...options }) => new UniversalRouter(routes, {
+interface Params {
+  routes: Routes
+  auth: (params: { requireAuth?: boolean, state: object }) => { redirect?: string }
+  baseUrl?: string
+}
+
+interface ExtendedRoute extends Route {
+  load?: () => Promise<{
+    default: (context: RouteContext) => Promise<ExtendedRoute | Routes>
+  }>
+  onEnter?: (context: RouteContext, params: any) => void
+  feature?: Feature
+  requireAuth?: boolean
+  component?: ElementType
+  redirect: string
+}
+
+export default ({ routes, auth, baseUrl = '', ...options }: Params) => new UniversalRouter(routes, {
   ...options,
   baseUrl: baseUrl === '/' ? '' : baseUrl,
   async resolveRoute(context) {
     const {
       route,
-      route: {
-        load,
-        action,
-        onEnter,
-        feature,
-        requireAuth,
-        component,
-        redirect,
-      },
       store: { dispatch, getState },
       params,
     } = context;
+    const {
+      load,
+      action,
+      onEnter,
+      feature,
+      requireAuth,
+      component,
+      redirect,
+    } = route as ExtendedRoute;
 
     const state = getState();
 
@@ -50,7 +69,7 @@ export default ({ routes, auth, baseUrl = '', ...options }) => new UniversalRout
     if (isFunction(load)) {
       const module = await load();
       const result = await module.default(context);
-      if (result.component) {
+      if (has('component')(result)) {
         return result;
       }
       if (isArray(result)) {
@@ -58,7 +77,7 @@ export default ({ routes, auth, baseUrl = '', ...options }) => new UniversalRout
       }
     }
     if (isFunction(action)) {
-      const result = await action(context);
+      const result = await action(context, params);
       if (result.feature) {
         dispatch(setFeature(result.feature));
       }

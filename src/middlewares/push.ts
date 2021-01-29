@@ -1,9 +1,10 @@
 import { PUSH } from 'relient/actions/history';
 import { startsWith } from 'lodash/fp';
 import { getWithBaseUrl } from 'relient/url';
+import type { Middleware } from 'redux';
 import { getFeatureBy } from '../features';
 
-export default (baseUrl) => () => (next) => (action) => {
+export default <State>(baseUrl: string): Middleware<{}, State> => () => (next) => (action) => {
   const {
     payload,
     type,

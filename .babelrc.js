@@ -13,7 +13,7 @@ module.exports = {
     '@babel/react',
   ],
   plugins: [
-    'babel/plugin-transform-typescript',
+    // '@babel/plugin-transform-typescript',
     ['import', { libraryName: 'antd', style: false }],
     ['lodash', { id: ['lodash'] }],
     ['@babel/plugin-proposal-decorators', { legacy: true }],

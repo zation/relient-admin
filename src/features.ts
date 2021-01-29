@@ -1,20 +1,32 @@
 import { flow, map, last, prop, join } from 'lodash/fp';
+import { Component } from 'react';
 
-let features = [];
+export interface Feature {
+  key: string
+  link: string
+  text: string
+  icon?: Component
+  items?: [Feature]
+}
 
-export const setFeatures = (newFeatures) => {
+let features: Feature[] = [];
+
+export const setFeatures = (newFeatures: Feature[]) => {
   features = newFeatures;
 };
 
-export const getSelectedFeatures = (key, items = features, previous = []) => {
+export const getSelectedFeatures = (
+  key: string,
+  items = features,
+  previous: Feature[] = [],
+): Feature[] | null => {
   for (let index = 0; index < items.length; index += 1) {
     const feature = items[index];
     if (feature.key === key) {
       return [...previous, feature];
     }
     if (feature.items) {
-      const result = getSelectedFeatures(key, feature.items, [...previous,
-        feature]);
+      const result = getSelectedFeatures(key, feature.items, [...previous, feature]);
       if (result) {
         return result;
       }
@@ -23,7 +35,7 @@ export const getSelectedFeatures = (key, items = features, previous = []) => {
   return null;
 };
 
-export const getFeatureBy = (attribute) => (key) => {
+export const getFeatureBy = (attribute: keyof Feature) => (key: string) => {
   const selectedFeatures = getSelectedFeatures(key);
   if (attribute === 'link') {
     return flow(map(prop('link')), join('/'))(selectedFeatures);

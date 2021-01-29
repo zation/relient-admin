@@ -17,21 +17,21 @@ export const maxLength = maxLengthValidator('maxLengthInvalid');
 export const positiveNumber = positiveNumberValidator('positiveNumberInvalid');
 export const lessOrEqualThan = lessOrEqualThanValidator('lessOrEqualThanInvalid');
 export const moreOrEqualThan = moreOrEqualThanValidator('moreOrEqualThanInvalid');
-export const number = (value) => {
+export const number = (value: string | null | undefined | number) => {
   if (value === '' || isNil(value) || isFinite(Number(value))) {
     return undefined;
   }
   return 'numberInvalid';
 };
 
-export const price = (value) => {
+export const price = (value: string | null | undefined | number) => {
   if (value === '' || isNil(value)) {
     return undefined;
   }
   if (!isFinite(Number(value))) {
     return 'numberInvalid';
   }
-  if (Number(value) > 0 && flow(split('.'), nth(1), size)(value) <= 2) {
+  if (typeof value === 'string' && Number(value) > 0 && flow(split('.'), nth(1), size)(value) <= 2) {
     return undefined;
   }
   return 'priceInvalid';

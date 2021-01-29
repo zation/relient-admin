@@ -1,4 +1,9 @@
-export default (query) => (content) => {
+export interface Query {
+  size: number | string
+  page: number | string
+}
+
+export default (query: Query) => (content: []) => {
   const size = Number(query.size);
   const page = Number(query.page);
   return {

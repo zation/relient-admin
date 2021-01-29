@@ -1083,6 +1083,14 @@
   resolved "https://registry.npm.taobao.org/@types/domhandler/download/@types/domhandler-2.4.1.tgz?cache=0&sync_timestamp=1605053189169&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40types%2Fdomhandler%2Fdownload%2F%40types%2Fdomhandler-2.4.1.tgz#7b3b347f7762180fbcb1ece1ce3dd0ebbb8c64cf"
   integrity sha1-ezs0f3diGA+8sezhzj3Q67uMZM8=
 
+"@types/hoist-non-react-statics@^3.3.0":
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/@types/hoist-non-react-statics/-/hoist-non-react-statics-3.3.1.tgz#1124aafe5118cb591977aeb1ceaaed1070eb039f"
+  integrity sha512-iMIqiko6ooLrTh1joXodJK5X9xeEALT1kM5G3ZLhD3hszxBdIEd5C75U834D9mLcINgD4OyZf5uQXjkuYydWvA==
+  dependencies:
+    "@types/react" "*"
+    hoist-non-react-statics "^3.3.0"
+
 "@types/json-schema@^7.0.3":
   version "7.0.7"
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.7.tgz#98a993516c859eb0d5c4c8f098317a9ea68db9ad"
@@ -1119,6 +1127,16 @@
   integrity sha512-lUqY7OlkF/RbNtD5nIq7ot8NquXrdFrjSOR6+w9a9RFQevGi1oZO1dcJbXMeONAPKtZ2UrZOEJ5UOCVsxbLk/g==
   dependencies:
     "@types/react" "*"
+
+"@types/react-redux@^7.1.16":
+  version "7.1.16"
+  resolved "https://registry.yarnpkg.com/@types/react-redux/-/react-redux-7.1.16.tgz#0fbd04c2500c12105494c83d4a3e45c084e3cb21"
+  integrity sha512-f/FKzIrZwZk7YEO9E1yoxIuDNRiDducxkFlkw/GNMGEnK9n4K8wJzlJBghpSuOVDgEUHoDkDF7Gi9lHNQR4siw==
+  dependencies:
+    "@types/hoist-non-react-statics" "^3.3.0"
+    "@types/react" "*"
+    hoist-non-react-statics "^3.3.0"
+    redux "^4.0.0"
 
 "@types/react@*", "@types/react@^17.0.0":
   version "17.0.0"
@@ -2892,7 +2910,7 @@ has@^1.0.3:
   dependencies:
     function-bind "^1.1.1"
 
-hoist-non-react-statics@^3.3.2:
+hoist-non-react-statics@^3.3.0, hoist-non-react-statics@^3.3.2:
   version "3.3.2"
   resolved "https://registry.npm.taobao.org/hoist-non-react-statics/download/hoist-non-react-statics-3.3.2.tgz#ece0acaf71d62c2969c2ec59feff42a4b1a85b45"
   integrity sha1-7OCsr3HWLClpwuxZ/v9CpLGoW0U=
@@ -4710,7 +4728,7 @@ redux-actions@>=2.6.5:
     reduce-reducers "^0.4.3"
     to-camel-case "^1.0.0"
 
-redux@>=4.0.5:
+redux@>=4.0.5, redux@^4.0.0:
   version "4.0.5"
   resolved "https://registry.npm.taobao.org/redux/download/redux-4.0.5.tgz#4db5de5816e17891de8a80c424232d06f051d93f"
   integrity sha1-TbXeWBbheJHeioDEJCMtBvBR2T8=
@@ -4788,9 +4806,9 @@ regjsparser@^0.6.4:
     jsesc "~0.5.0"
 
 relient@>=4.4.1:
-  version "4.4.1"
-  resolved "https://registry.npm.taobao.org/relient/download/relient-4.4.1.tgz#f440a0bfeff979a16d3574af4ebd444d97dd6ffb"
-  integrity sha1-9ECgv+/5eaFtNXSvTr1ETZfdb/s=
+  version "4.4.2"
+  resolved "https://registry.yarnpkg.com/relient/-/relient-4.4.2.tgz#e94177cea0581056c1809cc34fb502e0a831bf6a"
+  integrity sha512-ZstKhvv4AntXrYx3m9f9V64skli6fK7g6w1QiixCV6BQPlTD1m39EVXFxSx76ohbpE//QivxxC1fDMKjX+zuVA==
   dependencies:
     bignumber.js "^9.0.0"
     config ">=3.3.0"

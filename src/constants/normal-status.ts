@@ -14,4 +14,4 @@ export const normalStatuses = keys(textMap);
 export const getNormalStatusOptions = getOptions(textMap);
 export const getNormalStatusText = getText(textMap);
 export const formatNormalStatus = eq(ACTIVE);
-export const parseNormalStatus = (value) => (value ? ACTIVE : INACTIVE);
+export const parseNormalStatus = (value: boolean | undefined | null) => (value ? ACTIVE : INACTIVE);
