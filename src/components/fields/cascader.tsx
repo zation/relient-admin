@@ -1,11 +1,23 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { object, string, bool, array, node, func } from 'prop-types';
 import { Form, Cascader } from 'antd';
+import type { ColProps } from 'antd/es/grid/col';
+import type { FieldInputProps, FieldMetaState } from 'react-final-form';
+import type { CascaderProps as AntCascaderProps, CascaderValueType } from 'antd/es/cascader';
 import useFieldInfo from '../../hooks/use-field-info';
 import defaultFieldLayout from '../../constants/default-field-layout';
 
 const { Item } = Form;
+
+export interface CascaderProps extends AntCascaderProps{
+  input: FieldInputProps<CascaderValueType>
+  meta: FieldMetaState<CascaderValueType>
+  layout?: { wrapperCol: ColProps, labelCol: ColProps }
+  label?: string
+  required?: boolean
+  extra?: ReactNode
+}
 
 const result = ({
   input,
@@ -19,7 +31,7 @@ const result = ({
   options,
   size,
   extra,
-}) => {
+}: CascaderProps) => {
   const { validateStatus, help } = useFieldInfo({ touched, error, submitError });
 
   return (
