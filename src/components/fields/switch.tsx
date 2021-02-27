@@ -1,25 +1,34 @@
-import React from 'react';
-import { string, object, bool, func, node } from 'prop-types';
-import { Form, DatePicker } from 'antd';
-import moment from 'moment';
+import React, { ReactNode } from 'react';
+import { string, object, bool, node } from 'prop-types';
+import { Form, Switch } from 'antd';
+import type { FieldInputProps, FieldMetaState } from 'react-final-form';
+import type { ColProps } from 'antd/es/grid/col';
 import useFieldInfo from '../../hooks/use-field-info';
 import defaultFieldLayout from '../../constants/default-field-layout';
 
 const { Item } = Form;
-const { MonthPicker } = DatePicker;
+
+export interface SwitchProps {
+  input: FieldInputProps<boolean | undefined>
+  meta: FieldMetaState<boolean | undefined>
+  layout?: { wrapperCol: ColProps, labelCol: ColProps }
+  label?: ReactNode
+  required?: boolean
+  disabled?: boolean
+  extra?: ReactNode
+  inputStyle: { [key: string]: string | number | null | undefined }
+}
 
 const result = ({
-  input,
+  input: { onChange, value },
   meta: { touched, error, submitError },
   layout: { wrapperCol, labelCol } = defaultFieldLayout,
   label,
-  placeholder,
   required,
   disabled,
-  disabledDate,
+  inputStyle,
   extra,
-  format = 'YYYY-MM',
-}) => {
+}: SwitchProps) => {
   const { validateStatus, help } = useFieldInfo({ touched, error, submitError });
 
   return (
@@ -33,13 +42,11 @@ const result = ({
       required={required}
       extra={extra}
     >
-      <MonthPicker
-        format={format}
-        value={input.value ? moment(input.value, format) : undefined}
-        onChange={(_, value) => input.onChange(value)}
-        placeholder={placeholder}
+      <Switch
+        checked={value}
+        onChange={onChange}
         disabled={disabled}
-        disabledDate={disabledDate}
+        style={inputStyle}
       />
     </Item>
   );
@@ -50,12 +57,10 @@ result.propTypes = {
   meta: object.isRequired,
   layout: object,
   label: string,
-  placeholder: string,
+  extra: node,
   required: bool,
   disabled: bool,
-  extra: node,
-  format: string,
-  disabledDate: func,
+  inputStyle: object,
 };
 
 result.displayName = __filename;

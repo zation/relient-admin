@@ -1,10 +1,13 @@
-import React, { useContext, useState } from 'react';
-import { Form, Upload, Message } from 'antd';
+import React, { ReactNode, useContext, useMemo, useState } from 'react';
+import { Form, Upload, message } from 'antd';
 import cookie from 'js-cookie';
 import { map, prop, reject, findIndex } from 'lodash/fp';
 import { object, string, bool, func, node } from 'prop-types';
 import { PlusOutlined } from '@ant-design/icons';
-import Carousel, { Modal, ModalGateway } from 'react-images';
+import Carousel, { Modal, ModalGateway, ViewType } from 'react-images';
+import type { FieldInputProps, FieldMetaState } from 'react-final-form';
+import type { ColProps } from 'antd/es/grid/col';
+import type { UploadFile, UploadFileStatus } from 'antd/es/upload/interface';
 import { View } from '../images';
 import { DomainContext } from '../../contexts';
 import useFieldInfo from '../../hooks/use-field-info';
@@ -12,6 +15,24 @@ import AUTHORIZATION from '../../constants/authorization';
 import defaultFieldLayout from '../../constants/default-field-layout';
 
 const { Item } = Form;
+
+export interface MultipleUploaderProps {
+  input: FieldInputProps<UploadFile[] | undefined>
+  meta: FieldMetaState<UploadFile[] | undefined>
+  layout?: { wrapperCol: ColProps, labelCol: ColProps }
+  label?: ReactNode
+  required?: boolean
+  disabled?: boolean
+  extra?: ReactNode
+  placeholder?: string
+  style?: { [key: string]: string | number | null | undefined }
+  onUploaded?: (url: string) => void
+  fileType?: string
+  accept?: string
+  action?: string
+  placeholderClassName?: string
+  className?: string
+}
 
 const result = ({
   input: { onChange, value },
@@ -27,11 +48,22 @@ const result = ({
   disabled,
   accept,
   action,
-}) => {
+  placeholderClassName,
+  className,
+}: MultipleUploaderProps) => {
   const { cdnDomain } = useContext(DomainContext);
   const { validateStatus, help } = useFieldInfo({ touched, error, submitError });
-  const [currentIndex, setCurrentIndex] = useState(null);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [modalVisible, setModalVisible] = useState(false);
+  const defaultFileList = useMemo(() => map(({ url, name, size, type }: UploadFile) => ({
+    uid: url || '',
+    url: `${cdnDomain}${url}`,
+    status: 'done' as UploadFileStatus,
+    size,
+    name,
+    type,
+  }))(value), [value]);
+  const authorization = cookie.get(AUTHORIZATION);
 
   return (
     <Item
@@ -43,6 +75,7 @@ const result = ({
       help={help}
       required={required}
       extra={extra}
+      className={className}
     >
       <div
         className="clearfix"
@@ -52,11 +85,7 @@ const result = ({
           action={action || `${global.location.origin}/api/resource`}
           listType="picture-card"
           data={{ fileType }}
-          defaultFileList={map(({ url }) => ({
-            uid: url,
-            url: `${cdnDomain}${url}`,
-            status: 'done',
-          }))(value)}
+          defaultFileList={defaultFileList}
           onChange={({ file: { uid, response, status } }) => {
             if (status === 'done') {
               if (onUploaded) {
@@ -66,18 +95,20 @@ const result = ({
               onChange(value ? [...value, newFile] : [newFile]);
             } else if (status === 'error') {
               const { errors } = response;
-              Message.error(map(prop('message'))(errors));
+              message.error(map(prop('message'))(errors));
             }
           }}
           onPreview={({ uid }) => {
-            setCurrentIndex(findIndex((file) => file.url === uid || file.uid === uid)(value));
+            setCurrentIndex(
+              findIndex((file: UploadFile) => file.url === uid || file.uid === uid)(value),
+            );
             setModalVisible(true);
           }}
           onRemove={({ uid }) => onChange(
-            reject((file) => file.url === uid || file.uid === uid)(value),
+            reject((file: UploadFile) => file.url === uid || file.uid === uid)(value),
           )}
           accept={accept}
-          headers={{ 'x-auth-token': cookie.get(AUTHORIZATION) }}
+          headers={authorization ? { 'x-auth-token': authorization } : undefined}
           name="file"
         >
           {disabled
@@ -85,7 +116,7 @@ const result = ({
             : (
               <div>
                 <PlusOutlined />
-                <div>{placeholder}</div>
+                <div className={placeholderClassName}>{placeholder}</div>
               </div>
             )}
         </Upload>
@@ -95,7 +126,7 @@ const result = ({
               <Carousel
                 components={{ View }}
                 currentIndex={currentIndex}
-                views={value}
+                views={value as any as ViewType[]}
               />
             </Modal>
           )}
@@ -119,6 +150,8 @@ result.propTypes = {
   extra: node,
   action: string,
   fileType: string,
+  placeholderClassName: string,
+  className: string,
 };
 
 result.displayName = __filename;

@@ -1,24 +1,50 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { object, string, bool, array, func, node } from 'prop-types';
 import { Form, Select } from 'antd';
 import { map } from 'lodash/fp';
-import useFieldInfo from '../../hooks/use-field-info';
+import type { SelectProps as AntdSelectProps } from 'antd/es/select';
+import type { FieldInputProps, FieldMetaState } from 'react-final-form';
+import type { ColProps } from 'antd/es/grid/col';
 import defaultFieldLayout from '../../constants/default-field-layout';
+import useFieldInfo from '../../hooks/use-field-info';
 
 const { Item } = Form;
 const { Option, OptGroup } = Select;
 
-const getOption = ({ text, value, disabled, className }) => (
+interface GetOptionProps {
+  text?: string
+  value: string
+  disabled?: boolean
+  className?: string
+}
+
+const getOption = ({ text, value, disabled, className }: GetOptionProps) => (
   <Option value={value} key={value} className={className} disabled={disabled}>{text}</Option>
 );
 
 getOption.propTypes = {
-  text: string.isRequired,
+  text: string,
   value: string.isRequired,
   disabled: bool,
   className: string,
 };
+
+export interface SelectOption {
+  value?: string
+  text?: string
+}
+
+export interface SelectProps extends Pick<AntdSelectProps<string>, 'showSearch' | 'mode' | 'optionFilterProp' | 'onSelect' | 'filterOption' | 'size' | 'defaultActiveFirstOption'> {
+  input: FieldInputProps<string>
+  meta: FieldMetaState<string>
+  layout?: { wrapperCol: ColProps, labelCol: ColProps }
+  label?: ReactNode
+  required?: boolean
+  disabled?: boolean
+  extra?: ReactNode
+  options: SelectOption[]
+}
 
 const result = ({
   input,
@@ -36,7 +62,7 @@ const result = ({
   filterOption,
   size,
   defaultActiveFirstOption,
-}) => {
+}: SelectProps) => {
   const { validateStatus, help } = useFieldInfo({ touched, error, submitError });
 
   return (

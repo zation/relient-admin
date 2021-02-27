@@ -1,11 +1,25 @@
-import React from 'react';
-import { string, node, object, bool, func, oneOfType } from 'prop-types';
+import React, { ReactNode } from 'react';
+import { string, object, bool, func, node } from 'prop-types';
 import { Form, DatePicker } from 'antd';
 import moment from 'moment';
+import type { FieldInputProps, FieldMetaState } from 'react-final-form';
+import type { ColProps } from 'antd/es/grid/col';
+import type { MonthPickerProps } from 'antd/es/date-picker';
 import useFieldInfo from '../../hooks/use-field-info';
 import defaultFieldLayout from '../../constants/default-field-layout';
 
 const { Item } = Form;
+const { MonthPicker } = DatePicker;
+
+export interface DateMonthProps extends Pick<MonthPickerProps, 'disabled' | 'disabledDate' | 'placeholder'>{
+  input: FieldInputProps<string | undefined>
+  meta: FieldMetaState<string | undefined>
+  layout?: { wrapperCol: ColProps, labelCol: ColProps }
+  label?: ReactNode
+  required?: boolean
+  extra?: ReactNode
+  dateFormat?: string
+}
 
 const result = ({
   input,
@@ -17,9 +31,8 @@ const result = ({
   disabled,
   disabledDate,
   extra,
-  dateFormat = 'YYYY-MM-DD',
-  showTime,
-}) => {
+  dateFormat = 'YYYY-MM',
+}: DateMonthProps) => {
   const { validateStatus, help } = useFieldInfo({ touched, error, submitError });
 
   return (
@@ -33,14 +46,13 @@ const result = ({
       required={required}
       extra={extra}
     >
-      <DatePicker
+      <MonthPicker
         format={dateFormat}
         value={input.value ? moment(input.value, dateFormat) : undefined}
         onChange={(_, value) => input.onChange(value)}
         placeholder={placeholder}
         disabled={disabled}
         disabledDate={disabledDate}
-        showTime={showTime}
       />
     </Item>
   );
@@ -57,7 +69,6 @@ result.propTypes = {
   extra: node,
   dateFormat: string,
   disabledDate: func,
-  showTime: oneOfType([object, bool]),
 };
 
 result.displayName = __filename;

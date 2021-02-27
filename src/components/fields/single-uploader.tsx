@@ -1,9 +1,12 @@
-import React, { useContext } from 'react';
+import React, { ReactNode, useContext } from 'react';
 import { object, string, bool, func, node } from 'prop-types';
-import { Form, Upload, Message } from 'antd';
+import { Form, Upload, message } from 'antd';
 import cookie from 'js-cookie';
 import { map, prop } from 'lodash/fp';
 import { PlusOutlined } from '@ant-design/icons';
+import { UploadFile } from 'antd/es/upload/interface';
+import type { FieldInputProps, FieldMetaState } from 'react-final-form';
+import type { ColProps } from 'antd/es/grid/col';
 import AUTHORIZATION from '../../constants/authorization';
 import useFieldInfo from '../../hooks/use-field-info';
 import { DomainContext } from '../../contexts';
@@ -11,6 +14,24 @@ import defaultFieldLayout from '../../constants/default-field-layout';
 
 const { Item } = Form;
 const { Dragger } = Upload;
+
+export interface SingleUploaderProps {
+  input: FieldInputProps<UploadFile | undefined>
+  meta: FieldMetaState<UploadFile | undefined>
+  layout?: { wrapperCol: ColProps, labelCol: ColProps }
+  label?: ReactNode
+  required?: boolean
+  disabled?: boolean
+  extra?: ReactNode
+  placeholder?: string
+  style?: { [key: string]: string | number | null | undefined }
+  onUploaded?: (url: string) => void
+  fileType?: string
+  accept?: string
+  action?: string
+  placeholderClassName?: string
+  className?: string
+}
 
 const result = ({
   input: { onChange, value },
@@ -28,9 +49,10 @@ const result = ({
   action,
   fileType,
   extra,
-}) => {
+}: SingleUploaderProps) => {
   const { cdnDomain } = useContext(DomainContext);
   const { validateStatus, help } = useFieldInfo({ touched, error, submitError });
+  const authorization = cookie.get(AUTHORIZATION);
 
   return (
     <Item
@@ -48,7 +70,7 @@ const result = ({
         style={{
           height: 120,
           width: 120,
-          backgroundImage: value ? `url('${cdnDomain}${encodeURI(value.url)}')` : undefined,
+          backgroundImage: value && value.url ? `url('${cdnDomain}${encodeURI(value.url)}')` : undefined,
           backgroundSize: 'contain',
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
@@ -68,13 +90,13 @@ const result = ({
                 onChange(response);
               } else if (status === 'error') {
                 const { errors } = response;
-                Message.error(map(prop('message'))(errors));
+                message.error(map(prop('message'))(errors));
               }
             }}
             data={{ fileType }}
             showUploadList={false}
             accept={accept}
-            headers={{ 'x-auth-token': cookie.get(AUTHORIZATION) }}
+            headers={authorization ? { 'x-auth-token': authorization } : undefined}
             name="file"
             style={{ background: 'none' }}
           >

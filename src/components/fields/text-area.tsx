@@ -1,12 +1,26 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { object, string, bool, func, oneOfType, node } from 'prop-types';
 import { Form, Input } from 'antd';
+import type { FieldInputProps, FieldMetaState } from 'react-final-form';
+import type { ColProps } from 'antd/es/grid/col';
+import type { TextAreaProps as AntdTextAreaProps } from 'antd/es/input/TextArea';
 import useFieldInfo from '../../hooks/use-field-info';
 import defaultFieldLayout from '../../constants/default-field-layout';
 
 const { Item } = Form;
 const { TextArea } = Input;
+
+export interface TextAreaProps extends Pick<AntdTextAreaProps, 'onPressEnter' | 'autoSize' | 'placeholder'> {
+  input: FieldInputProps<string | undefined>
+  meta: FieldMetaState<string | undefined>
+  layout?: { wrapperCol: ColProps, labelCol: ColProps }
+  label?: ReactNode
+  required?: boolean
+  disabled?: boolean
+  extra?: ReactNode
+  inputStyle: { [key: string]: string | number | null | undefined }
+}
 
 const result = ({
   input,
@@ -19,8 +33,8 @@ const result = ({
   disabled,
   inputStyle,
   onPressEnter,
-  autosize,
-}) => {
+  autoSize,
+}: TextAreaProps) => {
   const { validateStatus, help } = useFieldInfo({ touched, error, submitError });
 
   return (
@@ -40,7 +54,7 @@ const result = ({
         disabled={disabled}
         style={inputStyle}
         onPressEnter={onPressEnter}
-        autosize={autosize}
+        autoSize={autoSize}
       />
     </Item>
   );
@@ -57,7 +71,7 @@ result.propTypes = {
   disabled: bool,
   inputStyle: object,
   onPressEnter: func,
-  autosize: oneOfType([bool, object]),
+  autoSize: oneOfType([bool, object]),
 };
 
 result.displayName = __filename;

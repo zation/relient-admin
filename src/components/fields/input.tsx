@@ -1,11 +1,28 @@
-import React, { createElement } from 'react';
+import React, { createElement, ReactNode } from 'react';
 import { object, string, bool, node } from 'prop-types';
 import { Form, Input } from 'antd';
+import type { FieldInputProps, FieldMetaState } from 'react-final-form';
+import type { ColProps } from 'antd/es/grid/col';
+import type { InputProps } from 'antd/es/input';
+import type { LiteralUnion } from 'antd/es/_util/type';
 import useFieldInfo from '../../hooks/use-field-info';
 import defaultFieldLayout from '../../constants/default-field-layout';
 
 const { Password } = Input;
 const { Item } = Form;
+
+export interface InputFieldProps extends InputProps {
+  input: FieldInputProps<string | undefined>
+  meta: FieldMetaState<string | undefined>
+  layout?: { wrapperCol: ColProps, labelCol: ColProps }
+  label?: ReactNode
+  required?: boolean
+  disabled?: boolean
+  extra?: ReactNode
+  placeholder?: string
+  htmlType: LiteralUnion<'button' | 'checkbox' | 'color' | 'date' | 'datetime-local' | 'email' | 'file' | 'hidden' | 'image' | 'month' | 'number' | 'password' | 'radio' | 'range' | 'reset' | 'search' | 'submit' | 'tel' | 'text' | 'time' | 'url' | 'week', string>
+  inputStyle: { [key: string]: string | number | null | undefined }
+}
 
 const result = ({
   input,
@@ -24,7 +41,7 @@ const result = ({
   addonBefore,
   autoComplete,
   extra,
-}) => {
+}: InputFieldProps) => {
   const { validateStatus, help } = useFieldInfo({ touched, error, submitError });
 
   return (

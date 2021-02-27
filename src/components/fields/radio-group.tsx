@@ -1,12 +1,30 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { object, string, arrayOf, shape, bool, node } from 'prop-types';
 import { Form, Radio } from 'antd';
 import { map } from 'lodash/fp';
-import useFieldInfo from '../../hooks/use-field-info';
+import type { FieldInputProps, FieldMetaState } from 'react-final-form';
+import type { ColProps } from 'antd/es/grid/col';
 import defaultFieldLayout from '../../constants/default-field-layout';
+import useFieldInfo from '../../hooks/use-field-info';
 
 const { Item } = Form;
 const { Group } = Radio;
+
+export interface RadioGroupOption {
+  value?: string
+  text?: string
+}
+
+export interface RadioGroupProps {
+  input: FieldInputProps<string | undefined>
+  meta: FieldMetaState<string | undefined>
+  layout?: { wrapperCol: ColProps, labelCol: ColProps }
+  label?: ReactNode
+  required?: boolean
+  disabled?: boolean
+  extra?: ReactNode
+  options: RadioGroupOption[]
+}
 
 const result = ({
   input: { onChange, value },
@@ -17,7 +35,7 @@ const result = ({
   options,
   required,
   disabled,
-}) => {
+}: RadioGroupProps) => {
   const { validateStatus, help } = useFieldInfo({ touched, error, submitError });
 
   return (
@@ -32,7 +50,7 @@ const result = ({
       extra={extra}
     >
       <Group onChange={onChange} value={value} disabled={disabled}>
-        {map((option) => (
+        {map((option: RadioGroupOption) => (
           <Radio key={option.value} value={option.value}>{option.text}</Radio>
         ))(options)}
       </Group>

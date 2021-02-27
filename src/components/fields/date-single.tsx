@@ -1,22 +1,23 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React, { ReactNode } from 'react';
-import { object, string, bool, array, node, func } from 'prop-types';
-import { Form, Cascader } from 'antd';
-import type { ColProps } from 'antd/es/grid/col';
+import { string, node, object, bool, func, oneOfType } from 'prop-types';
+import { Form, DatePicker } from 'antd';
+import moment, { Moment } from 'moment';
 import type { FieldInputProps, FieldMetaState } from 'react-final-form';
-import type { CascaderProps as AntCascaderProps, CascaderValueType } from 'antd/es/cascader';
+import type { ColProps } from 'antd/es/grid/col';
+import type { PickerDateProps } from 'antd/es/date-picker/generatePicker';
 import useFieldInfo from '../../hooks/use-field-info';
 import defaultFieldLayout from '../../constants/default-field-layout';
 
 const { Item } = Form;
 
-export interface CascaderProps extends Pick<AntCascaderProps, 'disabled' | 'showSearch' | 'displayRender' | 'options' | 'size'>{
-  input: FieldInputProps<CascaderValueType | undefined>
-  meta: FieldMetaState<CascaderValueType | undefined>
+export interface DateSingleProps extends Pick<PickerDateProps<Moment>, 'placeholder' | 'showTime' | 'disabledDate' | 'disabled'> {
+  input: FieldInputProps<string | undefined>
+  meta: FieldMetaState<string | undefined>
   layout?: { wrapperCol: ColProps, labelCol: ColProps }
   label?: ReactNode
   required?: boolean
   extra?: ReactNode
+  dateFormat?: string
 }
 
 const result = ({
@@ -24,14 +25,14 @@ const result = ({
   meta: { touched, error, submitError },
   layout: { wrapperCol, labelCol } = defaultFieldLayout,
   label,
+  placeholder,
   required,
   disabled,
-  showSearch,
-  displayRender,
-  options,
-  size,
+  disabledDate,
   extra,
-}: CascaderProps) => {
+  dateFormat = 'YYYY-MM-DD',
+  showTime,
+}: DateSingleProps) => {
   const { validateStatus, help } = useFieldInfo({ touched, error, submitError });
 
   return (
@@ -45,14 +46,14 @@ const result = ({
       required={required}
       extra={extra}
     >
-      <Cascader
-        options={options}
-        showSearch={showSearch}
+      <DatePicker
+        format={dateFormat}
+        value={input.value ? moment(input.value, dateFormat) : undefined}
+        onChange={(_, value) => input.onChange(value)}
+        placeholder={placeholder}
         disabled={disabled}
-        size={size}
-        allowClear={false}
-        displayRender={displayRender}
-        {...input}
+        disabledDate={disabledDate}
+        showTime={showTime}
       />
     </Item>
   );
@@ -63,15 +64,13 @@ result.propTypes = {
   meta: object.isRequired,
   layout: object,
   label: string,
-  tips: string,
+  placeholder: string,
   required: bool,
   disabled: bool,
-  matchInputWidth: bool,
-  showSearch: bool,
-  displayRender: func,
-  options: array,
-  size: string,
   extra: node,
+  dateFormat: string,
+  disabledDate: func,
+  showTime: oneOfType([object, bool]),
 };
 
 result.displayName = __filename;

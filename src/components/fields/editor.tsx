@@ -1,26 +1,23 @@
-import React, { useEffect, useState } from 'react';
+/* eslint-disable no-prototype-builtins */
+import React, { ReactNode, useEffect, useState } from 'react';
 import { node, object, string, bool, array } from 'prop-types';
-import { Form, Upload, Icon } from 'antd';
+import { Form, Upload } from 'antd';
+import type { RcCustomRequestOptions } from 'antd/es/upload/interface';
 import cookie from 'js-cookie';
 import { isString } from 'lodash/fp';
+// @ts-ignore
 import { ContentUtils } from 'braft-utils';
+import type { EditorState, ControlType } from 'braft-editor';
+import type { FieldInputProps, FieldMetaState } from 'react-final-form';
+import type { ColProps } from 'antd/es/grid/col';
 import AUTHORIZATION from '../../constants/authorization';
 import useFieldInfo from '../../hooks/use-field-info';
 import defaultFieldLayout from '../../constants/default-field-layout';
 
 const { Item } = Form;
-let BraftEditor;
+let BraftEditor: any;
 
-const getError = (action, xhr) => {
-  const msg = `cannot put ${action} ${xhr.status}'`;
-  const err = new Error(msg);
-  err.status = xhr.status;
-  err.method = 'put';
-  err.url = action;
-  return err;
-};
-
-const getBody = (xhr) => {
+const getBody = (xhr: XMLHttpRequest) => {
   const text = xhr.responseText || xhr.response;
   if (!text) {
     return text;
@@ -33,6 +30,8 @@ const getBody = (xhr) => {
   }
 };
 
+interface CustomRequest extends RcCustomRequestOptions, Pick<FieldInputProps<string | EditorState>, 'onChange' | 'value'> {}
+
 const customRequest = ({
   action,
   file,
@@ -43,27 +42,22 @@ const customRequest = ({
   onSuccess,
   withCredentials,
   onChange,
-}) => {
+}: CustomRequest) => {
   const xhr = new XMLHttpRequest();
 
   if (onProgress && xhr.upload) {
-    xhr.upload.onprogress = function progress(e) {
-      if (e.total > 0) {
-        e.percent = (e.loaded / e.total) * 100;
-      }
-      onProgress(e);
-    };
+    xhr.upload.onprogress = (e) => onProgress({
+      percent: e.total > 0 ? (e.loaded / e.total) * 100 : 0,
+    }, file);
   }
 
-  xhr.onerror = function error(e) {
-    onError(e);
-  };
+  xhr.onerror = (e) => onError(new Error('Custom request error'), e);
 
   xhr.onload = function onload() {
     // allow success when 2xx status
     // see https://github.com/react-component/upload/issues/34
     if (xhr.status < 200 || xhr.status >= 300) {
-      onError(getError(action, xhr), getBody(xhr));
+      onError(new Error('Custom request error'), xhr);
     } else {
       onChange(
         ContentUtils.insertMedias(
@@ -74,7 +68,7 @@ const customRequest = ({
           }],
         ),
       );
-      onSuccess(getBody(xhr), xhr);
+      onSuccess(getBody(xhr), file);
     }
   };
 
@@ -85,6 +79,7 @@ const customRequest = ({
     xhr.withCredentials = true;
   }
 
+  // @ts-ignore
   if (headers['X-Requested-With'] !== null) {
     xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
   }
@@ -92,13 +87,27 @@ const customRequest = ({
 
   // eslint-disable-next-line no-restricted-syntax
   for (const h in headers) {
-    // eslint-disable-next-line no-prototype-builtins
+    // @ts-ignore
     if (headers.hasOwnProperty(h) && headers[h] !== null) {
+      // @ts-ignore
       xhr.setRequestHeader(h, headers[h]);
     }
   }
   xhr.send(file);
 };
+
+export interface EditorProps {
+  input: FieldInputProps<string | EditorState | undefined>
+  meta: FieldMetaState<string | EditorState | undefined>
+  layout?: { wrapperCol: ColProps, labelCol: ColProps }
+  label?: ReactNode
+  required?: boolean
+  disabled?: boolean
+  extra?: ReactNode
+  excludeControls?: string[]
+  placeholder?: string
+  controls?: ControlType[]
+}
 
 const result = ({
   input: { value, onChange },
@@ -124,11 +133,12 @@ const result = ({
         <Upload
           accept="image/*"
           action={async ({ name }) => {
-            const response = await fetch(`/api/file/presigned-upload-url?filename=${encodeURIComponent(name)}`, {
+            const authorization = cookie.get(AUTHORIZATION);
+            const response = await fetch(`/api/file/presigned-upload-url?filename=${encodeURIComponent(name)}`, authorization ? {
               headers: {
-                'x-auth-token': cookie.get(AUTHORIZATION),
+                'x-auth-token': authorization,
               },
-            });
+            } : undefined);
             const { presignedUrl } = await response.json();
             return presignedUrl;
           }}
@@ -141,13 +151,13 @@ const result = ({
             className="control-item button upload-button"
             data-title="插入图片"
           >
-            <Icon type="picture" theme="filled" />
+            图片
           </button>
         </Upload>
       ),
     },
   ],
-}) => {
+}: EditorProps) => {
   const { validateStatus, help } = useFieldInfo({
     touched,
     error,
@@ -157,6 +167,7 @@ const result = ({
   useEffect(() => {
     if (!isBraftEditorLoaded) {
       import('braft-editor').then((module) => {
+        // @ts-ignore
         BraftEditor = module.default;
         setIsBraftEditorLoaded(true);
       });
@@ -175,10 +186,12 @@ const result = ({
       extra={extra}
     >
       {isBraftEditorLoaded && (
+        // @ts-ignore
         <BraftEditor
           className="relient-admin-editor-root"
-          value={isString(value) ? BraftEditor.createEditorState(value) : value}
-          onChange={(editorState) => onChange(editorState)}
+          // @ts-ignore
+          value={isString(value) && BraftEditor ? BraftEditor.createEditorState(value) : value}
+          onChange={(editorState: EditorState) => onChange(editorState)}
           placeholder={placeholder}
           readOnly={disabled}
           excludeControls={excludeControls}

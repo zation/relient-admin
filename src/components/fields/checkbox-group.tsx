@@ -1,12 +1,32 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { object, string, arrayOf, shape, bool, node } from 'prop-types';
 import { Form, Checkbox } from 'antd';
 import { map } from 'lodash/fp';
+import type { FieldInputProps, FieldMetaState } from 'react-final-form';
+import type { ColProps } from 'antd/es/grid/col';
 import useFieldInfo from '../../hooks/use-field-info';
 import defaultFieldLayout from '../../constants/default-field-layout';
 
 const { Item } = Form;
 const { Group } = Checkbox;
+
+type OptionValue = string | number;
+
+export interface CheckboxGroupOption {
+  value: OptionValue
+  text?: ReactNode
+}
+
+export interface CheckboxGroupProps {
+  input: FieldInputProps<OptionValue[] | undefined>
+  meta: FieldMetaState<OptionValue[] | undefined>
+  layout?: { wrapperCol: ColProps, labelCol: ColProps }
+  label?: ReactNode
+  extra?: ReactNode
+  options?: CheckboxGroupOption[]
+  required?: boolean
+  disabled?: boolean
+}
 
 const result = ({
   label,
@@ -17,7 +37,7 @@ const result = ({
   options,
   required,
   disabled,
-}) => {
+}: CheckboxGroupProps) => {
   const { validateStatus, help } = useFieldInfo({ touched, error, submitError });
 
   return (
@@ -32,7 +52,7 @@ const result = ({
       extra={extra}
     >
       <Group onChange={onChange} value={value || []} disabled={disabled}>
-        {map((option) => (
+        {map((option: CheckboxGroupOption) => (
           <Checkbox key={option.value} value={option.value}>{option.text}</Checkbox>
         ))(options)}
       </Group>
