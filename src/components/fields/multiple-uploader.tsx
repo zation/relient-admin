@@ -13,6 +13,7 @@ import { DomainContext } from '../../contexts';
 import useFieldInfo from '../../hooks/use-field-info';
 import AUTHORIZATION from '../../constants/authorization';
 import defaultFieldLayout from '../../constants/default-field-layout';
+import { Style } from '../interface';
 
 const { Item } = Form;
 
@@ -25,7 +26,7 @@ export interface MultipleUploaderProps {
   disabled?: boolean
   extra?: ReactNode
   placeholder?: string
-  style?: { [key: string]: string | number | null | undefined }
+  style?: Style
   onUploaded?: (url: string) => void
   fileType?: string
   accept?: string

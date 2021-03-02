@@ -1,10 +1,11 @@
 import React, { createElement, ReactNode } from 'react';
-import { object, string, bool, node } from 'prop-types';
+import { object, string, bool, node, oneOf, any } from 'prop-types';
 import { Form, Input } from 'antd';
 import type { FieldInputProps, FieldMetaState } from 'react-final-form';
 import type { ColProps } from 'antd/es/grid/col';
 import type { InputProps } from 'antd/es/input';
 import type { LiteralUnion } from 'antd/es/_util/type';
+import { Style } from '../interface';
 import useFieldInfo from '../../hooks/use-field-info';
 import defaultFieldLayout from '../../constants/default-field-layout';
 
@@ -20,8 +21,10 @@ export interface InputFieldProps extends InputProps {
   disabled?: boolean
   extra?: ReactNode
   placeholder?: string
-  htmlType: LiteralUnion<'button' | 'checkbox' | 'color' | 'date' | 'datetime-local' | 'email' | 'file' | 'hidden' | 'image' | 'month' | 'number' | 'password' | 'radio' | 'range' | 'reset' | 'search' | 'submit' | 'tel' | 'text' | 'time' | 'url' | 'week', string>
-  inputStyle: { [key: string]: string | number | null | undefined }
+  htmlType: LiteralUnion<'button' | 'checkbox' | 'color' | 'date' | 'datetime-local' | 'email' | 'file' | 'hidden'
+  | 'image' | 'month' | 'number' | 'password' | 'radio' | 'range' | 'reset' | 'search' | 'submit' | 'tel' | 'text'
+  | 'time' | 'url' | 'week', string>
+  inputStyle: Style
 }
 
 const result = ({
@@ -73,18 +76,18 @@ const result = ({
 };
 
 result.propTypes = {
-  input: object.isRequired,
+  input: any.isRequired,
   meta: object.isRequired,
-  layout: object,
+  layout: any,
   label: string,
   placeholder: string,
   htmlType: string.isRequired,
   required: bool,
   disabled: bool,
-  inputStyle: object,
+  inputStyle: any,
   prefix: node,
   suffix: node,
-  size: string,
+  size: oneOf(['small', 'middle', 'large']),
   addonAfter: node,
   addonBefore: node,
   autoComplete: string,

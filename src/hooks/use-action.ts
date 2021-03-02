@@ -1,8 +1,8 @@
-import { bindActionCreators } from 'redux';
+import { ActionCreator, bindActionCreators } from 'redux';
 import { useDispatch } from 'react-redux';
 import { useMemo } from 'react';
 
-export default (action, deps = []) => {
+export default <A, C extends ActionCreator<A>>(action: C, deps = []) => {
   const dispatch = useDispatch();
   return useMemo(
     () => bindActionCreators(action, dispatch),

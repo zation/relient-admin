@@ -11,6 +11,7 @@ import AUTHORIZATION from '../../constants/authorization';
 import useFieldInfo from '../../hooks/use-field-info';
 import { DomainContext } from '../../contexts';
 import defaultFieldLayout from '../../constants/default-field-layout';
+import { Style } from '../interface';
 
 const { Item } = Form;
 const { Dragger } = Upload;
@@ -24,7 +25,7 @@ export interface SingleUploaderProps {
   disabled?: boolean
   extra?: ReactNode
   placeholder?: string
-  style?: { [key: string]: string | number | null | undefined }
+  style?: Style
   onUploaded?: (url: string) => void
   fileType?: string
   accept?: string

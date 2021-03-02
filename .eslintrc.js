@@ -32,5 +32,6 @@ module.exports = {
     'object-curly-newline': 'off',
     'react/forbid-prop-types': 'off',
     'react/require-default-props': 'off',
+    'max-len': ["error", { "code": 120 }],
   },
 };

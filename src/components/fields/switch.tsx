@@ -5,6 +5,7 @@ import type { FieldInputProps, FieldMetaState } from 'react-final-form';
 import type { ColProps } from 'antd/es/grid/col';
 import useFieldInfo from '../../hooks/use-field-info';
 import defaultFieldLayout from '../../constants/default-field-layout';
+import { Style } from '../interface';
 
 const { Item } = Form;
 
@@ -16,7 +17,7 @@ export interface SwitchProps {
   required?: boolean
   disabled?: boolean
   extra?: ReactNode
-  inputStyle: { [key: string]: string | number | null | undefined }
+  inputStyle: Style
 }
 
 const result = ({
