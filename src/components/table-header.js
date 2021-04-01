@@ -17,7 +17,7 @@ import { Input, Button, Select, DatePicker } from 'antd';
 import { map, flow, join, prop } from 'lodash/fp';
 import useI18N from '../hooks/use-i18n';
 import Link from './link';
-import FormPop from './form-pop';
+import FormPop from './form/pop';
 import Details from './details';
 
 const { Search } = Input;
@@ -61,7 +61,7 @@ const result = ({
         <FormPop
           {...creator}
           visible={creatorVisible}
-          close={closeCreator}
+          onClose={closeCreator}
           onSubmit={onCreateSubmit}
         />
       )}
@@ -70,7 +70,7 @@ const result = ({
         <FormPop
           {...editor}
           visible={editorVisible}
-          close={closeEditor}
+          onClose={closeEditor}
           onSubmit={onEditSubmit}
         />
       )}
@@ -155,7 +155,9 @@ const result = ({
             )}
             <Search
               style={{ width: query.width || 362 }}
-              placeholder={query.placeholder || (query.fussy ? i18n('searchBy', { keywords: flow(map(prop('text')), join('、'))(query.fields) }) : i18n('search'))}
+              placeholder={query.placeholder || (query.fussy
+                ? i18n('searchBy', { keywords: flow(map(prop('text')), join('、'))(query.fields) })
+                : i18n('search'))}
               onChange={query.onValueChange}
               value={query.value}
             />

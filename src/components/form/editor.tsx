@@ -1,20 +1,15 @@
 /* eslint-disable no-prototype-builtins */
-import React, { ReactNode, useEffect, useState } from 'react';
-import { node, object, string, bool, array } from 'prop-types';
-import { Form, Upload } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { object, string, bool, array, func } from 'prop-types';
+import { Upload } from 'antd';
 import type { RcCustomRequestOptions } from 'antd/es/upload/interface';
 import cookie from 'js-cookie';
 import { isString } from 'lodash/fp';
 // @ts-ignore
 import { ContentUtils } from 'braft-utils';
 import type { EditorState, ControlType } from 'braft-editor';
-import type { FieldInputProps, FieldMetaState } from 'react-final-form';
-import type { ColProps } from 'antd/es/grid/col';
 import AUTHORIZATION from '../../constants/authorization';
-import useFieldInfo from '../../hooks/use-field-info';
-import defaultFieldLayout from '../../constants/default-field-layout';
 
-const { Item } = Form;
 let BraftEditor: any;
 
 const getBody = (xhr: XMLHttpRequest) => {
@@ -30,7 +25,10 @@ const getBody = (xhr: XMLHttpRequest) => {
   }
 };
 
-interface CustomRequest extends RcCustomRequestOptions, Pick<FieldInputProps<string | EditorState>, 'onChange' | 'value'> {}
+interface CustomRequest extends RcCustomRequestOptions {
+  value: EditorState | undefined
+  onChange: (value: EditorState) => void
+}
 
 const customRequest = ({
   action,
@@ -61,7 +59,7 @@ const customRequest = ({
     } else {
       onChange(
         ContentUtils.insertMedias(
-          isString(value) ? BraftEditor.createEditorState(value) : value,
+          value,
           [{
             type: 'IMAGE',
             url: action.split('?')[0],
@@ -97,25 +95,17 @@ const customRequest = ({
 };
 
 export interface EditorProps {
-  input: FieldInputProps<string | EditorState | undefined>
-  meta: FieldMetaState<string | EditorState | undefined>
-  layout?: { wrapperCol: ColProps, labelCol: ColProps }
-  label?: ReactNode
-  required?: boolean
+  value: EditorState | undefined
+  onChange: (value: EditorState) => void
   disabled?: boolean
-  extra?: ReactNode
   excludeControls?: string[]
   placeholder?: string
   controls?: ControlType[]
 }
 
 const result = ({
-  input: { value, onChange },
-  meta: { touched, error, submitError },
-  layout: { wrapperCol, labelCol } = defaultFieldLayout,
-  label,
-  extra,
-  required,
+  value,
+  onChange,
   placeholder,
   disabled,
   excludeControls,
@@ -134,11 +124,14 @@ const result = ({
           accept="image/*"
           action={async ({ name }) => {
             const authorization = cookie.get(AUTHORIZATION);
-            const response = await fetch(`/api/file/presigned-upload-url?filename=${encodeURIComponent(name)}`, authorization ? {
-              headers: {
-                'x-auth-token': authorization,
-              },
-            } : undefined);
+            const response = await fetch(
+              `/api/file/presigned-upload-url?filename=${encodeURIComponent(name)}`,
+              authorization ? {
+                headers: {
+                  'x-auth-token': authorization,
+                },
+              } : undefined,
+            );
             const { presignedUrl } = await response.json();
             return presignedUrl;
           }}
@@ -158,11 +151,6 @@ const result = ({
     },
   ],
 }: EditorProps) => {
-  const { validateStatus, help } = useFieldInfo({
-    touched,
-    error,
-    submitError,
-  });
   const [isBraftEditorLoaded, setIsBraftEditorLoaded] = useState(!!BraftEditor);
   useEffect(() => {
     if (!isBraftEditorLoaded) {
@@ -174,42 +162,25 @@ const result = ({
     }
   }, [isBraftEditorLoaded]);
 
-  return (
-    <Item
-      labelCol={labelCol}
-      wrapperCol={wrapperCol}
-      label={label}
-      hasFeedback
-      validateStatus={validateStatus}
-      help={help}
-      required={required}
-      extra={extra}
-    >
-      {isBraftEditorLoaded && (
-        // @ts-ignore
-        <BraftEditor
-          className="relient-admin-editor-root"
-          // @ts-ignore
-          value={isString(value) && BraftEditor ? BraftEditor.createEditorState(value) : value}
-          onChange={(editorState: EditorState) => onChange(editorState)}
-          placeholder={placeholder}
-          readOnly={disabled}
-          excludeControls={excludeControls}
-          controls={controls}
-        />
-      )}
-    </Item>
+  return isBraftEditorLoaded && (
+    // @ts-ignore
+    <BraftEditor
+      className="relient-admin-editor-root"
+      // @ts-ignore
+      value={isString(value) && BraftEditor ? BraftEditor.createEditorState(value) : value}
+      onChange={(editorState: EditorState) => onChange(editorState)}
+      placeholder={placeholder}
+      readOnly={disabled}
+      excludeControls={excludeControls}
+      controls={controls}
+    />
   );
 };
 
 result.propTypes = {
-  input: object,
-  meta: object,
-  layout: object,
-  label: string,
-  extra: node,
+  value: object,
+  onChange: func,
   placeholder: string,
-  required: bool,
   disabled: bool,
   excludeControls: array,
   controls: array,
