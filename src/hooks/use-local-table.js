@@ -108,14 +108,14 @@ export default ({
     size: initialSize = DEFAULT_SIZE,
   } = {},
   creator: {
-    onSubmit: createSubmit,
+    onSubmit: creatorSubmit,
     checkingMessage: creatorCheckingMessage,
     onClose: creatorOnClose,
     onOpen: creatorOnOpen,
   } = {},
   creator,
   editor: {
-    onSubmit: editSubmit,
+    onSubmit: editorSubmit,
     checkingMessage: editorCheckingMessage,
     onClose: editorOnClose,
     onOpen: editorOnOpen,
@@ -258,19 +258,19 @@ export default ({
     datePickers,
     dateValues,
   ]);
-  const onCreateSubmit = useCallback(async (values) => {
-    await createSubmit(values);
+  const onCreatorSubmit = useCallback(async (values) => {
+    await creatorSubmit(values);
     closeCreator();
     Message.success(i18n('createSuccess'));
   }, [
-    createSubmit,
+    creatorSubmit,
   ]);
-  const onEditSubmit = useCallback(async (values) => {
-    await editSubmit({ ...values, id: editItem.id }, values, editItem);
+  const onEditorSubmit = useCallback(async (values) => {
+    await editorSubmit({ ...values, id: editItem.id }, values, editItem);
     closeEditor();
     Message.success(i18n('editSuccess'));
   }, [
-    editSubmit,
+    editorSubmit,
     editItem,
   ]);
   const getDataSource = useCallback(filter(
@@ -301,7 +301,10 @@ export default ({
       if (filterValues.length > 0) {
         filterResult = every(({ dataKey, value }) => {
           const onFilter = flow(find(propEq('dataKey', dataKey)), prop('onFilter'))(filters);
-          return value === '' || isNil(value) || (onFilter ? onFilter(item, dataKey, value) : propEq(dataKey, value)(item));
+          return value === '' || isNil(value) || (onFilter
+            ? onFilter(item, dataKey, value)
+            : propEq(dataKey, value)(item)
+          );
         })(filterValues);
       }
 
@@ -371,24 +374,26 @@ export default ({
         initialValues: getEditorInitialValues
           ? getEditorInitialValues(editItem)
           : editItem,
+        onSubmit: onEditorSubmit,
+        visible: editorVisible,
+        onClose: closeEditor,
       }}
       details={details && {
         ...details,
         dataSource: getDetailsDataSource
           ? getDataSource(detailsItem)
           : detailsItem,
+        visible: detailsVisible,
+        close: closeDetails,
       }}
-      closeDetails={closeDetails}
-      detailsVisible={detailsVisible}
-      creator={creator}
-      onCreateSubmit={onCreateSubmit}
-      onEditSubmit={onEditSubmit}
-      creatorVisible={creatorVisible}
-      editorVisible={editorVisible}
+      creator={creator && {
+        ...creator,
+        onSubmit: onCreatorSubmit,
+        visible: creatorVisible,
+        onClose: closeCreator,
+      }}
       openEditor={openEditor}
       openCreator={openCreator}
-      closeCreator={closeCreator}
-      closeEditor={closeEditor}
       reset={showReset ? reset : null}
       datePicker={{
         items: map(({ dataKey, ...others }) => ({

@@ -27,7 +27,7 @@ export interface FooterParams {
   submit?: Submit
 }
 
-export interface PopProps {
+export interface FormPopProps {
   onSubmit: OnSubmit
   visible: boolean
   initialValues: any
@@ -60,7 +60,7 @@ const result = ({
   afterVisibleChange,
   afterClose,
   ...props
-}: PopProps) => {
+}: FormPopProps) => {
   const [form] = useForm();
   const pristine = form.isFieldsTouched();
   const { submit, submitting, submitSucceeded, defaultError } = useSubmit(onSubmit, form);

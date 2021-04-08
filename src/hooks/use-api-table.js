@@ -179,14 +179,14 @@ export default ({
   },
   readAction,
   creator: {
-    onSubmit: createSubmit,
+    onSubmit: creatorSubmit,
     checkingMessage: creatorCheckingMessage,
     onClose: creatorOnClose,
     onOpen: creatorOnOpen,
   } = {},
   creator,
   editor: {
-    onSubmit: editSubmit,
+    onSubmit: editorSubmit,
     shouldReload,
     checkingMessage: editorCheckingMessage,
     onClose: editorOnClose,
@@ -457,8 +457,8 @@ export default ({
     pageData.current,
     fussyKey,
   ]);
-  const onCreateSubmit = useCallback(async (values) => {
-    await createSubmit(values);
+  const onCreatorSubmit = useCallback(async (values) => {
+    await creatorSubmit(values);
     await onFetch(
       queryValue,
       queryField,
@@ -474,7 +474,7 @@ export default ({
     closeCreator();
     Message.success(i18n('createSuccess'));
   }, [
-    createSubmit,
+    creatorSubmit,
     queryValue,
     queryField,
     readAction,
@@ -483,15 +483,15 @@ export default ({
     dateValues,
     fussyKey,
   ]);
-  const onEditSubmit = useCallback(async (values) => {
-    await editSubmit({ ...values, id: editItem.id }, values, editItem);
+  const onEditorSubmit = useCallback(async (values) => {
+    await editorSubmit({ ...values, id: editItem.id }, values, editItem);
     if (shouldReload) {
       await onReload();
     }
     closeEditor();
     Message.success(i18n('editSuccess'));
   }, [
-    editSubmit,
+    editorSubmit,
     editItem,
     shouldReload,
     onReload,
@@ -555,24 +555,26 @@ export default ({
         dataSource: getDetailsDataSource
           ? getDataSource(detailsItem)
           : detailsItem,
+        visible: detailsVisible,
+        close: closeDetails,
       }}
-      closeDetails={closeDetails}
-      detailsVisible={detailsVisible}
-      creator={creator}
+      creator={creator && {
+        ...creator,
+        onSubmit: onCreatorSubmit,
+        visible: creatorVisible,
+        onClose: closeCreator,
+      }}
       editor={editor && {
         ...editor,
         initialValues: getEditorInitialValues
           ? getEditorInitialValues(editItem)
           : editItem,
+        onSubmit: onEditorSubmit,
+        visible: editorVisible,
+        onClose: closeEditor,
       }}
-      onCreateSubmit={onCreateSubmit}
-      onEditSubmit={onEditSubmit}
-      creatorVisible={creatorVisible}
-      editorVisible={editorVisible}
       openEditor={openEditor}
       openCreator={openCreator}
-      closeCreator={closeCreator}
-      closeEditor={closeEditor}
       reset={showReset ? onReset : null}
     />,
   };

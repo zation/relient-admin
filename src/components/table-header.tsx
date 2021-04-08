@@ -1,28 +1,80 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
+import React, { ChangeEvent, MouseEventHandler } from 'react';
 import {
-  string,
   func,
-  shape,
-  arrayOf,
-  array,
-  number,
-  oneOfType,
   object,
   bool,
-  elementType,
-  any,
 } from 'prop-types';
 import { Input, Button, Select, DatePicker } from 'antd';
 import { map, flow, join, prop } from 'lodash/fp';
 import { useI18N } from 'relient/i18n';
+import type { OptionType } from 'antd/es/select';
+import type { OptionData, OptionGroupData } from 'rc-select/es/interface';
+import type { Moment } from 'moment';
+import type { DetailsProps } from './details';
 import Link from './link';
-import FormPop from './form/pop';
+import FormPop, { FormPopProps } from './form/pop';
 import Details from './details';
 
 const { Search } = Input;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
+
+export interface QueryField {
+  text?: string
+  value?: string
+}
+
+export interface FilterOption extends Omit<OptionType, 'children'> {
+  text?: string
+}
+
+export interface FilterItem {
+  label?: string
+  placeholder?: string
+  options: FilterOption[]
+  dataKey: string
+  disabled?: boolean
+  value?: string | number
+}
+
+export interface DatePickerItem {
+  label?: string,
+  dataKey: string,
+  disabledDate: (date: Moment) => boolean,
+}
+
+export interface TableHeaderProps {
+  query?: {
+    onFieldChange: (value: any, option: OptionData | OptionGroupData) => void
+    onValueChange: (event?: ChangeEvent<HTMLInputElement>) => void
+    field?: string
+    value?: string
+    width?: number
+    fields?: QueryField[]
+    placeholder?: string
+    fussy?: boolean
+  }
+  createButton?: {
+    text: string
+    link?: string
+    onClick: MouseEventHandler<HTMLElement>
+  }
+  filter: {
+    items: FilterItem[]
+    onSelect: (selectedValue: any, dataKey: string) => void
+  }
+  reset?: () => void
+  datePicker?: {
+    items: DatePickerItem[]
+    onSelect: (selectedValue: [string, string], dataKey: string) => void
+  }
+  details?: DetailsProps
+  creator?: FormPopProps
+  editor?: FormPopProps
+  openCreator?: () => void
+  openEditor?: (dataSource?: any) => void
+}
 
 const result = ({
   query,
@@ -31,49 +83,19 @@ const result = ({
   reset,
   datePicker,
   details,
-  detailsVisible,
-  closeDetails,
   creator,
-  creatorVisible,
   openCreator,
-  closeCreator,
-  onCreateSubmit,
   editor,
-  editorVisible,
-  openEditor,
-  closeEditor,
-  onEditSubmit,
-}) => {
+}: TableHeaderProps) => {
   const i18n = useI18N();
 
   return (
     <div className="relient-admin-table-header-root">
-      {details && (
-        <Details
-          {...details}
-          visible={detailsVisible}
-          openEditor={() => openEditor(details.dataSource)}
-          close={closeDetails}
-        />
-      )}
+      {details && <Details {...details} />}
 
-      {creator && (
-        <FormPop
-          {...creator}
-          visible={creatorVisible}
-          onClose={closeCreator}
-          onSubmit={onCreateSubmit}
-        />
-      )}
+      {creator && <FormPop {...creator} />}
 
-      {editor && (
-        <FormPop
-          {...editor}
-          visible={editorVisible}
-          onClose={closeEditor}
-          onSubmit={onEditSubmit}
-        />
-      )}
+      {editor && <FormPop {...editor} />}
 
       <div className="relient-admin-table-header-button-wrapper">
         {createButton && (createButton.link ? (
@@ -157,7 +179,7 @@ const result = ({
               style={{ width: query.width || 362 }}
               placeholder={query.placeholder || (query.fussy
                 ? i18n('searchBy', { keywords: flow(map(prop('text')), join('、'))(query.fields) })
-                : i18n('search'))}
+                : i18n('search')) as string}
               onChange={query.onValueChange}
               value={query.value}
             />
@@ -173,75 +195,14 @@ const result = ({
 };
 
 result.propTypes = {
-  query: shape({
-    onFieldChange: func.isRequired,
-    onValueChange: func.isRequired,
-    field: string,
-    value: string,
-    width: number,
-    fields: array,
-    placeholder: string,
-    fussy: bool,
-  }),
-  createButton: oneOfType([shape({
-    text: string.isRequired,
-    link: string,
-    onClick: func,
-  }), bool]),
-  filter: shape({
-    items: arrayOf(shape({
-      label: string,
-      placeholder: string,
-      options: array.isRequired,
-      dataKey: string.isRequired,
-      disabled: bool,
-      value: oneOfType([string, number]),
-    })).isRequired,
-    onSelect: func.isRequired,
-  }),
+  query: object,
+  createButton: object,
+  filter: object,
   details: object,
   detailsVisible: bool,
   closeDetails: func,
-  creator: shape({
-    component: elementType,
-    title: string,
-    onSubmit: func,
-    initialValues: object,
-    fields: arrayOf(oneOfType([
-      shape({
-        name: string.isRequired,
-        label: string,
-        htmlType: string,
-        options: array,
-        placeholder: string,
-        validate: oneOfType([func, array]),
-        required: bool,
-        component: any,
-      }),
-      func,
-    ])),
-    layout: object,
-  }),
-  editor: shape({
-    component: elementType,
-    title: string,
-    onSubmit: func,
-    initialValues: object,
-    fields: arrayOf(oneOfType([
-      shape({
-        name: string.isRequired,
-        label: string,
-        htmlType: string,
-        options: array,
-        placeholder: string,
-        validate: oneOfType([func, array]),
-        required: bool,
-        component: any,
-      }),
-      func,
-    ])),
-    layout: object,
-  }),
+  creator: object,
+  editor: object,
   openCreator: func,
   openEditor: func,
   closeCreator: func,
@@ -250,15 +211,7 @@ result.propTypes = {
   editorVisible: bool,
   onCreateSubmit: func,
   onEditSubmit: func,
-  datePicker: shape({
-    items: arrayOf(shape({
-      label: string,
-      dataKey: string.isRequired,
-      value: array,
-      disabledDate: func,
-    })).isRequired,
-    onSelect: func.isRequired,
-  }),
+  datePicker: object,
   reset: func,
 };
 

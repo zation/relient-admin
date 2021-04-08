@@ -51,7 +51,7 @@ export interface DetailsProps<DataSource = any> {
   level?: string | string[] | null
   levelMove?: LevelMove | ((event: { target: HTMLElement; open: boolean }) => LevelMove)
   editable?: boolean
-  openEditor?: () => void
+  openEditor?: (dataSource?: DataSource) => void
   close?: () => void
   id: string
   defaultDisplay: string
@@ -89,7 +89,11 @@ const result = ({
           {editable && (
             <Button
               type="primary"
-              onClick={openEditor}
+              onClick={() => {
+                if (openEditor) {
+                  openEditor(dataSource);
+                }
+              }}
             >
               {editButtonText || i18n('edit')}
             </Button>

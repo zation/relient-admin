@@ -1,16 +1,17 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, Key } from 'react';
 import { array, string, func, bool } from 'prop-types';
 import { ConfigContext } from 'antd/lib/config-provider';
 import { Menu, Button, Checkbox, Radio } from 'antd';
 import { flow, prop } from 'lodash/fp';
+import type { ColumnFilterItem } from 'antd/es/table/interface';
 
 const { SubMenu, Item: MenuItem } = Menu;
 
 function renderFilterItems(
-  filters,
-  prefixCls,
-  filteredKeys,
-  multiple,
+  filters: ColumnFilterItem[],
+  prefixCls: string,
+  filteredKeys: Key[],
+  multiple: boolean,
 ) {
   return filters.map((filter, index) => {
     const key = String(filter.value);
@@ -38,6 +39,19 @@ function renderFilterItems(
   });
 }
 
+export interface TableFilterProps {
+  // from antd
+  filters: ColumnFilterItem[]
+  selectedKeys: string[]
+  setSelectedKeys: (selectedKeys: string[]) => void
+  clearFilters: () => void
+
+  // from usage
+  onReset: () => void
+  onConfirm: (params: { selectedKeys: string[] }) => void
+  multiple?: boolean
+}
+
 const result = ({
   filters,
   selectedKeys,
@@ -46,7 +60,7 @@ const result = ({
   onReset,
   onConfirm,
   multiple = true,
-}) => {
+}: TableFilterProps) => {
   const { locale, getPrefixCls } = useContext(ConfigContext);
   const select = useCallback(flow(prop('selectedKeys'), setSelectedKeys), [setSelectedKeys]);
   const onFinalConfirm = useCallback(() => {
@@ -78,10 +92,10 @@ const result = ({
       </Menu>
       <div className={`${prefixCls}-dropdown-btns`}>
         <Button type="link" size="small" disabled={selectedKeys.length === 0} onClick={onFinalReset}>
-          {locale.Table.filterReset}
+          {locale?.Table?.filterReset}
         </Button>
         <Button type="primary" size="small" onClick={onFinalConfirm}>
-          {locale.Table.filterConfirm}
+          {locale?.Table?.filterConfirm}
         </Button>
       </div>
     </>
@@ -91,11 +105,11 @@ const result = ({
 result.propTypes = {
   // from antd
   prefixCls: string.isRequired,
-  setSelectedKeys: func,
-  selectedKeys: array,
+  setSelectedKeys: func.isRequired,
+  selectedKeys: array.isRequired,
   confirm: func.isRequired,
-  clearFilters: func,
-  filters: array,
+  clearFilters: func.isRequired,
+  filters: array.isRequired,
   visible: bool.isRequired,
 
   // from usage

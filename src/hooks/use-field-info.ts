@@ -1,5 +1,6 @@
 import type { ValidateStatus } from 'antd/es/form/FormItem';
 import { useI18N } from 'relient/i18n';
+import { ReactNode } from 'react';
 
 export interface UseFieldInfoParams {
   touched?: boolean
@@ -9,7 +10,7 @@ export interface UseFieldInfoParams {
 
 export interface UseFieldInfo {
   validateStatus: ValidateStatus
-  help?: string
+  help?: ReactNode
 }
 
 export default ({ touched, error, submitError }: UseFieldInfoParams): UseFieldInfo => {
