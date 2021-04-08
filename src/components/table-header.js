@@ -15,7 +15,7 @@ import {
 } from 'prop-types';
 import { Input, Button, Select, DatePicker } from 'antd';
 import { map, flow, join, prop } from 'lodash/fp';
-import useI18N from '../hooks/use-i18n';
+import { useI18N } from 'relient/i18n';
 import Link from './link';
 import FormPop from './form/pop';
 import Details from './details';

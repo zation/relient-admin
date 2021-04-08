@@ -1,20 +1,26 @@
 import React, { useCallback } from 'react';
-import { Message, Switch } from 'antd';
+import { message, Switch } from 'antd';
 import { number, oneOf } from 'prop-types';
+import type { ActionCreator } from 'redux';
+import { useI18N } from 'relient/i18n';
 import useAction from '../hooks/use-action';
-import useI18N from '../hooks/use-i18n';
-import { ACTIVE, INACTIVE, normalStatuses } from '../constants/normal-status';
+import { NormalStatus, normalStatuses } from '../constants/normal-status';
 
-export default (updateAction) => {
-  const result = ({ id, status }) => {
+export interface SwitchStatusProps {
+  id: number | string
+  status?: NormalStatus
+}
+
+export default function getSwitchStatus <T>(updateAction: ActionCreator<T>) {
+  const result = ({ id, status }: SwitchStatusProps) => {
     const update = useAction(updateAction);
     const i18n = useI18N();
     const toggleNormalStatus = useCallback(async () => {
       await update({
         id,
-        status: status === ACTIVE ? INACTIVE : ACTIVE,
+        status: status === NormalStatus.Active ? NormalStatus.Inactive : NormalStatus.Active,
       });
-      Message.success(i18n('editSuccess'));
+      message.success(i18n('editSuccess'));
     }, [status, id, i18n]);
 
     return <Switch checked={status === 'ACTIVE'} onChange={toggleNormalStatus} />;
@@ -28,4 +34,4 @@ export default (updateAction) => {
   result.displayName = __filename;
 
   return result;
-};
+}

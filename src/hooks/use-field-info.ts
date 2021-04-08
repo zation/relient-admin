@@ -1,5 +1,5 @@
 import type { ValidateStatus } from 'antd/es/form/FormItem';
-import useI18N from './use-i18n';
+import { useI18N } from 'relient/i18n';
 
 export interface UseFieldInfoParams {
   touched?: boolean

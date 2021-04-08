@@ -1,13 +1,13 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useCallback, createElement, useContext } from 'react';
-import { string, node, func, bool } from 'prop-types';
+import React, { useCallback, createElement, useContext, AnchorHTMLAttributes, MouseEvent } from 'react';
+import { string, node, func, bool, ReactNodeLike } from 'prop-types';
 import { propEq, omit } from 'lodash/fp';
 import { useDispatch } from 'react-redux';
 import { push, goBack } from 'relient/actions/history';
 import { getWithBaseUrl } from 'relient/url';
+import { useI18N } from 'relient/i18n';
 import { BaseUrlContext } from '../contexts';
 import { getFeatureBy } from '../features';
-import useI18N from '../hooks/use-i18n';
 
 const isLeftClickEvent = propEq('button')(0);
 
@@ -16,14 +16,25 @@ const isModifiedEvent = ({
   altKey,
   ctrlKey,
   shiftKey,
-}) => !!(metaKey || altKey || ctrlKey || shiftKey);
+}: MouseEvent<HTMLAnchorElement>) => (metaKey || altKey || ctrlKey || shiftKey);
 
-const getHref = ({ to, feature, baseUrl }) => {
+const getHref = ({ to, feature, baseUrl }: { to?: string, feature?: string, baseUrl?: string }) => {
   if (feature) {
     return getWithBaseUrl(getFeatureBy('link')(feature), baseUrl);
   }
-  return getWithBaseUrl(to, baseUrl);
+  if (to) {
+    return getWithBaseUrl(to, baseUrl);
+  }
+  return undefined;
 };
+
+export interface LinkProps extends AnchorHTMLAttributes<HTMLAnchorElement>{
+  to?: string
+  back?: boolean
+  children?: ReactNodeLike
+  feature?: string
+  showIcon?: boolean
+}
 
 const result = ({
   to,
@@ -34,23 +45,23 @@ const result = ({
   onClick,
   target,
   ...props
-}) => {
+}: LinkProps) => {
   const dispatch = useDispatch();
   const baseUrl = useContext(BaseUrlContext);
-  const handleClick = useCallback((event) => {
+  const handleClick = useCallback((event: MouseEvent<HTMLAnchorElement>) => {
     if (back) {
       event.preventDefault();
       dispatch(goBack());
     }
-    if (onClick && onClick(event) === false) {
-      event.preventDefault();
+    if (onClick) {
+      onClick(event);
       return;
     }
     if (isModifiedEvent(event) || !isLeftClickEvent(event)) {
       return;
     }
 
-    if (event.defaultPrevented === true || target === '_blank') {
+    if (event.defaultPrevented || target === '_blank') {
       return;
     }
 

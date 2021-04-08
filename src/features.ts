@@ -16,7 +16,7 @@ export const setFeatures = (newFeatures: Feature[]) => {
 };
 
 export const getSelectedFeatures = (
-  key: string,
+  key?: string,
   items = features,
   previous: Feature[] = [],
 ): Feature[] | null => {
@@ -35,7 +35,7 @@ export const getSelectedFeatures = (
   return null;
 };
 
-export const getFeatureBy = (attribute: keyof Feature) => (key: string) => {
+export const getFeatureBy = (attribute: keyof Feature) => (key?: string) => {
   const selectedFeatures = getSelectedFeatures(key);
   if (attribute === 'link') {
     return flow(map(prop('link')), join('/'))(selectedFeatures);

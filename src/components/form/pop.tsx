@@ -13,7 +13,7 @@ import {
 } from 'prop-types';
 import { map } from 'lodash/fp';
 import { FormInstance } from 'antd/es/form';
-import useI18N from '../../hooks/use-i18n';
+import { useI18N } from 'relient/i18n';
 import useSubmit, { OnSubmit, Submit } from '../../hooks/use-submit';
 import useIsFormEditing from '../../hooks/use-is-form-editing';
 import Error from './error';

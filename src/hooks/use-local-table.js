@@ -16,9 +16,9 @@ import {
   any,
 } from 'lodash/fp';
 import { Message } from 'antd';
+import { useI18N } from 'relient/i18n';
 import TableHeader from '../components/table-header';
 import useBasicTable from './use-basic-table';
-import useI18N from './use-i18n';
 import { DEFAULT_SIZE } from '../constants/pagination';
 
 // {

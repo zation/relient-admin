@@ -2,16 +2,20 @@ import { keys, eq } from 'lodash/fp';
 import getText from 'relient/get-text';
 import getOptions from 'relient/get-options';
 
-export const ACTIVE = 'ACTIVE';
-export const INACTIVE = 'INACTIVE';
+export enum NormalStatus {
+  Active = 'ACTIVE',
+  Inactive = 'INACTIVE',
+}
 
 const textMap = {
-  [ACTIVE]: 'active',
-  [INACTIVE]: 'inactive',
+  [NormalStatus.Active]: 'active',
+  [NormalStatus.Inactive]: 'inactive',
 };
 
 export const normalStatuses = keys(textMap);
 export const getNormalStatusOptions = getOptions(textMap);
 export const getNormalStatusText = getText(textMap);
-export const formatNormalStatus = eq(ACTIVE);
-export const parseNormalStatus = (value: boolean | undefined | null) => (value ? ACTIVE : INACTIVE);
+export const formatNormalStatus = eq(NormalStatus.Active);
+export const parseNormalStatus = (value: boolean | undefined | null) => (value
+  ? NormalStatus.Active
+  : NormalStatus.Inactive);

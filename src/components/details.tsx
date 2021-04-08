@@ -23,7 +23,7 @@ import {
   last,
   join,
 } from 'lodash/fp';
-import useI18N from '../hooks/use-i18n';
+import { useI18N } from 'relient/i18n';
 import { Style } from './interface';
 
 type LevelMove = number | [number, number];

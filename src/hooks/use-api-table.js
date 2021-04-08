@@ -18,10 +18,10 @@ import {
   join,
 } from 'lodash/fp';
 import { Message } from 'antd';
+import { useI18N } from 'relient/i18n';
 import { DEFAULT_PAGE } from '../constants/pagination';
 import TableHeader from '../components/table-header';
 import useBasicTable from './use-basic-table';
-import useI18N from './use-i18n';
 
 const omitEmpty = omitBy((val) => (isNil(val) || val === ''));
 
