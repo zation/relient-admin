@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, ReactNode } from 'react';
 import { useSelector } from 'react-redux';
 import {
   concat,
@@ -17,11 +17,16 @@ import {
   reject,
   join,
 } from 'lodash/fp';
-import { Message } from 'antd';
+import { message } from 'antd';
 import { useI18N } from 'relient/i18n';
+import { Moment } from 'moment';
+import type { FormInstance } from 'antd/es/form';
 import { DEFAULT_PAGE } from '../constants/pagination';
-import TableHeader from '../components/table-header';
+import TableHeader, { CreateButton } from '../components/table-header';
 import useBasicTable from './use-basic-table';
+import type { Option, Filter, FilterValue, DateValue } from '../interface';
+import type { FormPopProps } from '../components/form/pop';
+import type { DetailsProps } from '../components/details';
 
 const omitEmpty = omitBy((val) => (isNil(val) || val === ''));
 
@@ -41,18 +46,43 @@ const getDateParams = reduce((result, { dataKey, value }) => {
   return result;
 }, {});
 
-const onFetch = async (
-  queryValue,
-  queryField,
-  readAction,
-  setPageData,
-  size,
-  filterValues,
-  dates,
-  page,
-  setIsLoading,
-  fussyKey,
-) => {
+export interface ReadActionParams {
+  [key: string]: any
+
+  size: number
+  page: number
+}
+
+export interface ReadAction<Modal = any> {
+  (params: ReadActionParams): {
+    content: Modal[]
+    number: number
+    size: number
+    totalElements: number
+  }
+}
+
+type ID = string | number;
+
+export interface PaginationData {
+  current: number
+  size: number
+  total: number
+  ids: ID[]
+}
+
+async function onFetch<Modal = any>(
+  queryValue: string | null | undefined,
+  queryField: string,
+  readAction: ReadAction<Modal>,
+  setPaginationData: (paginationData: PaginationData) => void,
+  size: number,
+  filterValues: FilterValue[],
+  dateValues: DateValue[],
+  page: number,
+  setIsLoading: (isLoading: boolean) => void,
+  fussyKey: string | null | undefined,
+) {
   setIsLoading(true);
   const {
     content,
@@ -64,106 +94,72 @@ const onFetch = async (
     size,
     page,
     ...getFilterParams(filterValues),
-    ...getDateParams(dates),
-  }));
+    ...getDateParams(dateValues),
+  }) as ReadActionParams);
   setIsLoading(false);
-  setPageData({
+  setPaginationData({
     current: number,
     size: newSize,
     total: totalElements,
     ids: map(prop('id'))(content),
   });
-};
+}
 
 const onQueryFetch = debounce(500, onFetch);
 
-// {
-//   query: {
-//     fields: [{ key, text }],
-//     onValueChange: func,
-//     onFieldChange: func,
-//     width: number,
-//     placeholder: string,
-//     fussyKey: string,
-//   },
-//   showReset: bool,
-//   filters: [{
-//     dataKey: string,
-//     label: string,
-//     options: [{ text: string, value: string }],
-//     defaultValue: value,
-//     dropdownMatchSelectWidth: bool,
-//     onFilterChange: func,
-//     disabled: bool,
-//   }],
-//   createButton: { text: string, link: string, onClick: func },
-//   datePickers: [{
-//     dataKey: string,
-//     label: string,
-//     onDateChange: func,
-//     disabledDate: func,
-//   }],
-//   getDataSource: func,
-//   pagination: { size: number, showTotal: func },
-//   paginationInitialData: {
-//     ids: array,
-//     current: number,
-//     size: number,
-//     total: number
-//   },
-//   readAction: func,
-//   details: {
-//     title: string,
-//     editable: object,
-//     items: array,
-//     itemTitleStyle: object,
-//     itemDataStyle: object,
-//     editButtonText: string,
-//     children: node,
-//     level: string or array,
-//     levelMove: number or array or func,
-//     id: string,
-//     onClose: func,
-//     onOpen: func,
-//     getDataSource: func,
-//   },
-//   creator: {
-//     formName: string,
-//     title: string,
-//     initialValues: object,
-//     onSubmit: func,
-//     fields: array,
-//     layout: object,
-//     component: Drawer | Modal,
-//     checkEditing: bool,
-//     checkingMessage: string,
-//     footer: func,
-//     validate: func,
-//     onClose: func,
-//     onOpen: func,
-//   },
-//   editor: {
-//     formName: string,
-//     title: string,
-//     initialValues: object,
-//     getInitialValues: func,
-//     onSubmit: func,
-//     fields: array,
-//     layout: object,
-//     shouldReload: bool,
-//     getFields: func,
-//     component: Drawer | Modal,
-//     checkEditing: bool,
-//     checkingMessage: string,
-//     footer: func,
-//     validate: func,
-//     onClose: func,
-//     onOpen: func,
-//   },
-// }
+export interface Creator extends FormPopProps {
+  onOpen?: () => void
+}
+
+export interface Editor<Item = any> extends Omit<FormPopProps, 'onSubmit'> {
+  onOpen?: () => void
+  shouldReload?: boolean
+  getInitialValues?: (item: Item) => any
+  onSubmit: (valuesWithId: any, item: Item, form: FormInstance) => Promise<any>
+}
+
+export interface Details<Item = any> extends DetailsProps {
+  getDataSource?: (detailsItems: Item) => any
+  onOpen?: (detailsItems: Item) => void
+  onClose?: () => void
+}
+
+export interface ShowTotal {
+  (total: number, range: [number, number]): ReactNode
+}
+
+export interface UseApiTable {
+  query?: {
+    onFieldChange?: (fieldKey: string) => void
+    onValueChange?: (value?: string) => void
+    fields?: Option[]
+    width?: number
+    placeholder?: string
+    fussyKey?: string
+  }
+  showReset?: boolean
+  filters?: Filter[]
+  createButton?: CreateButton
+  datePickers?: {
+    dataKey: string,
+    label: string,
+    onDateChange: (value: [string, string]) => void
+    disabledDate: (date: Moment) => boolean
+  }[]
+  getDataSource: (state: any) => (ids: ID[]) => any
+  pagination?: {
+    size?: number
+    showTotal?: ShowTotal
+  }
+  paginationInitialData: PaginationData
+  readAction: ReadAction
+  creator?: Creator
+  editor?: Editor
+  details?: Details
+}
 
 export default ({
-  query: { onFieldChange, onValueChange, fields, width, placeholder, fussyKey } = {},
+  query,
   showReset,
   filters,
   createButton,
@@ -178,39 +174,39 @@ export default ({
     size: initialSize,
   },
   readAction,
-  creator: {
+  creator,
+  editor,
+  details,
+}: UseApiTable) => {
+  const { onFieldChange, onValueChange, fields, width, placeholder, fussyKey } = query || {};
+  const {
     onSubmit: creatorSubmit,
-    checkingMessage: creatorCheckingMessage,
     onClose: creatorOnClose,
     onOpen: creatorOnOpen,
-  } = {},
-  creator,
-  editor: {
+  } = creator || {};
+  const {
     onSubmit: editorSubmit,
     shouldReload,
-    checkingMessage: editorCheckingMessage,
     onClose: editorOnClose,
     onOpen: editorOnOpen,
     getInitialValues: getEditorInitialValues,
-  } = {},
-  editor,
-  details,
-  details: {
+  } = editor || {};
+  const {
     getDataSource: getDetailsDataSource,
     onOpen: detailsOnOpen,
     onClose: detailsOnClose,
-  } = {},
-} = {}) => {
-  const [pageData, setPageData] = useState(paginationInitialData);
+  } = details || {};
+
+  const [paginationData, setPaginationData] = useState<PaginationData>(paginationInitialData);
   useEffect(() => {
-    if (initialCurrent !== pageData.current
-      || initialTotal !== pageData.total
-      || join(',')(initialIds) !== join(',')(pageData.ids)
-      || initialSize !== pageData.size) {
-      setPageData(paginationInitialData);
+    if (initialCurrent !== paginationData.current
+      || initialTotal !== paginationData.total
+      || join(',')(initialIds) !== join(',')(paginationData.ids)
+      || initialSize !== paginationData.size) {
+      setPaginationData(paginationInitialData);
     }
   }, [initialSize, initialCurrent, initialTotal, join(',')(initialIds)]);
-  const data = useSelector((state) => getDataSource(state)(pageData.ids));
+  const data = useSelector((state) => getDataSource(state)(paginationData.ids));
   const [isLoading, setIsLoading] = useState(false);
   const i18n = useI18N();
 
@@ -240,8 +236,6 @@ export default ({
   } = useBasicTable({
     fields,
     filters,
-    creatorCheckingMessage,
-    editorCheckingMessage,
     editorOnOpen,
     editorOnClose,
     creatorOnOpen,
@@ -263,8 +257,8 @@ export default ({
       null,
       fieldKey,
       readAction,
-      setPageData,
-      pageData.size,
+      setPaginationData,
+      paginationData.size,
       filterValues,
       dateValues,
       DEFAULT_PAGE,
@@ -273,7 +267,7 @@ export default ({
     );
   }, [
     readAction,
-    pageData.size,
+    paginationData.size,
     filterValues,
     dateValues,
     onFieldChange,
@@ -289,8 +283,8 @@ export default ({
       value,
       queryField,
       readAction,
-      setPageData,
-      pageData.size,
+      setPaginationData,
+      paginationData.size,
       filterValues,
       dateValues,
       DEFAULT_PAGE,
@@ -301,7 +295,7 @@ export default ({
     onValueChange,
     queryField,
     readAction,
-    pageData.size,
+    paginationData.size,
     filterValues,
     dateValues,
     fussyKey,
@@ -329,8 +323,8 @@ export default ({
       queryValue,
       queryField,
       readAction,
-      setPageData,
-      pageData.size,
+      setPaginationData,
+      paginationData.size,
       newFilterValues,
       dateValues,
       DEFAULT_PAGE,
@@ -342,7 +336,7 @@ export default ({
     queryValue,
     queryField,
     readAction,
-    pageData.size,
+    paginationData.size,
     dateValues,
     fussyKey,
     filterValues,
@@ -370,8 +364,8 @@ export default ({
       queryValue,
       queryField,
       readAction,
-      setPageData,
-      pageData.size,
+      setPaginationData,
+      paginationData.size,
       filterValues,
       newDates,
       DEFAULT_PAGE,
@@ -384,19 +378,19 @@ export default ({
     queryValue,
     queryField,
     readAction,
-    pageData.size,
+    paginationData.size,
     filterValues,
     fussyKey,
   ]);
-  const onReset = useCallback(async () => {
+  const onReset = useCallback(() => {
     reset();
 
-    await onFetch(
+    onFetch(
       null,
       defaultQueryField,
       readAction,
-      setPageData,
-      pageData.size,
+      setPaginationData,
+      paginationData.size,
       defaultFilterValues,
       [],
       DEFAULT_PAGE,
@@ -411,13 +405,13 @@ export default ({
     fussyKey,
   ]);
   const onPageChange = useCallback((page, pageSize) => {
-    const { current, size } = pageData;
+    const { current, size } = paginationData;
     if (current !== page - 1 || size !== pageSize) {
       onFetch(
         queryValue,
         queryField,
         readAction,
-        setPageData,
+        setPaginationData,
         pageSize,
         filterValues,
         dateValues,
@@ -430,41 +424,43 @@ export default ({
     queryValue,
     queryField,
     readAction,
-    pageData.size,
+    paginationData.size,
     filterValues,
     dateValues,
     fussyKey,
-    pageData.current,
+    paginationData.current,
   ]);
   const onReload = useCallback(() => onFetch(
     queryValue,
     queryField,
     readAction,
-    setPageData,
-    pageData.size,
+    setPaginationData,
+    paginationData.size,
     filterValues,
     dateValues,
-    pageData.current,
+    paginationData.current,
     setIsLoading,
     fussyKey,
   ), [
     queryValue,
     queryField,
     readAction,
-    pageData.size,
+    paginationData.size,
     filterValues,
     dateValues,
-    pageData.current,
+    paginationData.current,
     fussyKey,
   ]);
-  const onCreatorSubmit = useCallback(async (values) => {
-    await creatorSubmit(values);
+  const onCreatorSubmit = useCallback(async (values, formInstance) => {
+    if (creatorSubmit) {
+      await creatorSubmit(values, formInstance);
+    }
     await onFetch(
       queryValue,
       queryField,
       readAction,
-      setPageData,
-      pageData.size,
+      setPaginationData,
+      paginationData.size,
       filterValues,
       dateValues,
       DEFAULT_PAGE,
@@ -472,24 +468,26 @@ export default ({
       fussyKey,
     );
     closeCreator();
-    Message.success(i18n('createSuccess'));
+    message.success(i18n('createSuccess'));
   }, [
     creatorSubmit,
     queryValue,
     queryField,
     readAction,
-    pageData.size,
+    paginationData.size,
     filterValues,
     dateValues,
     fussyKey,
   ]);
-  const onEditorSubmit = useCallback(async (values) => {
-    await editorSubmit({ ...values, id: editItem.id }, values, editItem);
+  const onEditorSubmit = useCallback(async (values, formInstance) => {
+    if (editorSubmit) {
+      await editorSubmit({ ...values, id: (editItem as any).id as ID }, editItem, formInstance);
+    }
     if (shouldReload) {
       await onReload();
     }
     closeEditor();
-    Message.success(i18n('editSuccess'));
+    message.success(i18n('editSuccess'));
   }, [
     editorSubmit,
     editItem,
@@ -509,10 +507,10 @@ export default ({
     changeFilterValue: onFilterValueChange,
     changeDate: onDateChange,
     pagination: {
-      showTotal: (total) => `${i18n('totalPage', { total })}`,
-      pageSize: pageData.size,
-      current: pageData.current + 1,
-      total: pageData.total,
+      showTotal: ((total) => `${i18n('totalPage', { total })}`) as ShowTotal,
+      pageSize: paginationData.size,
+      current: paginationData.current + 1,
+      total: paginationData.total,
       onChange: onPageChange,
       ...pagination,
     },
@@ -543,10 +541,11 @@ export default ({
         onSelect: onFilterValueChange,
       }}
       datePicker={{
-        items: map(({ dataKey, ...others }) => ({
+        items: map(({ dataKey, label, disabledDate }) => ({
           dataKey,
           value: flow(find(propEq('dataKey')(dataKey)), prop('value'))(dateValues),
-          ...others,
+          label,
+          disabledDate,
         }))(datePickers),
         onSelect: onDateChange,
       }}
@@ -575,7 +574,7 @@ export default ({
       }}
       openEditor={openEditor}
       openCreator={openCreator}
-      reset={showReset ? onReset : null}
+      reset={showReset ? onReset : undefined}
     />,
   };
 };

@@ -15,15 +15,11 @@ import type { DetailsProps } from './details';
 import Link from './link';
 import FormPop, { FormPopProps } from './form/pop';
 import Details from './details';
+import type { Option as QueryField } from '../interface';
 
 const { Search } = Input;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
-
-export interface QueryField {
-  text?: string
-  value?: string
-}
 
 export interface FilterOption extends Omit<OptionType, 'children'> {
   text?: string
@@ -39,9 +35,15 @@ export interface FilterItem {
 }
 
 export interface DatePickerItem {
-  label?: string,
-  dataKey: string,
-  disabledDate: (date: Moment) => boolean,
+  label?: string
+  dataKey: string
+  disabledDate: (date: Moment) => boolean
+}
+
+export interface CreateButton {
+  text: string
+  link?: string
+  onClick: MouseEventHandler<HTMLElement>
 }
 
 export interface TableHeaderProps {
@@ -55,11 +57,7 @@ export interface TableHeaderProps {
     placeholder?: string
     fussy?: boolean
   }
-  createButton?: {
-    text: string
-    link?: string
-    onClick: MouseEventHandler<HTMLElement>
-  }
+  createButton?: CreateButton
   filter: {
     items: FilterItem[]
     onSelect: (selectedValue: any, dataKey: string) => void

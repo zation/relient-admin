@@ -7,20 +7,28 @@ import {
   prop,
   reject,
 } from 'lodash/fp';
-import useDetails from './use-details';
+import useDetails, { UseDetails } from './use-details';
+import type { Option, Filter, FilterValue, DateValue } from '../interface';
+
+export interface UseBasicTable<Item = any> extends UseDetails<Item> {
+  fields: Option[] | null | undefined
+  filters: Filter[] | null | undefined
+  editorOnOpen?: (item: Item) => void
+  editorOnClose?: () => void
+  creatorOnOpen?: () => void
+  creatorOnClose?: () => void
+}
 
 export default ({
   fields,
   filters,
-  creatorCheckingMessage,
-  editorCheckingMessage,
   editorOnOpen,
   editorOnClose,
   creatorOnOpen,
   creatorOnClose,
   detailsOnOpen,
   detailsOnClose,
-}) => {
+}: UseBasicTable) => {
   const defaultQueryField = flow(first, prop('key'))(fields);
   const defaultFilterValues = flow(
     reject(flow(prop('defaultValue'), isUndefined)),
@@ -29,10 +37,10 @@ export default ({
       value: defaultValue,
     })),
   )(filters);
-  const [dateValues, setDateValues] = useState([]);
+  const [dateValues, setDateValues] = useState<DateValue[]>([]);
   const [queryField, setQueryField] = useState(defaultQueryField);
   const [queryValue, setQueryValue] = useState('');
-  const [filterValues, setFilterValues] = useState(defaultFilterValues);
+  const [filterValues, setFilterValues] = useState<FilterValue[]>(defaultFilterValues);
   const [creatorVisible, setCreatorVisible] = useState(false);
   const [editorVisible, setEditorVisible] = useState(false);
   const [editItem, setEditItem] = useState(null);
@@ -48,7 +56,7 @@ export default ({
     if (creatorOnClose) {
       creatorOnClose();
     }
-  }, [creatorCheckingMessage, creatorOnClose]);
+  }, [creatorOnClose]);
   const openEditor = useCallback((item) => {
     setEditorVisible(true);
     setEditItem(item);
@@ -62,7 +70,7 @@ export default ({
     if (editorOnClose) {
       editorOnClose();
     }
-  }, [editorCheckingMessage, editorOnClose]);
+  }, [editorOnClose]);
   const reset = useCallback(async () => {
     setDateValues([]);
     setQueryField(defaultQueryField);

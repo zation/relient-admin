@@ -24,7 +24,7 @@ import {
   join,
 } from 'lodash/fp';
 import { useI18N } from 'relient/i18n';
-import { Style } from './interface';
+import { Style } from '../interface';
 
 type LevelMove = number | [number, number];
 export interface DetailsItem<DataSource = any> {

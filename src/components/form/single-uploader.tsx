@@ -7,7 +7,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { UploadFile } from 'antd/es/upload/interface';
 import AUTHORIZATION from '../../constants/authorization';
 import { DomainContext } from '../../contexts';
-import { Style } from '../interface';
+import { Style } from '../../interface';
 
 const { Dragger } = Upload;
 

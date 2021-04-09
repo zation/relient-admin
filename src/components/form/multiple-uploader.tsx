@@ -9,7 +9,7 @@ import type { UploadFile, UploadFileStatus } from 'antd/es/upload/interface';
 import { View } from '../images';
 import { DomainContext } from '../../contexts';
 import AUTHORIZATION from '../../constants/authorization';
-import { Style } from '../interface';
+import { Style } from '../../interface';
 
 export interface MultipleUploaderProps {
   value?: UploadFile[]
