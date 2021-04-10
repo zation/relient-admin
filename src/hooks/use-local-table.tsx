@@ -15,120 +15,83 @@ import {
   toUpper,
   any,
 } from 'lodash/fp';
-import { Message } from 'antd';
+import { message } from 'antd';
 import { useI18N } from 'relient/i18n';
-import TableHeader from '../components/table-header';
+import { Moment } from 'moment';
+import TableHeader, { CreateButton } from '../components/table-header';
 import useBasicTable from './use-basic-table';
 import { DEFAULT_SIZE } from '../constants/pagination';
+import type { Creator, Details, Editor, Filter, Option, ShowTotal, PaginationData } from '../interface';
+import { ID } from '../interface';
 
-// {
-//   query: {
-//     fields: [{ key, text }],
-//     onValueChange: func,
-//     onFieldChange: func,
-//     width: number,
-//     placeholder: string,
-//     fussy: bool,
-//   },
-//   showReset: bool,
-//   filters: [{
-//     dataKey: string,
-//     label: string,
-//     options: [{ text: string, value: string }],
-//     defaultValue: value,
-//     dropdownMatchSelectWidth: bool,
-//     onChange: func,
-//     onFilter: func,
-//     disabled: bool,
-//   }],
-//   createButton: { text: string, link: string, onClick: func },
-//   datePickers: [{
-//     dataKey: string,
-//     label: string,
-//     onChange: func,
-//     disabledDate: func,
-//   }],
-//   details: {
-//     title: string,
-//     editable: object,
-//     items: array,
-//     itemTitleStyle: object,
-//     itemDataStyle: object,
-//     editButtonText: string,
-//     children: node,
-//     level: string or array,
-//     levelMove: number or array or func,
-//     id: string,
-//     onClose: func,
-//     onOpen: func,
-//     getDataSource: func,
-//   },
-//   creator: {
-//     title: string,
-//     initialValues: object,
-//     onSubmit: func,
-//     fields: array,
-//     layout: object,
-//     component: Drawer | Modal,
-//     checkEditing: bool,
-//     checkingMessage: string,
-//     footer: func,
-//     validate: func,
-//     onClose: func,
-//     onOpen: func,
-//   },
-//   editor: {
-//     title: string,
-//     initialValues: object,
-//     getInitialValues: func,
-//     onSubmit: func,
-//     fields: array,
-//     layout: object,
-//     getFields: func,
-//     component: Drawer | Modal,
-//     checkEditing: bool,
-//     checkingMessage: string,
-//     footer: func,
-//     validate: func,
-//     onClose: func,
-//     onOpen: func,
-//   },
-//   pagination: { pageSize, showTotal }
-// })
+export interface CustomQuery<Model> {
+  value: string
+  field: string
+  onFilter: (item: Model, field: string, value: string) => boolean
+}
 
-export default ({
-  query: { onFieldChange, onValueChange, fields, width, fussy } = {},
+export interface UseLocalTableParams<Model> {
+  query?: {
+    onFieldChange?: (fieldKey: string) => void
+    onValueChange?: (value?: string) => void
+    fields?: Option[]
+    width?: number
+    placeholder?: string
+    fussy?: boolean
+  }
+  showReset?: boolean
+  filters?: Filter[]
+  createButton?: CreateButton
+  datePickers?: {
+    dataKey: string,
+    label: string,
+    onDateChange: (value: [string, string]) => void
+    disabledDate: (date: Moment) => boolean
+  }[]
+  pagination?: {
+    size?: number
+    showTotal?: ShowTotal
+  }
+  paginationInitialData: PaginationData
+  creator?: Creator
+  editor?: Editor<Model>
+  details?: Details<Model>
+}
+
+export default function useLocalTable<Model = any>({
+  query,
   showReset,
   filters = [],
   createButton,
   datePickers,
   pagination,
-  paginationInitialData: {
+  paginationInitialData,
+  creator,
+  editor,
+  details,
+}: UseLocalTableParams<Model>) {
+  const { onFieldChange, onValueChange, fields, width, fussy } = query || {};
+  const {
     current: initialCurrent = 1,
     size: initialSize = DEFAULT_SIZE,
-  } = {},
-  creator: {
+  } = paginationInitialData || {};
+  const {
     onSubmit: creatorSubmit,
-    checkingMessage: creatorCheckingMessage,
     onClose: creatorOnClose,
     onOpen: creatorOnOpen,
-  } = {},
-  creator,
-  editor: {
+  } = creator || {};
+  const {
     onSubmit: editorSubmit,
-    checkingMessage: editorCheckingMessage,
     onClose: editorOnClose,
     onOpen: editorOnOpen,
     getInitialValues: getEditorInitialValues,
-  } = {},
-  editor,
-  details,
-  details: {
+  } = editor || {};
+  const {
     getDataSource: getDetailsDataSource,
     onOpen: detailsOnOpen,
     onClose: detailsOnClose,
-  } = {},
-} = {}) => {
+  } = details || {};
+
   const {
     dateValues,
     setDateValues,
@@ -153,8 +116,6 @@ export default ({
   } = useBasicTable({
     fields,
     filters,
-    creatorCheckingMessage,
-    editorCheckingMessage,
     editorOnOpen,
     editorOnClose,
     creatorOnOpen,
@@ -182,11 +143,8 @@ export default ({
     }
   }, [currentPage, pageSize]);
 
-  const [customQueries, changeCustomQueries] = useState([]);
+  const [customQueries, changeCustomQueries] = useState<CustomQuery<Model>[]>([]);
 
-  // value: string
-  // field: string
-  // onFilter: function
   const changeCustomQuery = useCallback((value, field, onFilter) => {
     const existingQuery = find(propEq('field', field))(customQueries);
     if (!existingQuery) {
@@ -195,9 +153,9 @@ export default ({
       changeCustomQueries(reject(propEq('field', field))(customQueries));
     } else if (existingQuery.value !== value) {
       changeCustomQueries(
-        map((query) => (query.field === field
+        map((customQuery: CustomQuery<Model>) => (customQuery.field === field
           ? { field, value, onFilter }
-          : query))(customQueries),
+          : customQuery))(customQueries),
       );
     }
   }, [customQueries, changeCustomQueries]);
@@ -258,26 +216,30 @@ export default ({
     datePickers,
     dateValues,
   ]);
-  const onCreatorSubmit = useCallback(async (values) => {
-    await creatorSubmit(values);
+  const onCreatorSubmit = useCallback(async (values, formInstance) => {
+    if (creatorSubmit) {
+      await creatorSubmit(values, formInstance);
+    }
     closeCreator();
-    Message.success(i18n('createSuccess'));
+    message.success(i18n('createSuccess'));
   }, [
     creatorSubmit,
   ]);
-  const onEditorSubmit = useCallback(async (values) => {
-    await editorSubmit({ ...values, id: editItem.id }, values, editItem);
+  const onEditorSubmit = useCallback(async (values, formInstance) => {
+    if (editorSubmit) {
+      await editorSubmit({ ...values, id: (editItem as any).id as ID }, formInstance, editItem);
+    }
     closeEditor();
-    Message.success(i18n('editSuccess'));
+    message.success(i18n('editSuccess'));
   }, [
     editorSubmit,
     editItem,
   ]);
   const getDataSource = useCallback(filter(
-    (item) => {
+    (item: any) => {
       let queryResult = true;
       if (queryValue) {
-        const match = (key) => flow(
+        const match = (key: string) => flow(
           prop(key),
           toUpper,
           includes(toUpper(queryValue)),
@@ -341,7 +303,7 @@ export default ({
     openDetails,
     reset,
     pagination: {
-      showTotal: (total) => `${i18n('totalPage', { total })}`,
+      showTotal: ((total) => `${i18n('totalPage', { total })}`) as ShowTotal,
       pageSize,
       onChange: onPageChange,
       current: currentPage,
@@ -361,10 +323,12 @@ export default ({
       filter={{
         items: map(({
           dataKey,
+          options,
           ...others
         }) => ({
           dataKey,
           value: flow(find(propEq('dataKey')(dataKey)), prop('value'))(filterValues),
+          options,
           ...others,
         }))(filters),
         onSelect: onFilterValueChange,
@@ -394,7 +358,7 @@ export default ({
       }}
       openEditor={openEditor}
       openCreator={openCreator}
-      reset={showReset ? reset : null}
+      reset={showReset ? reset : undefined}
       datePicker={{
         items: map(({ dataKey, ...others }) => ({
           dataKey,
@@ -405,4 +369,4 @@ export default ({
       }}
     />,
   };
-};
+}

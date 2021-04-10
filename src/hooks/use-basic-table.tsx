@@ -10,7 +10,7 @@ import {
 import useDetails, { UseDetails } from './use-details';
 import type { Option, Filter, FilterValue, DateValue } from '../interface';
 
-export interface UseBasicTable<Item = any> extends UseDetails<Item> {
+export interface UseBasicTableParams<Item> extends UseDetails<Item> {
   fields: Option[] | null | undefined
   filters: Filter[] | null | undefined
   editorOnOpen?: (item: Item) => void
@@ -19,7 +19,7 @@ export interface UseBasicTable<Item = any> extends UseDetails<Item> {
   creatorOnClose?: () => void
 }
 
-export default ({
+export default function useBasicTable<Model>({
   fields,
   filters,
   editorOnOpen,
@@ -28,7 +28,7 @@ export default ({
   creatorOnClose,
   detailsOnOpen,
   detailsOnClose,
-}: UseBasicTable) => {
+}: UseBasicTableParams<Model>) {
   const defaultQueryField = flow(first, prop('key'))(fields);
   const defaultFilterValues = flow(
     reject(flow(prop('defaultValue'), isUndefined)),
@@ -71,7 +71,7 @@ export default ({
       editorOnClose();
     }
   }, [editorOnClose]);
-  const reset = useCallback(async () => {
+  const reset = useCallback(() => {
     setDateValues([]);
     setQueryField(defaultQueryField);
     setQueryValue('');
@@ -115,4 +115,4 @@ export default ({
     detailsVisible,
     detailsItem,
   };
-};
+}

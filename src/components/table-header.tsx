@@ -37,7 +37,7 @@ export interface FilterItem {
 export interface DatePickerItem {
   label?: string
   dataKey: string
-  disabledDate: (date: Moment) => boolean
+  disabledDate?: (date: Moment) => boolean
 }
 
 export interface CreateButton {

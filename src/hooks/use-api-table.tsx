@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, ReactNode } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import {
   concat,
@@ -20,13 +20,21 @@ import {
 import { message } from 'antd';
 import { useI18N } from 'relient/i18n';
 import { Moment } from 'moment';
-import type { FormInstance } from 'antd/es/form';
 import { DEFAULT_PAGE } from '../constants/pagination';
 import TableHeader, { CreateButton } from '../components/table-header';
 import useBasicTable from './use-basic-table';
-import type { Option, Filter, FilterValue, DateValue } from '../interface';
-import type { FormPopProps } from '../components/form/pop';
-import type { DetailsProps } from '../components/details';
+import type {
+  Option,
+  Filter,
+  FilterValue,
+  DateValue,
+  ShowTotal,
+  Creator,
+  Details,
+  Editor,
+  PaginationData,
+  ID,
+} from '../interface';
 
 const omitEmpty = omitBy((val) => (isNil(val) || val === ''));
 
@@ -53,25 +61,16 @@ export interface ReadActionParams {
   page: number
 }
 
-export interface ReadAction<Modal = any> {
-  (params: ReadActionParams): {
-    content: Modal[]
+export interface ReadAction<Model> {
+  (params: ReadActionParams): Promise<{
+    content: Model[]
     number: number
     size: number
     totalElements: number
-  }
+  }>
 }
 
-type ID = string | number;
-
-export interface PaginationData {
-  current: number
-  size: number
-  total: number
-  ids: ID[]
-}
-
-async function onFetch<Modal = any>(
+async function onFetch<Modal>(
   queryValue: string | null | undefined,
   queryField: string,
   readAction: ReadAction<Modal>,
@@ -107,28 +106,7 @@ async function onFetch<Modal = any>(
 
 const onQueryFetch = debounce(500, onFetch);
 
-export interface Creator extends FormPopProps {
-  onOpen?: () => void
-}
-
-export interface Editor<Item = any> extends Omit<FormPopProps, 'onSubmit'> {
-  onOpen?: () => void
-  shouldReload?: boolean
-  getInitialValues?: (item: Item) => any
-  onSubmit: (valuesWithId: any, item: Item, form: FormInstance) => Promise<any>
-}
-
-export interface Details<Item = any> extends DetailsProps {
-  getDataSource?: (detailsItems: Item) => any
-  onOpen?: (detailsItems: Item) => void
-  onClose?: () => void
-}
-
-export interface ShowTotal {
-  (total: number, range: [number, number]): ReactNode
-}
-
-export interface UseApiTable {
+export interface UseApiTableParams<Model> {
   query?: {
     onFieldChange?: (fieldKey: string) => void
     onValueChange?: (value?: string) => void
@@ -152,13 +130,13 @@ export interface UseApiTable {
     showTotal?: ShowTotal
   }
   paginationInitialData: PaginationData
-  readAction: ReadAction
+  readAction: ReadAction<Model>
   creator?: Creator
-  editor?: Editor
-  details?: Details
+  editor?: Editor<Model>
+  details?: Details<Model>
 }
 
-export default ({
+export default function useApiTable<Model = any>({
   query,
   showReset,
   filters,
@@ -177,7 +155,7 @@ export default ({
   creator,
   editor,
   details,
-}: UseApiTable) => {
+}: UseApiTableParams<Model>) {
   const { onFieldChange, onValueChange, fields, width, placeholder, fussyKey } = query || {};
   const {
     onSubmit: creatorSubmit,
@@ -481,7 +459,7 @@ export default ({
   ]);
   const onEditorSubmit = useCallback(async (values, formInstance) => {
     if (editorSubmit) {
-      await editorSubmit({ ...values, id: (editItem as any).id as ID }, editItem, formInstance);
+      await editorSubmit({ ...values, id: (editItem as any)?.id }, formInstance, editItem);
     }
     if (shouldReload) {
       await onReload();
@@ -541,11 +519,10 @@ export default ({
         onSelect: onFilterValueChange,
       }}
       datePicker={{
-        items: map(({ dataKey, label, disabledDate }) => ({
+        items: map(({ dataKey, ...others }) => ({
           dataKey,
           value: flow(find(propEq('dataKey')(dataKey)), prop('value'))(dateValues),
-          label,
-          disabledDate,
+          ...others,
         }))(datePickers),
         onSelect: onDateChange,
       }}
@@ -577,4 +554,4 @@ export default ({
       reset={showReset ? onReset : undefined}
     />,
   };
-};
+}
