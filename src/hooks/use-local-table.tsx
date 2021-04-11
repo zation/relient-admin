@@ -17,11 +17,21 @@ import {
 } from 'lodash/fp';
 import { message } from 'antd';
 import { useI18N } from 'relient/i18n';
-import { Moment } from 'moment';
+import moment, { Moment } from 'moment';
 import TableHeader, { CreateButton } from '../components/table-header';
-import useBasicTable from './use-basic-table';
+import useBasicTable, { isFilterValuesSame } from './use-basic-table';
 import { DEFAULT_SIZE } from '../constants/pagination';
-import type { Creator, Details, Editor, Filter, Option, ShowTotal, PaginationData } from '../interface';
+import type {
+  Creator,
+  Details,
+  Editor,
+  Filter,
+  Option,
+  ShowTotal,
+  PaginationData,
+  FilterValue,
+  DateValue, OnFilter,
+} from '../interface';
 import { ID } from '../interface';
 
 export interface CustomQuery<Model> {
@@ -40,7 +50,7 @@ export interface UseLocalTableParams<Model> {
     fussy?: boolean
   }
   showReset?: boolean
-  filters?: Filter[]
+  filters?: Filter<Model>[]
   createButton?: CreateButton
   datePickers?: {
     dataKey: string,
@@ -182,17 +192,20 @@ export default function useLocalTable<Model = any>({
   }, [
     onValueChange,
   ]);
-  const onFilterValueChange = useCallback((value, dataKey) => {
+  const onFilterValueChange = useCallback((values, dataKey) => {
+    if (isFilterValuesSame(values, dataKey, filterValues)) {
+      return;
+    }
     const onChange = flow(find(propEq('dataKey', dataKey)), prop('onChange'))(filters);
     if (isFunction(onChange)) {
-      onChange(value);
+      onChange(values);
     }
     setCurrentPage(1);
     setFilterValues(flow(
       reject(propEq('dataKey')(dataKey)),
       concat({
         dataKey,
-        value,
+        values,
       }),
     )(filterValues));
   }, [
@@ -236,7 +249,7 @@ export default function useLocalTable<Model = any>({
     editItem,
   ]);
   const getDataSource = useCallback(filter(
-    (item: any) => {
+    (item: Model) => {
       let queryResult = true;
       if (queryValue) {
         const match = (key: string) => flow(
@@ -253,7 +266,7 @@ export default function useLocalTable<Model = any>({
 
       let customQueryResult = true;
       if (customQueries.length > 0) {
-        customQueryResult = every(({ value, onFilter, field }) => (
+        customQueryResult = every(({ value, onFilter, field }: CustomQuery<Model>) => (
           onFilter
             ? onFilter(item, field, value)
             : propEq(field, value)(item)))(customQueries);
@@ -261,22 +274,23 @@ export default function useLocalTable<Model = any>({
 
       let filterResult = true;
       if (filterValues.length > 0) {
-        filterResult = every(({ dataKey, value }) => {
-          const onFilter = flow(find(propEq('dataKey', dataKey)), prop('onFilter'))(filters);
-          return value === '' || isNil(value) || (onFilter
-            ? onFilter(item, dataKey, value)
-            : propEq(dataKey, value)(item)
+        filterResult = every(({ dataKey, values }: FilterValue) => {
+          const onFilter: OnFilter<Model> = flow(find(propEq('dataKey', dataKey)), prop('onFilter'))(filters);
+          return isNil(values) || values.length === 0 || (onFilter
+            ? onFilter(item, dataKey, values)
+            : includes(prop(dataKey)(item))(values)
           );
         })(filterValues);
       }
 
       let datesResult = true;
       if (dateValues.length > 0) {
-        datesResult = every(({ dataKey, value }) => {
+        datesResult = every(({ dataKey, value }: DateValue) => {
           if (value && value.length > 1) {
             const selectedDate = prop(dataKey)(item);
             const [startDate, endDate] = value;
-            return startDate.isBefore(selectedDate) && endDate.isAfter(selectedDate);
+            return moment(new Date(startDate)).isBefore(selectedDate)
+              && moment(new Date(endDate)).isAfter(selectedDate);
           }
           return true;
         })(dateValues);

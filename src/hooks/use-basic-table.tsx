@@ -1,14 +1,37 @@
 import { useState, useCallback } from 'react';
 import {
+  clone,
+  find,
   first,
-  flow,
+  flow, isEqual,
   isUndefined,
   map,
-  prop,
+  prop, propEq,
   reject,
 } from 'lodash/fp';
 import useDetails, { UseDetails } from './use-details';
 import type { Option, Filter, FilterValue, DateValue } from '../interface';
+
+export const isFilterValuesSame = (
+  values: string[] | null | undefined,
+  dataKey: string,
+  filterValues: FilterValue[],
+) => flow(
+  find(propEq('dataKey')(dataKey)),
+  prop('values'),
+  (oldValues) => {
+    if (oldValues && values) {
+      return isEqual(clone(oldValues).sort())(clone(values).sort());
+    }
+    if (oldValues && !values) {
+      return false;
+    }
+    if (!oldValues && values) {
+      return false;
+    }
+    return true;
+  },
+)(filterValues);
 
 export interface UseBasicTableParams<Item> extends UseDetails<Item> {
   fields: Option[] | null | undefined
@@ -32,9 +55,9 @@ export default function useBasicTable<Model>({
   const defaultQueryField = flow(first, prop('key'))(fields);
   const defaultFilterValues = flow(
     reject(flow(prop('defaultValue'), isUndefined)),
-    map(({ defaultValue, dataKey }) => ({
+    map(({ defaultValues, dataKey }) => ({
       dataKey,
-      value: defaultValue,
+      values: defaultValues,
     })),
   )(filters);
   const [dateValues, setDateValues] = useState<DateValue[]>([]);

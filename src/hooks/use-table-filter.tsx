@@ -1,11 +1,24 @@
 /* eslint-disable react/prop-types */
-import React, { useMemo, useState } from 'react';
-import { join } from 'lodash/fp';
+import React, { Key, useMemo, useState } from 'react';
+import type { ColumnFilterItem, ColumnType, FilterDropdownProps } from 'antd/es/table/interface';
 import TableFilter from '../components/table-filter';
 
-export default ({ changeFilterValue, dataKey, options, multiple, filterIcon, onFilter }) => {
+export interface UseTableFilterParams extends Pick<ColumnType<any>, 'filterIcon'> {
+  changeFilterValue: (values: Key[], dataKey: string) => void
+  dataKey: string
+  options: ColumnFilterItem[]
+  multiple?: boolean
+}
+
+export default function useTableFilter({
+  changeFilterValue,
+  dataKey,
+  options,
+  multiple,
+  filterIcon,
+}: UseTableFilterParams) {
   const [filterDropdownVisible, onFilterDropdownVisibleChange] = useState(false);
-  const [filteredValue, setFilteredValue] = useState(false);
+  const [filteredValue, setFilteredValue] = useState<Key[]>();
 
   return useMemo(() => ({
     filters: options,
@@ -21,7 +34,7 @@ export default ({ changeFilterValue, dataKey, options, multiple, filterIcon, onF
       clearFilters,
       filters,
       visible,
-    }) => (
+    }: FilterDropdownProps) => (
       <TableFilter
         multiple={multiple}
         prefixCls={prefixCls}
@@ -32,15 +45,15 @@ export default ({ changeFilterValue, dataKey, options, multiple, filterIcon, onF
         visible={visible}
         confirm={confirm}
         onConfirm={() => {
-          changeFilterValue(join(',')(selectedKeys), dataKey, onFilter);
+          changeFilterValue(selectedKeys, dataKey);
           setFilteredValue(selectedKeys);
           onFilterDropdownVisibleChange(false);
         }}
         onReset={() => {
           setFilteredValue(undefined);
-          changeFilterValue(undefined, dataKey);
+          changeFilterValue([], dataKey);
         }}
       />
     ),
-  }), [filterDropdownVisible, changeFilterValue, dataKey, multiple, filterIcon, onFilter]);
-};
+  }), [filterDropdownVisible, changeFilterValue, dataKey, multiple, filterIcon]);
+}

@@ -22,7 +22,7 @@ import { useI18N } from 'relient/i18n';
 import { Moment } from 'moment';
 import { DEFAULT_PAGE } from '../constants/pagination';
 import TableHeader, { CreateButton } from '../components/table-header';
-import useBasicTable from './use-basic-table';
+import useBasicTable, { isFilterValuesSame } from './use-basic-table';
 import type {
   Option,
   Filter,
@@ -40,7 +40,7 @@ const omitEmpty = omitBy((val) => (isNil(val) || val === ''));
 
 const getFilterParams = flow(
   keyBy('dataKey'),
-  mapValues(prop('value')),
+  mapValues(flow(prop('values'), join(','))),
 );
 
 const getDateParams = reduce((result, { dataKey, value }) => {
@@ -116,7 +116,7 @@ export interface UseApiTableParams<Model> {
     fussyKey?: string
   }
   showReset?: boolean
-  filters?: Filter[]
+  filters?: Filter<Model>[]
   createButton?: CreateButton
   datePickers?: {
     dataKey: string,
@@ -278,22 +278,19 @@ export default function useApiTable<Model = any>({
     dateValues,
     fussyKey,
   ]);
-  const onFilterValueChange = useCallback(async (value, dataKey) => {
-    if (flow(
-      find(propEq('dataKey')(dataKey)),
-      propEq('value', value),
-    )(filterValues)) {
+  const onFilterValueChange = useCallback(async (values, dataKey) => {
+    if (isFilterValuesSame(values, dataKey, filterValues)) {
       return null;
     }
     const onChange = flow(find(propEq('dataKey', dataKey)), prop('onFilterChange'))(filters);
     if (isFunction(onChange)) {
-      onChange(value);
+      onChange(values);
     }
     const newFilterValues = flow(
       reject(propEq('dataKey')(dataKey)),
       concat({
         dataKey,
-        value,
+        values,
       }),
     )(filterValues);
     setFilterValues(newFilterValues);

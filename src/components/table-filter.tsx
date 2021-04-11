@@ -2,7 +2,7 @@ import React, { useCallback, useContext, Key } from 'react';
 import { array, string, func, bool } from 'prop-types';
 import { ConfigContext } from 'antd/lib/config-provider';
 import { Menu, Button, Checkbox, Radio } from 'antd';
-import { flow, prop } from 'lodash/fp';
+import { flow, prop, map, toString } from 'lodash/fp';
 import type { ColumnFilterItem } from 'antd/es/table/interface';
 
 const { SubMenu, Item: MenuItem } = Menu;
@@ -41,14 +41,14 @@ function renderFilterItems(
 
 export interface TableFilterProps {
   // from antd
-  filters: ColumnFilterItem[]
-  selectedKeys: string[]
+  filters?: ColumnFilterItem[]
+  selectedKeys: Key[]
   setSelectedKeys: (selectedKeys: string[]) => void
-  clearFilters: () => void
+  clearFilters?: () => void
 
   // from usage
   onReset: () => void
-  onConfirm: (params: { selectedKeys: string[] }) => void
+  onConfirm: (params: { selectedKeys: Key[] }) => void
   multiple?: boolean
 }
 
@@ -67,7 +67,9 @@ const result = ({
     onConfirm({ selectedKeys });
   }, [selectedKeys, onConfirm]);
   const onFinalReset = useCallback(() => {
-    clearFilters();
+    if (clearFilters) {
+      clearFilters();
+    }
     onReset();
   }, [setSelectedKeys, onReset]);
   const dropdownPrefixCls = getPrefixCls('dropdown');
@@ -81,7 +83,7 @@ const result = ({
         className={`${dropdownPrefixCls}-menu-without-submenu`}
         onSelect={select}
         onDeselect={select}
-        selectedKeys={selectedKeys}
+        selectedKeys={map(toString)(selectedKeys)}
       >
         {renderFilterItems(
           filters || [],

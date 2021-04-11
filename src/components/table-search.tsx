@@ -5,7 +5,7 @@ import { Input, Button } from 'antd';
 
 export interface TableSearchProps {
   // from antd
-  clearFilters: () => void
+  clearFilters?: () => void
 
   // from usage
   width?: number
@@ -32,7 +32,9 @@ const result = ({
   }, [inputValue, onConfirm]);
 
   const onFinalReset = useCallback(() => {
-    clearFilters();
+    if (clearFilters) {
+      clearFilters();
+    }
     setInputValue('');
     onReset();
   }, [onReset, clearFilters]);

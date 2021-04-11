@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, Key } from 'react';
 import type { FormInstance } from 'antd/es/form';
 import type { FormPopProps } from './components/form/pop';
 import type { DetailsProps } from './components/details';
@@ -12,19 +12,24 @@ export interface Option {
   value?: string | number | null
 }
 
-export interface Filter {
+export interface OnFilter<Model> {
+  (item: Model, dataKey: string, values: Key[]): boolean
+}
+
+export interface Filter<Model> {
   dataKey: string
   label?: string
   options: Option[]
-  defaultValue?: string
+  defaultValues?: string[]
   dropdownMatchSelectWidth?: boolean
   onFilterChange?: (value: string) => void
+  onFilter?: OnFilter<Model>
   disabled?: boolean
 }
 
 export interface FilterValue {
   dataKey: string
-  value: string
+  values: Key[]
 }
 
 export interface DateValue {
