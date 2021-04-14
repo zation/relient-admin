@@ -7,9 +7,10 @@ import {
   array,
   object,
   number,
-  oneOf,
   oneOfType,
+  elementType,
   ReactNodeLike,
+  ReactComponentLike,
 } from 'prop-types';
 import { map } from 'lodash/fp';
 import { FormInstance } from 'antd/es/form';
@@ -35,7 +36,7 @@ export interface FormPopProps {
   onCancel?: () => void
   fields?: FieldProps[]
   getFields?: (form: FormInstance) => FieldProps[]
-  component?: typeof Drawer | typeof Modal
+  component?: ReactComponentLike
   width?: number
   checkEditing?: boolean
   footer?: (params: FooterParams) => ReactNodeLike
@@ -160,7 +161,7 @@ result.propTypes = {
   visible: bool.isRequired,
   onCancel: func,
   width: number,
-  component: oneOf([Drawer, Modal]).isRequired,
+  component: elementType.isRequired,
   footer: func,
   levelMove: oneOfType([number, array, func]),
   afterVisibleChange: func,

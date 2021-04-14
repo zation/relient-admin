@@ -6,6 +6,7 @@ import { object, string, bool, func, array } from 'prop-types';
 import { PlusOutlined } from '@ant-design/icons';
 import Carousel, { Modal, ModalGateway, ViewType } from 'react-images';
 import type { UploadFile, UploadFileStatus } from 'antd/es/upload/interface';
+// @ts-ignore
 import { View } from '../images';
 import { DomainContext } from '../../contexts';
 import AUTHORIZATION from '../../constants/authorization';

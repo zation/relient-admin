@@ -35,7 +35,7 @@ export const isFilterValuesSame = (
 
 export interface UseBasicTableParams<Item> extends UseDetails<Item> {
   fields: Option[] | null | undefined
-  filters: Filter[] | null | undefined
+  filters: Filter<Item>[] | null | undefined
   editorOnOpen?: (item: Item) => void
   editorOnClose?: () => void
   creatorOnOpen?: () => void
