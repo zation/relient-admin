@@ -59,16 +59,12 @@
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-react": "^7.22.0",
     "eslint-plugin-react-hooks": "^4.2.0",
-    "husky": "^4.3.6",
+    "husky": "^6.0.0",
     "less": "^4.1.1",
     "lint-staged": "^10.5.3",
+    "pinst": "^2.1.6",
     "rc-select": "^12.1.9",
     "typescript": "^4.2.4"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": "eslint --fix"
@@ -77,6 +73,9 @@
     "lint": "eslint --ignore-path .eslintignore .",
     "fix": "npm run lint --fix",
     "build": "rm -rf ./dist && mkdir ./dist && lessc src/styles.less dist/styles.css && cp ./package.json ./README.md ./dist/ && tsc && babel --config-file ./.babelrc.js ./dist --out-dir ./dist",
-    "pub": "npm run lint && npm run build && npm publish ./dist --registry=https://registry.npmjs.org/"
+    "pub": "npm run lint && npm run build && npm publish ./dist --registry=https://registry.npmjs.org/",
+    "postinstall": "husky install",
+    "prepublishOnly": "pinst --disable",
+    "postpublish": "pinst --enable"
   }
 }
