@@ -25,8 +25,6 @@ module.exports = {
     browser: true,
   },
 
-  ignorePatterns: ['.eslintrc.js'],
-
   rules: {
     'react/jsx-filename-extension': ['error', { extensions: ['.ts', '.tsx'] }],
     'object-curly-newline': 'off',
