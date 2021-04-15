@@ -31,7 +31,7 @@ export interface FooterParams {
 export interface FormPopProps {
   onSubmit: OnSubmit
   visible: boolean
-  initialValues: any
+  initialValues?: any
   onClose: () => void
   onCancel?: () => void
   fields?: FieldProps[]

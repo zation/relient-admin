@@ -3,7 +3,7 @@ import type { FormInstance } from 'antd/es/form';
 import { map, isArray, find, propEq } from 'lodash/fp';
 
 export interface OnSubmit {
-  (values: any, form: FormInstance): Promise<any>
+  (values: any, form?: FormInstance): Promise<any>
 }
 
 export interface Submit {
@@ -20,8 +20,8 @@ interface Result {
 
 export default (
   onSubmit: OnSubmit,
-  form: FormInstance,
   deps = [],
+  form?: FormInstance,
 ): Result => {
   const [submitting, setSubmitting] = useState(false);
   const [submitSucceeded, setSubmitSucceeded] = useState(false);
@@ -44,7 +44,7 @@ export default (
         setDefaultError(find(propEq('field', 'default'))(e));
         setSubmitSucceeded(false);
         setSubmitFailed(true);
-        if (isArray(e)) {
+        if (isArray(e) && form) {
           form.setFields(map(({ field, message }) => ({ name: field, errors: [message] }))(e));
         }
         return e;

@@ -18,7 +18,7 @@ import Field, { FieldProps } from './field';
 const { Item, useForm } = Form;
 
 export interface FormProps {
-  initialValues: any
+  initialValues?: any
   onSubmit: OnSubmit
   fields?: FieldProps[]
   getFields?: (form: FormInstance) => FieldProps[]
