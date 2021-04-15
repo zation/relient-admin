@@ -1,6 +1,14 @@
-import { useCallback, useState } from 'react';
+import {
+  useCallback,
+  useState,
+} from 'react';
 import type { FormInstance } from 'antd/es/form';
-import { map, isArray, find, propEq } from 'lodash/fp';
+import {
+  map,
+  isArray,
+  find,
+  propEq,
+} from 'lodash/fp';
 
 export interface OnSubmit {
   (values: any, form?: FormInstance): Promise<any>
@@ -20,7 +28,6 @@ interface Result {
 
 export default (
   onSubmit: OnSubmit,
-  deps = [],
   form?: FormInstance,
 ): Result => {
   const [submitting, setSubmitting] = useState(false);
@@ -49,7 +56,7 @@ export default (
         }
         return e;
       }
-    }, [onSubmit, form, ...deps]),
+    }, [onSubmit, form]),
     submitting,
     submitSucceeded,
     submitFailed,

@@ -24,7 +24,11 @@ const result = ({
   ...field
 }: FieldProps) => {
   if (isValidElement(element)) {
-    return element;
+    return (
+      <Item {...field}>
+        {element}
+      </Item>
+    );
   }
 
   return isArray ? (
