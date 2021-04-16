@@ -25,15 +25,9 @@ import type { FormInstance } from 'antd/es/form';
 import type { DrawerProps } from 'antd/es/drawer';
 import type { ModalProps } from 'antd/es/modal';
 import { useI18N } from 'relient/i18n';
-import useSubmit, {
-  OnSubmit,
-  Submit,
-} from '../../hooks/use-submit';
-import useIsFormEditing from '../../hooks/use-is-form-editing';
+import useForm, { OnSubmit, Submit } from '../../hooks/use-form';
 import Error from './error';
 import Field, { FieldProps } from './field';
-
-const { useForm } = Form;
 
 export interface FooterParams {
   onCancel?: () => void
@@ -71,12 +65,17 @@ const result = ({
   levelMove = 370,
   ...props
 }: FormPopProps) => {
-  const [form] = useForm();
-  const pristine = form.isFieldsTouched();
-  const { submit, submitting, submitSucceeded, defaultError } = useSubmit(onSubmit, [], form);
+  const {
+    submit,
+    submitting,
+    defaultError,
+    invalid,
+    pristine,
+    onFieldsChange,
+    form,
+  } = useForm(onSubmit, [], checkEditing, true);
   const i18n = useI18N();
 
-  useIsFormEditing({ dirty: pristine, submitSucceeded, checkEditing, visible });
   useEffect(() => {
     if (visible) {
       form.resetFields();
@@ -104,14 +103,14 @@ const result = ({
         style={{ marginLeft: 20 }}
         type="primary"
         loading={submitting}
-        disabled={pristine}
+        disabled={invalid || pristine}
       >
         {i18n('submit')}
       </Button>
     </div>
   );
   const children = (
-    <Form onFinish={submit} initialValues={initialValues} form={form}>
+    <Form onFinish={submit} initialValues={initialValues} form={form} onFieldsChange={onFieldsChange}>
       <Error error={defaultError} />
 
       {map(

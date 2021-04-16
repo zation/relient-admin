@@ -1,6 +1,11 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useCallback } from 'react';
-import { Form, Button } from 'antd';
+import React, {
+  useCallback,
+} from 'react';
+import {
+  Form,
+  Button,
+} from 'antd';
 import {
   func,
   object,
@@ -10,12 +15,11 @@ import {
 import { map } from 'lodash/fp';
 import type { FormInstance } from 'antd/es/form';
 import { useI18N } from 'relient/i18n';
-import useSubmit, { OnSubmit } from '../../hooks/use-submit';
-import useIsFormEditing from '../../hooks/use-is-form-editing';
+import useForm, { OnSubmit } from '../../hooks/use-form';
 import Error from './error';
 import Field, { FieldProps } from './field';
 
-const { Item, useForm } = Form;
+const { Item } = Form;
 
 export interface FormProps {
   initialValues?: any
@@ -32,15 +36,20 @@ const result = ({
   getFields,
   checkEditing,
 }: FormProps) => {
-  const [form] = useForm();
-  const { submit, submitting, submitSucceeded, defaultError } = useSubmit(onSubmit, [], form);
+  const {
+    submit,
+    submitting,
+    defaultError,
+    invalid,
+    pristine,
+    onFieldsChange,
+    form,
+  } = useForm(onSubmit, [], checkEditing, true);
   const i18n = useI18N();
-  const pristine = form.isFieldsTouched();
   const reset = useCallback(() => form.resetFields(), [form.resetFields]);
-  useIsFormEditing({ dirty: !pristine, submitSucceeded, checkEditing });
 
   return (
-    <Form onFinish={submit} form={form} initialValues={initialValues}>
+    <Form onFinish={submit} form={form} initialValues={initialValues} onFieldsChange={onFieldsChange}>
       <Error error={defaultError} />
 
       {map(
@@ -63,7 +72,7 @@ const result = ({
           style={{ marginRight: 10 }}
           type="primary"
           loading={submitting}
-          disabled={pristine}
+          disabled={invalid || pristine}
         >
           {i18n('submit')}
         </Button>
