@@ -4,5 +4,6 @@ module.exports = {
   plugins: [
     ['import', { libraryName: 'antd', style: false }],
     ['lodash', { id: ['lodash'] }],
+    '@babel/plugin-transform-modules-commonjs',
   ],
 };

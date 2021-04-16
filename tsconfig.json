@@ -21,6 +21,7 @@
     "outDir": "dist",
     "rootDir": "src",
     "inlineSourceMap": true,
+    "allowJs": true,
     "jsx": "react"
   }
 }

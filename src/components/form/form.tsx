@@ -33,7 +33,7 @@ const result = ({
   checkEditing,
 }: FormProps) => {
   const [form] = useForm();
-  const { submit, submitting, submitSucceeded, defaultError } = useSubmit(onSubmit, form);
+  const { submit, submitting, submitSucceeded, defaultError } = useSubmit(onSubmit, [], form);
   const i18n = useI18N();
   const pristine = form.isFieldsTouched();
   const reset = useCallback(() => form.resetFields(), [form.resetFields]);

@@ -64,7 +64,7 @@ const result = ({
 }: FormPopProps) => {
   const [form] = useForm();
   const pristine = form.isFieldsTouched();
-  const { submit, submitting, submitSucceeded, defaultError } = useSubmit(onSubmit, form);
+  const { submit, submitting, submitSucceeded, defaultError } = useSubmit(onSubmit, [], form);
   const i18n = useI18N();
 
   useIsFormEditing({ dirty: pristine, submitSucceeded, checkEditing, visible });

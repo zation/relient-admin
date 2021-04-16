@@ -28,6 +28,7 @@ interface Result {
 
 export default (
   onSubmit: OnSubmit,
+  deps = [],
   form?: FormInstance,
 ): Result => {
   const [submitting, setSubmitting] = useState(false);
@@ -56,7 +57,7 @@ export default (
         }
         return e;
       }
-    }, [onSubmit, form]),
+    }, [onSubmit, form, ...deps]),
     submitting,
     submitSucceeded,
     submitFailed,
