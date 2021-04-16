@@ -4130,10 +4130,10 @@ regexpp@^3.0.0, regexpp@^3.1.0:
   resolved "https://registry.npm.taobao.org/regexpp/download/regexpp-3.1.0.tgz#206d0ad0a5648cffbdb8ae46438f3dc51c9f78e2"
   integrity sha1-IG0K0KVkjP+9uK5GQ489xRyfeOI=
 
-relient@5.0.3:
-  version "5.0.3"
-  resolved "https://registry.yarnpkg.com/relient/-/relient-5.0.3.tgz#dc2c2c4b355d9e6c93e69db398eff82cb0dbcf44"
-  integrity sha512-huw89G2FjivIJhVuAEnh3OMCJtiV3il6YhHg8oUpb/EmNVyAafK/E9AfWYB1wh8mXEKePGOGe6XyAxK01uVUTQ==
+relient@5.0.4:
+  version "5.0.4"
+  resolved "https://registry.npm.taobao.org/relient/download/relient-5.0.4.tgz#0bbccc0b490d5d1ca90e9165c02a7a7b438906d2"
+  integrity sha1-C7zMC0kNXRypDpFlwCp6e0OJBtI=
   dependencies:
     "@formatjs/icu-messageformat-parser" ">=1.1.4"
     "@types/config" "^0.0.38"
