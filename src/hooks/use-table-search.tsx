@@ -8,7 +8,8 @@ import TableSearch from '../components/table-search';
 const defaultFilterIcon = <SearchOutlined />;
 
 export interface UseTableSearchParams extends Pick<ColumnType<any>, 'filterIcon'> {
-  changeFilterValue: (values: Key[], dataKey: string) => void
+  changeFilterValue?: (values: Key[], dataKey: string) => void
+  changeCustomQueryValue?: (value: string | undefined | null, field: string) => void
   dataKey: string
   placeholder?: string
   width?: number
@@ -16,6 +17,7 @@ export interface UseTableSearchParams extends Pick<ColumnType<any>, 'filterIcon'
 
 export default function useTableSearch({
   changeFilterValue,
+  changeCustomQueryValue,
   dataKey,
   filterIcon = defaultFilterIcon,
   placeholder,
@@ -48,12 +50,22 @@ export default function useTableSearch({
           placeholder={placeholder}
           width={width}
           onConfirm={(value) => {
-            changeFilterValue(value ? [value] : [], dataKey);
+            if (changeFilterValue) {
+              changeFilterValue(value ? [value] : [], dataKey);
+            }
+            if (changeCustomQueryValue) {
+              changeCustomQueryValue(value, dataKey);
+            }
             setFilteredValue(value ? [value] : undefined);
             onFilterDropdownVisibleChange(false);
           }}
           onReset={() => {
-            changeFilterValue([], dataKey);
+            if (changeFilterValue) {
+              changeFilterValue([], dataKey);
+            }
+            if (changeCustomQueryValue) {
+              changeCustomQueryValue(undefined, dataKey);
+            }
             setFilteredValue(undefined);
           }}
         />

@@ -14,6 +14,8 @@ import {
   reject,
   toUpper,
   any,
+  isEmpty,
+  keys,
 } from 'lodash/fp';
 import { message } from 'antd';
 import { useI18N } from 'relient/i18n';
@@ -35,9 +37,12 @@ import type {
 import { ID } from '../interface';
 
 export interface CustomQuery<Model> {
-  value: string
   field: string
-  onFilter: (item: Model, field: string, value: string) => boolean
+  onFilter: (item: Model, field: string, value: string | undefined | null) => boolean
+}
+
+export interface CustomQueryValue {
+  [field: string]: undefined | string | null
 }
 
 export interface UseLocalTableParams<Model> {
@@ -49,6 +54,7 @@ export interface UseLocalTableParams<Model> {
     placeholder?: string
     fussy?: boolean
   }
+  customQueries?: CustomQuery<Model>[]
   showReset?: boolean
   filters?: Filter<Model>[]
   createButton?: CreateButton
@@ -70,6 +76,7 @@ export interface UseLocalTableParams<Model> {
 
 export default function useLocalTable<Model = any>({
   query,
+  customQueries,
   showReset,
   filters = [],
   createButton,
@@ -153,22 +160,13 @@ export default function useLocalTable<Model = any>({
     }
   }, [currentPage, pageSize]);
 
-  const [customQueries, changeCustomQueries] = useState<CustomQuery<Model>[]>([]);
+  const [customQueryValues, setCustomQueryValues] = useState<CustomQueryValue>({});
 
-  const changeCustomQuery = useCallback((value, field, onFilter) => {
-    const existingQuery = find(propEq('field', field))(customQueries);
-    if (!existingQuery) {
-      changeCustomQueries([...customQueries, { field, value, onFilter }]);
-    } else if (!value) {
-      changeCustomQueries(reject(propEq('field', field))(customQueries));
-    } else if (existingQuery.value !== value) {
-      changeCustomQueries(
-        map((customQuery: CustomQuery<Model>) => (customQuery.field === field
-          ? { field, value, onFilter }
-          : customQuery))(customQueries),
-      );
+  const changeCustomQueryValue = useCallback((value, field) => {
+    if (customQueryValues[field] !== value) {
+      setCustomQueryValues({ ...customQueryValues, [field]: value });
     }
-  }, [customQueries, changeCustomQueries]);
+  }, [customQueryValues, setCustomQueryValues]);
 
   const onQueryFieldChange = useCallback((fieldKey) => {
     if (isFunction(onFieldChange)) {
@@ -265,11 +263,26 @@ export default function useLocalTable<Model = any>({
       }
 
       let customQueryResult = true;
-      if (customQueries.length > 0) {
-        customQueryResult = every(({ value, onFilter, field }: CustomQuery<Model>) => (
-          onFilter
-            ? onFilter(item, field, value)
-            : propEq(field, value)(item)))(customQueries);
+      if (!isEmpty(customQueryValues) && customQueries && customQueries.length > 0) {
+        customQueryResult = flow(
+          keys,
+          every((field: string) => {
+            const value = customQueryValues[field];
+            const customQuery = find(propEq('field', field))(customQueries);
+            if (!customQuery) {
+              console.warn(`CustomQuery is not config for ${field}`);
+              return true;
+            }
+            const { onFilter } = customQuery;
+            if (onFilter) {
+              return onFilter(item, field, value);
+            }
+            if (value) {
+              return propEq(field, value)(item);
+            }
+            return true;
+          }),
+        )(customQueryValues);
       }
 
       let filterResult = true;
@@ -308,7 +321,7 @@ export default function useLocalTable<Model = any>({
   ]);
 
   return {
-    changeCustomQuery,
+    changeCustomQueryValue,
     getDataSource,
     filterValues,
     changeFilterValue: onFilterValueChange,
