@@ -1,6 +1,14 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useCallback } from 'react';
-import { Button, Drawer, Form, Modal } from 'antd';
+import React, {
+  useCallback,
+  useEffect,
+} from 'react';
+import {
+  Button,
+  Drawer,
+  Form,
+  Modal,
+} from 'antd';
 import {
   func,
   bool,
@@ -13,9 +21,14 @@ import {
   ReactComponentLike,
 } from 'prop-types';
 import { map } from 'lodash/fp';
-import { FormInstance } from 'antd/es/form';
+import type { FormInstance } from 'antd/es/form';
+import type { DrawerProps } from 'antd/es/drawer';
+import type { ModalProps } from 'antd/es/modal';
 import { useI18N } from 'relient/i18n';
-import useSubmit, { OnSubmit, Submit } from '../../hooks/use-submit';
+import useSubmit, {
+  OnSubmit,
+  Submit,
+} from '../../hooks/use-submit';
 import useIsFormEditing from '../../hooks/use-is-form-editing';
 import Error from './error';
 import Field, { FieldProps } from './field';
@@ -28,7 +41,7 @@ export interface FooterParams {
   submit?: Submit
 }
 
-export interface FormPopProps {
+export interface FormPopProps extends Omit<DrawerProps, 'getContainer'>, Omit<ModalProps, 'getContainer'> {
   onSubmit: OnSubmit
   visible: boolean
   initialValues?: any
@@ -41,7 +54,6 @@ export interface FormPopProps {
   checkEditing?: boolean
   footer?: (params: FooterParams) => ReactNodeLike
   levelMove?: number
-  afterVisibleChange?: (isOpen: boolean) => void
   afterClose?: () => void
 }
 
@@ -58,7 +70,6 @@ const result = ({
   checkEditing,
   footer,
   levelMove = 370,
-  afterVisibleChange,
   afterClose,
   ...props
 }: FormPopProps) => {
@@ -68,14 +79,11 @@ const result = ({
   const i18n = useI18N();
 
   useIsFormEditing({ dirty: pristine, submitSucceeded, checkEditing, visible });
-  const finalAfterVisibleChange = useCallback((isOpen) => {
-    if (afterVisibleChange) {
-      afterVisibleChange(isOpen);
-    }
-    if (!isOpen) {
+  useEffect(() => {
+    if (visible) {
       form.resetFields();
     }
-  }, [afterVisibleChange, form.resetFields]);
+  }, [visible]);
   const finalAfterClose = useCallback(() => {
     if (afterClose) {
       afterClose();
@@ -126,10 +134,10 @@ const result = ({
         visible={visible}
         footer={finalFooter}
         onClose={onCloseOrCancel}
-        afterVisibleChange={finalAfterVisibleChange}
         width={width}
         // @ts-ignore
         levelMove={levelMove}
+        forceRender
         {...props}
       >
         {children}
@@ -144,6 +152,7 @@ const result = ({
       onCancel={onCloseOrCancel}
       afterClose={finalAfterClose}
       width={width}
+      forceRender
       {...props}
     >
       {children}
@@ -164,7 +173,6 @@ result.propTypes = {
   component: elementType.isRequired,
   footer: func,
   levelMove: oneOfType([number, array, func]),
-  afterVisibleChange: func,
   afterClose: func,
   onClose: func.isRequired,
 };
