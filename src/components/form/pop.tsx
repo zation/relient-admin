@@ -54,7 +54,6 @@ export interface FormPopProps extends Omit<DrawerProps, 'getContainer'>, Omit<Mo
   checkEditing?: boolean
   footer?: (params: FooterParams) => ReactNodeLike
   levelMove?: number
-  afterClose?: () => void
 }
 
 const result = ({
@@ -70,7 +69,6 @@ const result = ({
   checkEditing,
   footer,
   levelMove = 370,
-  afterClose,
   ...props
 }: FormPopProps) => {
   const [form] = useForm();
@@ -84,12 +82,6 @@ const result = ({
       form.resetFields();
     }
   }, [visible]);
-  const finalAfterClose = useCallback(() => {
-    if (afterClose) {
-      afterClose();
-    }
-    form.resetFields();
-  }, [afterClose, form.resetFields]);
   const onCloseOrCancel = useCallback(() => {
     if (onCancel) {
       onCancel();
@@ -137,7 +129,6 @@ const result = ({
         width={width}
         // @ts-ignore
         levelMove={levelMove}
-        forceRender
         {...props}
       >
         {children}
@@ -150,9 +141,7 @@ const result = ({
       visible={visible}
       footer={finalFooter}
       onCancel={onCloseOrCancel}
-      afterClose={finalAfterClose}
       width={width}
-      forceRender
       {...props}
     >
       {children}
@@ -173,7 +162,6 @@ result.propTypes = {
   component: elementType.isRequired,
   footer: func,
   levelMove: oneOfType([number, array, func]),
-  afterClose: func,
   onClose: func.isRequired,
 };
 
