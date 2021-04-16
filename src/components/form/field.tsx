@@ -13,7 +13,11 @@ import {
   ReactElementLike,
   ReactComponentLike,
 } from 'prop-types';
-import { map, omit, pick } from 'lodash/fp';
+import {
+  map,
+  omit,
+  pick,
+} from 'lodash/fp';
 import {
   Form,
   Input,
@@ -23,7 +27,11 @@ import type {
   NamePath,
 } from 'rc-field-form/es/interface';
 import type { FormListFieldData } from 'antd/es/form/FormList';
-import { FormItemProps } from 'antd/es/form';
+import type { FormItemProps } from 'antd/es/form';
+import {
+  labelCol,
+  wrapperCol,
+} from '../../constants/default-field-layout';
 
 const { Item, List, ErrorList } = Form;
 
@@ -72,22 +80,34 @@ const result = ({
   element,
   ...field
 }: FieldProps) => {
+  const itemProps = pick(itemPropKeys, field);
+  const componentProps = omit(itemPropKeys, field);
+
   if (isValidElement(element)) {
     return (
-      <Item {...field}>
+      <Item
+        labelCol={labelCol}
+        wrapperCol={wrapperCol}
+        {...itemProps}
+      >
         {element}
       </Item>
     );
   }
-  const itemProps = pick(itemPropKeys, field);
-  const componentProps = omit(itemPropKeys, field);
 
   return isArray ? (
     <List initialValue={field.initialValue} name={field.name} rules={field.rules as ValidatorRule[]}>
       {(fields, _, { errors }) => (
         <>
           {map((antField: FormListFieldData) => (
-            <Item {...itemProps} name={antField.name} fieldKey={antField.fieldKey} key={antField.key}>
+            <Item
+              labelCol={labelCol}
+              wrapperCol={wrapperCol}
+              {...itemProps}
+              name={antField.name}
+              fieldKey={antField.fieldKey}
+              key={antField.key}
+            >
               {createElement(component, componentProps)}
             </Item>
           ))(fields)}
@@ -96,7 +116,11 @@ const result = ({
       )}
     </List>
   ) : (
-    <Item {...itemProps}>
+    <Item
+      labelCol={labelCol}
+      wrapperCol={wrapperCol}
+      {...itemProps}
+    >
       {createElement(component, componentProps)}
     </Item>
   );

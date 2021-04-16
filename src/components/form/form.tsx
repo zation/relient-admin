@@ -44,7 +44,16 @@ const result = ({
       <Error error={defaultError} />
 
       {map(
-        (field: FieldProps) => (<Field key={field.name.toString()} {...field} />),
+        (field: FieldProps) => {
+          const { name, label } = field;
+          let key = '';
+          if (name) {
+            key = name.toString();
+          } else if (label) {
+            key = label.toString();
+          }
+          return <Field key={key} {...field} />;
+        },
       )(fields || (getFields && getFields(form)))}
 
       <Item wrapperCol={{ span: 10, offset: 8 }}>
