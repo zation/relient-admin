@@ -42,13 +42,11 @@ const result = ({
   const { cdnDomain } = useContext(DomainContext);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [modalVisible, setModalVisible] = useState(false);
-  const defaultFileList = useMemo(() => map(({ url, name, size, type }: UploadFile) => ({
-    uid: url || '',
+  const defaultFileList = useMemo(() => map(({ url, ...others }: UploadFile) => ({
     url: `${cdnDomain}${url}`,
     status: 'done' as UploadFileStatus,
-    size,
-    name,
-    type,
+    ...others,
+    uid: url || '',
   }))(value), [value]);
   const authorization = cookie.get(AUTHORIZATION);
 

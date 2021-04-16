@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { object, string, bool, array, func } from 'prop-types';
 import { Upload } from 'antd';
-import type { RcCustomRequestOptions } from 'antd/es/upload/interface';
+import type { UploadRequestOption } from 'rc-upload/es/interface';
 import cookie from 'js-cookie';
 import { isString } from 'lodash/fp';
 // @ts-ignore
@@ -25,7 +25,7 @@ const getBody = (xhr: XMLHttpRequest) => {
   }
 };
 
-interface CustomRequest extends RcCustomRequestOptions {
+interface CustomRequest extends UploadRequestOption {
   value: EditorState | undefined
   onChange: (value: EditorState) => void
 }
@@ -44,17 +44,22 @@ const customRequest = ({
   const xhr = new XMLHttpRequest();
 
   if (onProgress && xhr.upload) {
-    xhr.upload.onprogress = (e) => onProgress({
-      percent: e.total > 0 ? (e.loaded / e.total) * 100 : 0,
-    }, file);
+    xhr.upload.onprogress = (event) => onProgress({
+      ...event,
+      percent: event.total > 0 ? (event.loaded / event.total) * 100 : 0,
+    });
   }
 
-  xhr.onerror = (e) => onError(new Error('Custom request error'), e);
+  xhr.onerror = (e) => {
+    if (onError) {
+      onError(new Error('Custom request error'), e);
+    }
+  };
 
   xhr.onload = function onload() {
     // allow success when 2xx status
     // see https://github.com/react-component/upload/issues/34
-    if (xhr.status < 200 || xhr.status >= 300) {
+    if ((xhr.status < 200 || xhr.status >= 300) && onError) {
       onError(new Error('Custom request error'), xhr);
     } else {
       onChange(
@@ -66,7 +71,9 @@ const customRequest = ({
           }],
         ),
       );
-      onSuccess(getBody(xhr), file);
+      if (onSuccess) {
+        onSuccess(getBody(xhr), xhr);
+      }
     }
   };
 
