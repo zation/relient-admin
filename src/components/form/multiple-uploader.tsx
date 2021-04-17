@@ -14,6 +14,7 @@ import {
   map,
   prop,
   reject,
+  startsWith,
 } from 'lodash/fp';
 import {
   object,
@@ -74,10 +75,10 @@ const result = ({
   const { cdnDomain } = useContext(DomainContext);
   const [preview, setPreview] = useState<Preview>({ visible: false });
   const defaultFileList = useMemo(() => map(({ url, ...others }: UploadFile) => ({
-    url: `${cdnDomain}${url}`,
+    url: !url || startsWith('http://')(url) || startsWith('https://')(url) ? url : `${cdnDomain}${url}`,
     status: 'done' as UploadFileStatus,
     ...others,
-    uid: url || '',
+    uid: others.uid || url || others.fileName || '',
   }))(value), [value]);
   const authorization = cookie.get(AUTHORIZATION);
   const onPreviewCancel = useCallback(() => setPreview({ visible: false }), []);

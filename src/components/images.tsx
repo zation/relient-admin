@@ -4,6 +4,9 @@ import { map } from 'lodash/fp';
 
 const { PreviewGroup } = Image;
 
+// @ts-ignore
+const mapWithIndex = map.convert({ cap: false });
+
 export interface ImagesProps {
   images: string[]
   width?: number
@@ -15,9 +18,9 @@ export interface ImagesProps {
 export default ({ images, space = 20, width, imageClassName, className }: ImagesProps) => (
   <div className={className} style={{ marginRight: -space }}>
     <PreviewGroup>
-      {map((image: string) => (
+      {mapWithIndex((image: string, index: number) => (
         <Image
-          key={image}
+          key={`${image}${index}`}
           wrapperClassName={imageClassName}
           wrapperStyle={{ marginRight: space }}
           width={width}
