@@ -9,7 +9,6 @@ export { default as Link } from './link';
 export { default as getSwitchStatus } from './get-switch-status';
 export { default as TableHeader } from './table-header';
 export { default as Details } from './details';
-// @ts-ignore
 export { default as Images } from './images';
 export { default as TableFilter } from './table-filter';
 export { default as TableSearch } from './table-search';

@@ -1,6 +1,6 @@
 {
   "name": "relient-admin",
-  "version": "4.0.8",
+  "version": "4.0.9",
   "author": "Liu Yang <zation1@gmail.com>",
   "license": "MIT",
   "keywords": [
@@ -37,7 +37,6 @@
     "prop-types": ">=15.7.2",
     "react": ">=17.0.1",
     "react-dom": ">=17.0.1",
-    "react-images": ">=1.1.7",
     "react-qr-code": ">=1.0.5",
     "react-redux": ">=7.2.2",
     "redux": ">=4.0.5",
@@ -75,7 +74,7 @@
     "lint": "eslint --ignore-path .eslintignore .",
     "fix": "npm run lint --fix",
     "build": "rm -rf ./dist && mkdir ./dist && lessc src/styles.less dist/styles.css && cp ./package.json ./README.md ./dist/ && tsc && babel --config-file ./.babelrc.js ./dist --out-dir ./dist",
-    "pub": "npm run build && npm publish ./dist --registry=https://registry.npmjs.org/",
+    "pub": "npm run lint && npm run build && npm publish ./dist --registry=https://registry.npmjs.org/",
     "postinstall": "husky install",
     "prepublishOnly": "pinst --disable",
     "postpublish": "pinst --enable"

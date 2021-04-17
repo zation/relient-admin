@@ -1,16 +1,48 @@
-import React, { useContext, useMemo, useState } from 'react';
-import { Upload, message } from 'antd';
+import React, {
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
+import {
+  Upload,
+  message,
+  Modal,
+} from 'antd';
 import cookie from 'js-cookie';
-import { map, prop, reject, findIndex } from 'lodash/fp';
-import { object, string, bool, func, array } from 'prop-types';
+import {
+  map,
+  prop,
+  reject,
+} from 'lodash/fp';
+import {
+  object,
+  string,
+  bool,
+  func,
+  array,
+} from 'prop-types';
 import { PlusOutlined } from '@ant-design/icons';
-import Carousel, { Modal, ModalGateway, ViewType } from 'react-images';
-import type { UploadFile, UploadFileStatus } from 'antd/es/upload/interface';
-// @ts-ignore
-import { View } from '../images';
+import type {
+  UploadFile,
+  UploadFileStatus,
+} from 'antd/es/upload/interface';
 import { DomainContext } from '../../contexts';
 import AUTHORIZATION from '../../constants/authorization';
 import { Style } from '../../interface';
+
+interface Preview {
+  visible: boolean
+  title?: string
+  image?: string
+}
+
+const getBase64 = (file: Blob):Promise<string | undefined> => new Promise((onResolve, onReject) => {
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onload = () => onResolve(reader.result?.toString());
+  reader.onerror = (error) => onReject(error);
+});
 
 export interface MultipleUploaderProps {
   value?: UploadFile[]
@@ -40,8 +72,7 @@ const result = ({
   className,
 }: MultipleUploaderProps) => {
   const { cdnDomain } = useContext(DomainContext);
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [preview, setPreview] = useState<Preview>({ visible: false });
   const defaultFileList = useMemo(() => map(({ url, ...others }: UploadFile) => ({
     url: `${cdnDomain}${url}`,
     status: 'done' as UploadFileStatus,
@@ -49,6 +80,7 @@ const result = ({
     uid: url || '',
   }))(value), [value]);
   const authorization = cookie.get(AUTHORIZATION);
+  const onPreviewCancel = useCallback(() => setPreview({ visible: false }), []);
 
   return (
     <div
@@ -72,11 +104,12 @@ const result = ({
             message.error(map(prop('message'))(errors));
           }
         }}
-        onPreview={({ uid }) => {
-          setCurrentIndex(
-            findIndex((file: UploadFile) => file.url === uid || file.uid === uid)(value),
-          );
-          setModalVisible(true);
+        onPreview={async (file) => {
+          setPreview({
+            visible: true,
+            title: file.name || file.url,
+            image: file.url || (await getBase64(file.originFileObj)),
+          });
         }}
         onRemove={({ uid }) => onChange(
           reject((file: UploadFile) => file.url === uid || file.uid === uid)(value),
@@ -94,17 +127,14 @@ const result = ({
             </div>
           )}
       </Upload>
-      <ModalGateway>
-        {modalVisible && (
-          <Modal onClose={() => setModalVisible(false)}>
-            <Carousel
-              components={{ View }}
-              currentIndex={currentIndex}
-              views={value as any as ViewType[]}
-            />
-          </Modal>
-        )}
-      </ModalGateway>
+      <Modal
+        visible={preview.visible}
+        title={preview.title}
+        footer={null}
+        onCancel={onPreviewCancel}
+      >
+        <img alt="example" style={{ width: '100%' }} src={preview.image} />
+      </Modal>
     </div>
   );
 };
