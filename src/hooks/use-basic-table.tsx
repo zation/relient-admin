@@ -1,4 +1,8 @@
-import { useState, useCallback } from 'react';
+import {
+  useState,
+  useCallback,
+  Key,
+} from 'react';
 import {
   clone,
   find,
@@ -8,25 +12,29 @@ import {
   map,
   prop, propEq,
   reject,
+  isArray,
 } from 'lodash/fp';
 import useDetails, { UseDetails } from './use-details';
 import type { Option, Filter, FilterValue, DateValue } from '../interface';
 
 export const isFilterValuesSame = (
-  values: string[] | null | undefined,
+  value: Key[] | Key | undefined | null,
   dataKey: string,
   filterValues: FilterValue[],
 ) => flow(
   find(propEq('dataKey')(dataKey)),
-  prop('values'),
-  (oldValues) => {
-    if (oldValues && values) {
-      return isEqual(clone(oldValues).sort())(clone(values).sort());
+  prop('value'),
+  (oldValue) => {
+    if (oldValue && value) {
+      if (isArray(oldValue) && isArray(value)) {
+        return isEqual(clone(oldValue).sort())(clone(value).sort());
+      }
+      return oldValue === value;
     }
-    if (oldValues && !values) {
+    if (oldValue && !value) {
       return false;
     }
-    if (!oldValues && values) {
+    if (!oldValue && value) {
       return false;
     }
     return true;
@@ -55,9 +63,9 @@ export default function useBasicTable<Model>({
   const defaultQueryField = flow(first, prop('key'))(fields);
   const defaultFilterValues = flow(
     reject(flow(prop('defaultValue'), isUndefined)),
-    map(({ defaultValues, dataKey }) => ({
+    map(({ defaultValue, dataKey }: Filter<Model>) => ({
       dataKey,
-      values: defaultValues,
+      value: defaultValue,
     })),
   )(filters);
   const [dateValues, setDateValues] = useState<DateValue[]>([]);

@@ -16,6 +16,7 @@ import {
   reduce,
   reject,
   join,
+  isArray,
 } from 'lodash/fp';
 import { message } from 'antd';
 import { useI18N } from 'relient/i18n';
@@ -40,7 +41,12 @@ const omitEmpty = omitBy((val) => (isNil(val) || val === ''));
 
 const getFilterParams = flow(
   keyBy('dataKey'),
-  mapValues(flow(prop('values'), join(','))),
+  mapValues(({ value }: FilterValue) => {
+    if (isArray(value)) {
+      return join(',')(value);
+    }
+    return value;
+  }),
 );
 
 const getDateParams = reduce((result, { dataKey, value }) => {
@@ -278,19 +284,19 @@ export default function useApiTable<Model = any>({
     dateValues,
     fussyKey,
   ]);
-  const onFilterValueChange = useCallback(async (values, dataKey) => {
-    if (isFilterValuesSame(values, dataKey, filterValues)) {
+  const onFilterValueChange = useCallback(async (value, dataKey) => {
+    if (isFilterValuesSame(value, dataKey, filterValues)) {
       return null;
     }
     const onChange = flow(find(propEq('dataKey', dataKey)), prop('onFilterChange'))(filters);
     if (isFunction(onChange)) {
-      onChange(values);
+      onChange(value);
     }
     const newFilterValues = flow(
       reject(propEq('dataKey')(dataKey)),
       concat({
         dataKey,
-        values,
+        value,
       }),
     )(filterValues);
     setFilterValues(newFilterValues);
@@ -502,17 +508,16 @@ export default function useApiTable<Model = any>({
       }}
       createButton={createButton}
       filter={{
-        items: flow(
-          reject(propEq('staticField', true)),
-          map(({
-            dataKey,
-            ...others
-          }) => ({
-            dataKey,
-            value: flow(find(propEq('dataKey')(dataKey)), prop('value'))(filterValues),
-            ...others,
-          })),
-        )(filters),
+        items: map(({
+          dataKey,
+          options,
+          ...others
+        }) => ({
+          dataKey,
+          value: flow(find(propEq('dataKey')(dataKey)), prop('value'))(filterValues),
+          options,
+          ...others,
+        }))(filters),
         onSelect: onFilterValueChange,
       }}
       datePicker={{

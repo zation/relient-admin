@@ -1,4 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import {
   concat,
   every,
@@ -16,6 +20,7 @@ import {
   any,
   isEmpty,
   keys,
+  isArray,
 } from 'lodash/fp';
 import { message } from 'antd';
 import { useI18N } from 'relient/i18n';
@@ -32,17 +37,18 @@ import type {
   ShowTotal,
   PaginationData,
   FilterValue,
-  DateValue, OnFilter,
+  DateValue,
+  OnFilter,
 } from '../interface';
 import { ID } from '../interface';
 
 export interface CustomQuery<Model> {
-  field: string
+  dataKey: string
   onFilter: (item: Model, field: string, value: string | undefined | null) => boolean
 }
 
 export interface CustomQueryValue {
-  [field: string]: undefined | string | null
+  [dataKey: string]: undefined | string | null
 }
 
 export interface UseLocalTableParams<Model> {
@@ -266,19 +272,19 @@ export default function useLocalTable<Model = any>({
       if (!isEmpty(customQueryValues) && customQueries && customQueries.length > 0) {
         customQueryResult = flow(
           keys,
-          every((field: string) => {
-            const value = customQueryValues[field];
-            const customQuery = find(propEq('field', field))(customQueries);
+          every((dataKey: string) => {
+            const value = customQueryValues[dataKey];
+            const customQuery = find(propEq('dataKey', dataKey))(customQueries);
             if (!customQuery) {
-              console.warn(`CustomQuery is not config for ${field}`);
+              console.warn(`CustomQuery is not config for ${dataKey}`);
               return true;
             }
             const { onFilter } = customQuery;
             if (onFilter) {
-              return onFilter(item, field, value);
+              return onFilter(item, dataKey, value);
             }
             if (value) {
-              return propEq(field, value)(item);
+              return propEq(dataKey, value)(item);
             }
             return true;
           }),
@@ -287,12 +293,16 @@ export default function useLocalTable<Model = any>({
 
       let filterResult = true;
       if (filterValues.length > 0) {
-        filterResult = every(({ dataKey, values }: FilterValue) => {
+        filterResult = every(({ dataKey, value }: FilterValue) => {
           const onFilter: OnFilter<Model> = flow(find(propEq('dataKey', dataKey)), prop('onFilter'))(filters);
-          return isNil(values) || values.length === 0 || (onFilter
-            ? onFilter(item, dataKey, values)
-            : includes(prop(dataKey)(item))(values)
-          );
+          if (isArray(value)) {
+            return onFilter
+              ? onFilter(item, dataKey, value)
+              : includes(prop(dataKey)(item))(value);
+          }
+          return isNil(value) || (onFilter
+            ? onFilter(item, dataKey, value)
+            : propEq(dataKey, value)(item));
         })(filterValues);
       }
 

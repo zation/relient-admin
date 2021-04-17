@@ -8,19 +8,20 @@ export interface Style {
 }
 
 export interface Option {
-  text?: string | null
+  dataKey?: string | null
   value?: string | number | null
 }
 
 export interface OnFilter<Model> {
-  (item: Model, dataKey: string, values: Key[]): boolean
+  (item: Model, dataKey: string, value: Key[] | Key | undefined | null): boolean
 }
 
 export interface Filter<Model> {
   dataKey: string
   label?: string
   options: Option[]
-  defaultValues?: string[]
+  mode?: 'multiple' | 'tags'
+  defaultValue: Key[] | Key | undefined | null
   dropdownMatchSelectWidth?: boolean
   onFilterChange?: (value: string) => void
   onFilter?: OnFilter<Model>
@@ -29,7 +30,7 @@ export interface Filter<Model> {
 
 export interface FilterValue {
   dataKey: string
-  values: Key[]
+  value: Key[] | Key | undefined | null
 }
 
 export interface DateValue {

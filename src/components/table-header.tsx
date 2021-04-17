@@ -1,15 +1,32 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { ChangeEvent, MouseEventHandler } from 'react';
+import React, {
+  ChangeEvent,
+  Key,
+  MouseEventHandler,
+} from 'react';
 import {
   func,
   object,
   bool,
 } from 'prop-types';
-import { Input, Button, Select, DatePicker } from 'antd';
-import { map, flow, join, prop } from 'lodash/fp';
+import {
+  Input,
+  Button,
+  Select,
+  DatePicker,
+} from 'antd';
+import {
+  map,
+  flow,
+  join,
+  prop,
+} from 'lodash/fp';
 import { useI18N } from 'relient/i18n';
 import type { OptionType } from 'antd/es/select';
-import type { OptionData, OptionGroupData } from 'rc-select/es/interface';
+import type {
+  OptionData,
+  OptionGroupData,
+} from 'rc-select/es/interface';
 import type { Moment } from 'moment';
 import type { DetailsProps } from './details';
 import Link from './link';
@@ -21,17 +38,15 @@ const { Search } = Input;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
-export interface FilterOption extends Omit<OptionType, 'children'> {
-  text?: string
-}
-
 export interface FilterItem {
   label?: string
   placeholder?: string
-  options: FilterOption[]
+  options: OptionType[]
   dataKey: string
   disabled?: boolean
+  dropdownMatchSelectWidth?: boolean
   value?: string | number
+  mode?: 'multiple' | 'tags'
 }
 
 export interface DatePickerItem {
@@ -60,7 +75,7 @@ export interface TableHeaderProps {
   createButton?: CreateButton
   filter: {
     items: FilterItem[]
-    onSelect: (selectedValue: any, dataKey: string) => void
+    onSelect: (selectedValue: Key[] | Key | null | undefined, dataKey: string) => void
   }
   reset?: () => void
   datePicker?: {
@@ -117,23 +132,25 @@ const result = ({
           dataKey,
           value,
           dropdownMatchSelectWidth = false,
-        }) => (
+          mode,
+        }: FilterItem) => (
           <div key={dataKey}>
             <span className="relient-admin-table-header-operation-label">{label}</span>
             <Select
+              mode={mode}
               onSelect={(selectedValue) => filter.onSelect(selectedValue, dataKey)}
               placeholder={placeholder}
               value={value}
               dropdownMatchSelectWidth={dropdownMatchSelectWidth}
             >
-              {map(({ text, value: optionValue, disabled, className: optionClassName }) => (
+              {map(({ label: optionLabel, value: optionValue, disabled, className: optionClassName }) => (
                 <Option
                   value={optionValue}
                   key={optionValue}
                   disabled={disabled}
                   className={optionClassName}
                 >
-                  {text}
+                  {optionLabel}
                 </Option>
               ))(options)}
             </Select>
@@ -163,12 +180,12 @@ const result = ({
                 className="relient-admin-table-header-operation-label"
                 dropdownMatchSelectWidth={false}
               >
-                {map(({ key, text }) => (
+                {map(({ key, label }) => (
                   <Option
                     value={key}
                     key={key}
                   >
-                    {text}
+                    {label}
                   </Option>
                 ))(query.fields)}
               </Select>

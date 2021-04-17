@@ -9,7 +9,7 @@ const defaultFilterIcon = <SearchOutlined />;
 
 export interface UseTableSearchParams extends Pick<ColumnType<any>, 'filterIcon'> {
   changeFilterValue?: (values: Key[], dataKey: string) => void
-  changeCustomQueryValue?: (value: string | undefined | null, field: string) => void
+  changeCustomQueryValue?: (value: string | undefined | null, dataKey: string) => void
   dataKey: string
   placeholder?: string
   width?: number
