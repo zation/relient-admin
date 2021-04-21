@@ -3827,10 +3827,10 @@ regexpp@^3.0.0, regexpp@^3.1.0:
   resolved "https://registry.npm.taobao.org/regexpp/download/regexpp-3.1.0.tgz#206d0ad0a5648cffbdb8ae46438f3dc51c9f78e2"
   integrity sha1-IG0K0KVkjP+9uK5GQ489xRyfeOI=
 
-relient@5.0.7:
-  version "5.0.7"
-  resolved "https://registry.nlark.com/relient/download/relient-5.0.7.tgz#002595b3c962ab4ecb4372060d8428f2119b43ff"
-  integrity sha1-ACWVs8liq07LQ3IGDYQo8hGbQ/8=
+relient@5.0.8:
+  version "5.0.8"
+  resolved "https://registry.nlark.com/relient/download/relient-5.0.8.tgz#e735d7956f145b14b91b84ab3cdb162833a7a1d1"
+  integrity sha1-5zXXlW8UWxS5G4SrPNsWKDOnodE=
   dependencies:
     "@formatjs/icu-messageformat-parser" ">=1.1.4"
     "@types/config" "^0.0.38"

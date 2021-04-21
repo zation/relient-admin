@@ -41,7 +41,7 @@
     "react-redux": ">=7.2.2",
     "redux": ">=4.0.5",
     "redux-actions": ">=2.6.5",
-    "relient": "5.0.7",
+    "relient": "5.0.8",
     "universal-router": ">=9.0.1"
   },
   "devDependencies": {
@@ -75,6 +75,7 @@
     "fix": "npm run lint --fix",
     "build": "rm -rf ./dist && mkdir ./dist && lessc src/styles.less dist/styles.css && cp ./package.json ./README.md ./dist/ && tsc && babel --config-file ./.babelrc.js ./dist --out-dir ./dist",
     "pub": "npm run lint && npm run build && npm publish ./dist --registry=https://registry.npmjs.org/",
+    "postinstall": "husky install",
     "prepublishOnly": "pinst --disable",
     "postpublish": "pinst --enable"
   }

@@ -66,7 +66,10 @@ const result = ({
     }
 
     event.preventDefault();
-    dispatch(push(to ? getWithBaseUrl(to, baseUrl) : feature));
+    const finalTo = to ? getWithBaseUrl(to, baseUrl) : feature;
+    if (finalTo) {
+      dispatch(push(finalTo));
+    }
   }, [to, feature, back, target, onClick, baseUrl]);
   const i18n = useI18N();
 
