@@ -2,7 +2,7 @@ import { PUSH } from 'relient/actions/history';
 import { startsWith } from 'lodash/fp';
 import { getWithBaseUrl } from 'relient/url';
 import type { Middleware } from 'redux';
-import { getFeatureBy } from '../features';
+import { getFeatureBy } from 'relient/features';
 
 export default <State>(baseUrl: string): Middleware<{}, State> => () => (next) => (action) => {
   const {

@@ -75,6 +75,8 @@ const result = ({
     form,
   } = useForm(onSubmit, [], checkEditing, true);
   const i18n = useI18N();
+  const values = form.getFieldsValue();
+  const onSubmitClick = useCallback(() => submit(values), [values]);
 
   useEffect(() => {
     if (visible) {
@@ -99,7 +101,7 @@ const result = ({
       </Button>
       <Button
         htmlType="submit"
-        onClick={submit}
+        onClick={onSubmitClick}
         style={{ marginLeft: 20 }}
         type="primary"
         loading={submitting}
@@ -110,7 +112,7 @@ const result = ({
     </div>
   );
   const children = (
-    <Form onFinish={submit} initialValues={initialValues} form={form} onFieldsChange={onFieldsChange}>
+    <Form initialValues={initialValues} form={form} onFieldsChange={onFieldsChange}>
       <Error error={defaultError} />
 
       {map(

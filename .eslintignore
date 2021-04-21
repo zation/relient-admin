@@ -26,4 +26,3 @@ yarn-error.log*
 .DS_Store
 
 .*rc.js
-./src/components/images.js

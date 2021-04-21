@@ -10,8 +10,8 @@ import {
   func,
   bool,
   array,
-  ReactElementLike,
   ReactComponentLike,
+  ReactNodeLike,
 } from 'prop-types';
 import {
   map,
@@ -28,6 +28,7 @@ import type {
 } from 'rc-field-form/es/interface';
 import type { FormListFieldData } from 'antd/es/form/FormList';
 import type { FormItemProps } from 'antd/es/form';
+import { useI18N } from 'relient/i18n';
 import {
   labelCol,
   wrapperCol,
@@ -35,12 +36,16 @@ import {
 
 const { Item, List, ErrorList } = Form;
 
+// @ts-ignore
+const mapWithIndex = map.convert({ cap: false });
+
 export interface FieldProps extends Omit<FormItemProps, 'children'>, Attributes {
   component: ReactComponentLike
   name: NamePath
   fields: FieldProps[]
   isArray?: boolean
-  element: ReactElementLike
+  element: ReactNodeLike
+  getLabel?: (formListFieldData: FormListFieldData, index: number) => ReactNodeLike
 }
 
 const itemPropKeys = [
@@ -78,10 +83,13 @@ const result = ({
   isArray,
   component = Input,
   element,
+  getLabel,
   ...field
 }: FieldProps) => {
+  const i18n = useI18N();
   const itemProps = pick(itemPropKeys, field);
   const componentProps = omit(itemPropKeys, field);
+  const label = typeof itemProps.label === 'string' ? i18n(itemProps.label) : itemProps.label;
 
   if (isValidElement(element)) {
     return (
@@ -89,6 +97,7 @@ const result = ({
         labelCol={labelCol}
         wrapperCol={wrapperCol}
         {...itemProps}
+        label={label}
       >
         {element}
       </Item>
@@ -99,14 +108,15 @@ const result = ({
     <List initialValue={field.initialValue} name={field.name} rules={field.rules as ValidatorRule[]}>
       {(fields, _, { errors }) => (
         <>
-          {map((antField: FormListFieldData) => (
+          {mapWithIndex((formListFieldData: FormListFieldData, index: number) => (
             <Item
               labelCol={labelCol}
               wrapperCol={wrapperCol}
               {...itemProps}
-              name={antField.name}
-              fieldKey={antField.fieldKey}
-              key={antField.key}
+              name={formListFieldData.name}
+              fieldKey={formListFieldData.fieldKey}
+              key={formListFieldData.key}
+              label={getLabel ? getLabel(formListFieldData, index) : label}
             >
               {createElement(component, componentProps)}
             </Item>
@@ -120,6 +130,7 @@ const result = ({
       labelCol={labelCol}
       wrapperCol={wrapperCol}
       {...itemProps}
+      label={label}
     >
       {createElement(component, componentProps)}
     </Item>

@@ -6,8 +6,8 @@ import { useDispatch } from 'react-redux';
 import { push, goBack } from 'relient/actions/history';
 import { getWithBaseUrl } from 'relient/url';
 import { useI18N } from 'relient/i18n';
+import { getFeatureBy } from 'relient/features';
 import { BaseUrlContext } from '../contexts';
-import { getFeatureBy } from '../features';
 
 const isLeftClickEvent = propEq('button')(0);
 
