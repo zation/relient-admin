@@ -3687,18 +3687,6 @@ react-redux@>=7.2.2:
     prop-types "^15.7.2"
     react-is "^16.13.1"
 
-react-redux@^7.2.3:
-  version "7.2.3"
-  resolved "https://registry.npm.taobao.org/react-redux/download/react-redux-7.2.3.tgz#4c084618600bb199012687da9e42123cca3f0be9"
-  integrity sha1-TAhGGGALsZkBJofankISPMo/C+k=
-  dependencies:
-    "@babel/runtime" "^7.12.1"
-    "@types/react-redux" "^7.1.16"
-    hoist-non-react-statics "^3.3.2"
-    loose-envify "^1.4.0"
-    prop-types "^15.7.2"
-    react-is "^16.13.1"
-
 react@>=17.0.1:
   version "17.0.1"
   resolved "https://registry.npm.taobao.org/react/download/react-17.0.1.tgz?cache=0&sync_timestamp=1608330539780&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Freact%2Fdownload%2Freact-17.0.1.tgz#6e0600416bd57574e3f86d92edba3d9008726127"
@@ -3811,10 +3799,10 @@ regexpp@^3.0.0, regexpp@^3.1.0:
   resolved "https://registry.npm.taobao.org/regexpp/download/regexpp-3.1.0.tgz#206d0ad0a5648cffbdb8ae46438f3dc51c9f78e2"
   integrity sha1-IG0K0KVkjP+9uK5GQ489xRyfeOI=
 
-relient@5.1.1:
-  version "5.1.1"
-  resolved "https://registry.nlark.com/relient/download/relient-5.1.1.tgz#80e99f48f1ff92fe493d02c78c3d0e0e5e54ef9e"
-  integrity sha1-gOmfSPH/kv5JPQLHjD0ODl5U754=
+relient@5.1.2:
+  version "5.1.2"
+  resolved "https://registry.nlark.com/relient/download/relient-5.1.2.tgz#d4b42113c87aa9608f55e1d594977ed35ce91dc7"
+  integrity sha1-1LQhE8h6qWCPVeHVlJd+01zpHcc=
   dependencies:
     "@formatjs/icu-messageformat-parser" ">=1.1.4"
     "@types/config" "^0.0.38"
@@ -3831,7 +3819,7 @@ relient@5.1.1:
     normalizr ">=3.6.0"
     query-string ">=7.0.0"
     react ">=17.0.2"
-    react-redux "^7.2.3"
+    react-redux ">=7.2.2"
     redux ">=4.0.5"
     redux-actions ">=2.6.5"
     serialize-javascript ">=5.0.1"
