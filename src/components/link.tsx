@@ -18,9 +18,9 @@ const isModifiedEvent = ({
   shiftKey,
 }: MouseEvent<HTMLAnchorElement>) => (metaKey || altKey || ctrlKey || shiftKey);
 
-const getHref = ({ to, feature, baseUrl }: { to?: string, feature?: string, baseUrl?: string }) => {
-  if (feature) {
-    return getWithBaseUrl(getFeatureBy('link')(feature), baseUrl);
+const getHref = ({ to, featureKey, baseUrl }: { to?: string, featureKey?: string, baseUrl?: string }) => {
+  if (featureKey) {
+    return getWithBaseUrl(getFeatureBy('link')(featureKey), baseUrl);
   }
   if (to) {
     return getWithBaseUrl(to, baseUrl);
@@ -32,7 +32,7 @@ export interface LinkProps extends AnchorHTMLAttributes<HTMLAnchorElement>{
   to?: string
   back?: boolean
   children?: ReactNodeLike
-  feature?: string
+  featureKey?: string
   showIcon?: boolean
 }
 
@@ -40,7 +40,7 @@ const result = ({
   to,
   back = false,
   children,
-  feature,
+  featureKey,
   showIcon,
   onClick,
   target,
@@ -66,19 +66,19 @@ const result = ({
     }
 
     event.preventDefault();
-    const finalTo = to ? getWithBaseUrl(to, baseUrl) : feature;
+    const finalTo = to ? getWithBaseUrl(to, baseUrl) : featureKey;
     if (finalTo) {
       dispatch(push(finalTo));
     }
-  }, [to, feature, back, target, onClick, baseUrl]);
+  }, [to, featureKey, back, target, onClick, baseUrl]);
   const i18n = useI18N();
 
-  const icon = getFeatureBy('icon')(feature);
+  const icon = getFeatureBy('icon')(featureKey);
   return (
     <a
       href={getHref({
         to,
-        feature,
+        featureKey,
         baseUrl,
       })}
       {...omit(['push', 'back', 'goBack'])(props)}
@@ -86,14 +86,14 @@ const result = ({
     >
       {children}
       {!children && icon && showIcon && createElement(icon)}
-      {!children && <span>{i18n(getFeatureBy('text')(feature))}</span>}
+      {!children && <span>{i18n(getFeatureBy('text')(featureKey))}</span>}
     </a>
   );
 };
 
 result.propTypes = {
   to: string,
-  feature: string,
+  featureKey: string,
   children: node,
   onClick: func,
   back: bool,
