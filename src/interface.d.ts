@@ -8,8 +8,9 @@ export interface Style {
 }
 
 export interface Option {
-  dataKey?: string | null
+  dataKey?: string | number
   value?: string | number | null
+  label?: string
 }
 
 export interface OnFilter<Model> {

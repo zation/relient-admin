@@ -180,10 +180,10 @@ const result = ({
                 className="relient-admin-table-header-operation-label"
                 dropdownMatchSelectWidth={false}
               >
-                {map(({ key, label }) => (
+                {map(({ dataKey, label }: QueryField) => (
                   <Option
-                    value={key}
-                    key={key}
+                    value={dataKey || ''}
+                    key={dataKey}
                   >
                     {label}
                   </Option>
@@ -193,8 +193,8 @@ const result = ({
             <Search
               style={{ width: query.width || 362 }}
               placeholder={query.placeholder || (query.fussy
-                ? i18n('searchBy', { keywords: flow(map(prop('text')), join('、'))(query.fields) })
-                : i18n('search')) as string}
+                ? i18n('searchBy', { keywords: flow(map(prop('label')), join('、'))(query.fields) })
+                : i18n('search'))?.toString()}
               onChange={query.onValueChange}
               value={query.value}
             />

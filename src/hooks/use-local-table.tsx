@@ -262,7 +262,7 @@ export default function useLocalTable<Model = any>({
           includes(toUpper(queryValue)),
         )(item);
         if (fussy) {
-          queryResult = any(flow(prop('key'), match))(fields);
+          queryResult = any(flow(prop('dataKey'), match))(fields);
         } else if (queryField) {
           queryResult = match(queryField);
         }
