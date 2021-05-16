@@ -10,6 +10,7 @@ module.exports = {
 
   globals: {
     __BROWSER__: true,
+    tinymce: true,
   },
 
   extends: [
