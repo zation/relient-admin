@@ -60,7 +60,7 @@ export default function useBasicTable<Model>({
   detailsOnOpen,
   detailsOnClose,
 }: UseBasicTableParams<Model>) {
-  const defaultQueryField = flow(first, prop('key'))(fields);
+  const defaultQueryField = flow(first, prop('dataKey'))(fields);
   const defaultFilterValues = flow(
     reject(flow(prop('defaultValue'), isUndefined)),
     map(({ defaultValue, dataKey }: Filter<Model>) => ({
