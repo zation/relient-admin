@@ -29,7 +29,6 @@ import type {
   UploadFileStatus,
 } from 'antd/es/upload/interface';
 import { DomainContext } from '../../contexts';
-import AUTHORIZATION from '../../constants/authorization';
 import { Style } from '../../interface';
 
 interface Preview {
@@ -56,6 +55,7 @@ export interface MultipleUploaderProps {
   accept?: string
   action?: string
   placeholderClassName?: string
+  authorizationCookie?: string
   className?: string
 }
 
@@ -71,6 +71,7 @@ const result = ({
   action,
   placeholderClassName,
   className,
+  authorizationCookie = 'AUTHORIZATION',
 }: MultipleUploaderProps) => {
   const { cdnDomain } = useContext(DomainContext);
   const [preview, setPreview] = useState<Preview>({ visible: false });
@@ -80,7 +81,7 @@ const result = ({
     ...others,
     uid: others.uid || url || others.fileName || '',
   }))(value), [value]);
-  const authorization = cookie.get(AUTHORIZATION);
+  const authorization = cookie.get(authorizationCookie);
   const onPreviewCancel = useCallback(() => setPreview({ visible: false }), []);
 
   return (

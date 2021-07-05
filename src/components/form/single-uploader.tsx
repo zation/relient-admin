@@ -5,7 +5,6 @@ import cookie from 'js-cookie';
 import { map, prop } from 'lodash/fp';
 import { PlusOutlined } from '@ant-design/icons';
 import { UploadFile } from 'antd/es/upload/interface';
-import AUTHORIZATION from '../../constants/authorization';
 import { DomainContext } from '../../contexts';
 import { Style } from '../../interface';
 
@@ -22,6 +21,7 @@ export interface SingleUploaderProps {
   accept?: string
   action?: string
   placeholderClassName?: string
+  authorizationCookie?: string
   className?: string
 }
 
@@ -36,9 +36,10 @@ const result = ({
   onUploaded,
   action,
   fileType,
+  authorizationCookie = 'AUTHORIZATION',
 }: SingleUploaderProps) => {
   const { cdnDomain } = useContext(DomainContext);
-  const authorization = cookie.get(AUTHORIZATION);
+  const authorization = cookie.get(authorizationCookie);
 
   return (
     <div
