@@ -24,7 +24,7 @@ export const createSameAsRule = (i18n: I18N) => (messageKey: string): SameAsRule
 ) => ({ getFieldValue }) => ({
   async validator(rule: Rule, value: any) {
     if (value && getFieldValue(targetNamePath) !== value) {
-      throw { errors: [{ message: i18n(messageKey, { targetLabel, value }) }] };
+      throw i18n(messageKey, { targetLabel, value });
     }
   },
 });
@@ -32,7 +32,7 @@ export const createSameAsRule = (i18n: I18N) => (messageKey: string): SameAsRule
 export const createPositiveNumberRule = (i18n: I18N) => (messageKey: string) => ({
   async validator(rule: Rule, value: any) {
     if (value !== '' && Number(value) <= 0) {
-      throw { errors: [{ message: i18n(messageKey, { value }) }] };
+      throw i18n(messageKey, { value });
     }
   },
 });
@@ -43,11 +43,11 @@ export const createPriceRule = (i18n: I18N) => (messageKey: string) => ({
       return undefined;
     }
     if (!isFinite(Number(value))) {
-      throw { errors: [{ message: i18n(messageKey, { value }) }] };
+      throw i18n(messageKey, { value });
     }
     if (typeof value === 'string' && Number(value) > 0 && flow(split('.'), nth(1), size)(value) <= 2) {
       return undefined;
     }
-    throw { errors: [{ message: i18n(messageKey, { value }) }] };
+    throw i18n(messageKey, { value });
   },
 });
