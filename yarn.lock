@@ -409,11 +409,6 @@
   resolved "https://registry.yarnpkg.com/@types/config/-/config-0.0.38.tgz#ca30679b21b5b297299467e3a3f1c8e2e64b9170"
   integrity sha512-z2WizAfIFgSv8SQfQ8c0LlbDAcK47D/o93XW6bxZ9t3bs4fmmfAPjk1nhAIBTG84PBBCHfSPM+8g7vhLdbFokg==
 
-"@types/history@^4.7.7":
-  version "4.7.8"
-  resolved "https://registry.yarnpkg.com/@types/history/-/history-4.7.8.tgz#49348387983075705fe8f4e02fb67f7daaec4934"
-  integrity sha512-S78QIYirQcUoo6UJZx9CSP0O2ix9IaeAXwQi26Rhr/+mg7qqPy8TzaxHSUut7eGjL8WmLccT7/MXf304WjqHcA==
-
 "@types/hoist-non-react-statics@^3.3.0":
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/@types/hoist-non-react-statics/-/hoist-non-react-statics-3.3.1.tgz#1124aafe5118cb591977aeb1ceaaed1070eb039f"
@@ -3619,14 +3614,13 @@ regexpp@^3.0.0, regexpp@^3.1.0:
   resolved "https://registry.npm.taobao.org/regexpp/download/regexpp-3.1.0.tgz#206d0ad0a5648cffbdb8ae46438f3dc51c9f78e2"
   integrity sha1-IG0K0KVkjP+9uK5GQ489xRyfeOI=
 
-relient@5.1.3:
-  version "5.1.3"
-  resolved "https://registry.nlark.com/relient/download/relient-5.1.3.tgz#4e36c02681eeeb6e3e0a254a7eb06574f5949421"
-  integrity sha1-TjbAJoHu624+CiVKfrBldPWUlCE=
+relient@5.2.0:
+  version "5.2.0"
+  resolved "https://registry.nlark.com/relient/download/relient-5.2.0.tgz?cache=0&sync_timestamp=1627623006802&other_urls=https%3A%2F%2Fregistry.nlark.com%2Frelient%2Fdownload%2Frelient-5.2.0.tgz#d44844ce0b06b5f159c2d38eb1e7190607abc534"
+  integrity sha1-1EhEzgsGtfFZwtOOsecZBgerxTQ=
   dependencies:
     "@formatjs/icu-messageformat-parser" ">=1.1.4"
     "@types/config" "^0.0.38"
-    "@types/history" "^4.7.7"
     "@types/lodash" "^4.14.159"
     "@types/node" "^14.14.41"
     "@types/react" "^17.0.3"
