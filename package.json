@@ -1,6 +1,6 @@
 {
   "name": "relient-admin",
-  "version": "4.4.1",
+  "version": "4.4.2",
   "author": "Liu Yang <zation1@gmail.com>",
   "license": "MIT",
   "keywords": [
@@ -17,7 +17,7 @@
     "url": "git://github.com/zation/relient-admin.git"
   },
   "dependencies": {
-    "@ant-design/icons": ">=4.6.2",
+    "@ant-design/icons": ">=4.7.0",
     "@tinymce/tinymce-react": "^3.12.4",
     "@types/js-cookie": "^2.2.6",
     "@types/lodash": "^4.14.168",
@@ -27,7 +27,7 @@
     "@types/react-redux": "^7.1.16",
     "antd": ">=4.15.1",
     "bignumber.js": ">=9.0.1",
-    "js-cookie": ">=2.2.1",
+    "js-cookie": ">=3.0.1",
     "lodash": ">=4.17.20",
     "moment": ">=2.29.1",
     "prop-types": ">=15.7.2",
@@ -55,9 +55,9 @@
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-react": "^7.23.2",
     "eslint-plugin-react-hooks": "^4.2.0",
-    "husky": "^6.0.0",
+    "husky": "^7.0.2",
     "less": "^4.1.1",
-    "lint-staged": "^10.5.3",
+    "lint-staged": "^11.1.2",
     "pinst": "^2.1.6",
     "rc-select": "^12.1.9",
     "rc-upload": "^4.2.0",

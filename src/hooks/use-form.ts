@@ -63,9 +63,10 @@ export default (
   useIsFormEditing({ dirty, submitSucceeded, checkEditing, visible });
 
   return {
-    submit: useCallback(async (values) => {
+    submit: useCallback(async () => {
       try {
         setSubmitting(true);
+        const values = await form.validateFields();
         const result = await onSubmit(values, form);
         setSubmitting(false);
         setDefaultError(undefined);
