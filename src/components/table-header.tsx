@@ -23,6 +23,7 @@ import {
 } from 'lodash/fp';
 import { useI18N } from 'relient/i18n';
 import type { OptionType } from 'antd/es/select';
+import type { ButtonType, ButtonSize } from 'antd/es/button';
 import type {
   OptionData,
   OptionGroupData,
@@ -59,6 +60,8 @@ export interface CreateButton {
   text: string
   link?: string
   onClick: MouseEventHandler<HTMLElement>
+  size?: ButtonSize
+  type?: ButtonType
 }
 
 export interface TableHeaderProps {
@@ -110,15 +113,22 @@ const result = ({
 
       {editor && <FormPop {...editor} />}
 
-      <div className="relient-admin-table-header-button-wrapper">
+      <div>
         {createButton && (createButton.link ? (
           <Link to={createButton.link}>
-            <Button type="primary" size="large">
+            <Button
+              type={createButton.type || 'primary'}
+              size={createButton.size || 'large'}
+            >
               {createButton.text}
             </Button>
           </Link>
         ) : (
-          <Button type="primary" size="large" onClick={createButton.onClick || openCreator}>
+          <Button
+            type={createButton.type || 'primary'}
+            size={createButton.size || 'large'}
+            onClick={createButton.onClick || openCreator}
+          >
             {createButton.text}
           </Button>
         ))}
