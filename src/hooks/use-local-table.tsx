@@ -102,12 +102,14 @@ export default function useLocalTable<Model = any>({
     onSubmit: creatorSubmit,
     onClose: creatorOnClose,
     onOpen: creatorOnOpen,
+    showSuccessMessage: creatorShowSuccessMessage,
   } = creator || {};
   const {
     onSubmit: editorSubmit,
     onClose: editorOnClose,
     onOpen: editorOnOpen,
     getInitialValues: getEditorInitialValues,
+    showSuccessMessage: editorShowSuccessMessage,
   } = editor || {};
   const {
     getDataSource: getDetailsDataSource,
@@ -238,7 +240,9 @@ export default function useLocalTable<Model = any>({
       await creatorSubmit(values, formInstance);
     }
     closeCreator();
-    message.success(i18n('createSuccess'));
+    if (creatorShowSuccessMessage !== false) {
+      message.success(i18n('createSuccess'));
+    }
   }, [
     creatorSubmit,
   ]);
@@ -247,7 +251,9 @@ export default function useLocalTable<Model = any>({
       await editorSubmit({ ...values, id: (editItem as any).id as ID }, formInstance, editItem);
     }
     closeEditor();
-    message.success(i18n('editSuccess'));
+    if (editorShowSuccessMessage !== false) {
+      message.success(i18n('editSuccess'));
+    }
   }, [
     editorSubmit,
     editItem,

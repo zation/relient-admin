@@ -167,6 +167,7 @@ export default function useApiTable<Model = any>({
     onSubmit: creatorSubmit,
     onClose: creatorOnClose,
     onOpen: creatorOnOpen,
+    showSuccessMessage: creatorShowSuccessMessage,
   } = creator || {};
   const {
     onSubmit: editorSubmit,
@@ -174,6 +175,7 @@ export default function useApiTable<Model = any>({
     onClose: editorOnClose,
     onOpen: editorOnOpen,
     getInitialValues: getEditorInitialValues,
+    showSuccessMessage: editorShowSuccessMessage,
   } = editor || {};
   const {
     getDataSource: getDetailsDataSource,
@@ -449,7 +451,9 @@ export default function useApiTable<Model = any>({
       fussyKey,
     );
     closeCreator();
-    message.success(i18n('createSuccess'));
+    if (creatorShowSuccessMessage !== false) {
+      message.success(i18n('createSuccess'));
+    }
   }, [
     creatorSubmit,
     queryValue,
@@ -468,7 +472,9 @@ export default function useApiTable<Model = any>({
       await onReload();
     }
     closeEditor();
-    message.success(i18n('editSuccess'));
+    if (editorShowSuccessMessage !== false) {
+      message.success(i18n('editSuccess'));
+    }
   }, [
     editorSubmit,
     editItem,

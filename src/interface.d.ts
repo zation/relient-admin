@@ -54,6 +54,7 @@ export interface ShowTotal {
 
 export interface Creator extends FormPopProps {
   onOpen?: () => void
+  showSuccessMessage?: boolean
 }
 
 export interface Editor<Item> extends Omit<FormPopProps, 'onSubmit'> {
@@ -61,6 +62,7 @@ export interface Editor<Item> extends Omit<FormPopProps, 'onSubmit'> {
   shouldReload?: boolean
   getInitialValues?: (item: Item | null | undefined) => any
   onSubmit: (valuesWithId: any, form: FormInstance, item: Item | null | undefined) => Promise<any>
+  showSuccessMessage?: boolean
 }
 
 export interface Details<Item> extends DetailsProps {
