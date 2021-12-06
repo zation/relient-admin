@@ -27,7 +27,6 @@ import { useI18N } from 'relient/i18n';
 import moment, { Moment } from 'moment';
 import TableHeader, { CreateButton } from '../components/table-header';
 import useBasicTable, { isFilterValuesSame } from './use-basic-table';
-import { DEFAULT_SIZE } from '../constants/pagination';
 import type {
   Creator,
   Details,
@@ -96,7 +95,7 @@ export default function useLocalTable<Model = any>({
   const { onFieldChange, onValueChange, fields, width, fussy } = query || {};
   const {
     current: initialCurrent = 1,
-    size: initialSize = DEFAULT_SIZE,
+    size: initialSize = 20,
   } = paginationInitialData || {};
   const {
     onSubmit: creatorSubmit,
@@ -151,6 +150,10 @@ export default function useLocalTable<Model = any>({
   const i18n = useI18N();
   const [currentPage, setCurrentPage] = useState(initialCurrent);
   const [pageSize, setPageSize] = useState(initialSize);
+  const onReset = useCallback(() => {
+    reset();
+    setCurrentPage(initialCurrent);
+  }, []);
   useEffect(() => {
     if (initialSize !== pageSize) {
       setPageSize(initialSize);
@@ -344,7 +347,7 @@ export default function useLocalTable<Model = any>({
     openCreator,
     openEditor,
     openDetails,
-    reset,
+    reset: onReset,
     pagination: {
       showTotal: ((total) => `${i18n('totalPage', { total })}`) as ShowTotal,
       pageSize,
@@ -401,7 +404,7 @@ export default function useLocalTable<Model = any>({
       }}
       openEditor={openEditor}
       openCreator={openCreator}
-      reset={showReset ? reset : undefined}
+      reset={showReset ? onReset : undefined}
       datePicker={{
         items: map(({ dataKey, ...others }) => ({
           dataKey,

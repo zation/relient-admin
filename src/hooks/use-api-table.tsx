@@ -21,7 +21,6 @@ import {
 import { message } from 'antd';
 import { useI18N } from 'relient/i18n';
 import { Moment } from 'moment';
-import { DEFAULT_PAGE } from '../constants/pagination';
 import TableHeader, { CreateButton } from '../components/table-header';
 import useBasicTable, { isFilterValuesSame } from './use-basic-table';
 import type {
@@ -247,13 +246,14 @@ export default function useApiTable<Model = any>({
       paginationData.size,
       filterValues,
       dateValues,
-      DEFAULT_PAGE,
+      initialCurrent,
       setIsLoading,
       fussyKey,
     );
   }, [
     readAction,
     paginationData.size,
+    initialCurrent,
     filterValues,
     dateValues,
     onFieldChange,
@@ -273,7 +273,7 @@ export default function useApiTable<Model = any>({
       paginationData.size,
       filterValues,
       dateValues,
-      DEFAULT_PAGE,
+      initialCurrent,
       setIsLoading,
       fussyKey,
     );
@@ -282,6 +282,7 @@ export default function useApiTable<Model = any>({
     queryField,
     readAction,
     paginationData.size,
+    initialCurrent,
     filterValues,
     dateValues,
     fussyKey,
@@ -310,7 +311,7 @@ export default function useApiTable<Model = any>({
       paginationData.size,
       newFilterValues,
       dateValues,
-      DEFAULT_PAGE,
+      initialCurrent,
       setIsLoading,
       fussyKey,
     );
@@ -320,6 +321,7 @@ export default function useApiTable<Model = any>({
     queryField,
     readAction,
     paginationData.size,
+    initialCurrent,
     dateValues,
     fussyKey,
     filterValues,
@@ -351,7 +353,7 @@ export default function useApiTable<Model = any>({
       paginationData.size,
       filterValues,
       newDates,
-      DEFAULT_PAGE,
+      initialCurrent,
       setIsLoading,
       fussyKey,
     );
@@ -362,6 +364,7 @@ export default function useApiTable<Model = any>({
     queryField,
     readAction,
     paginationData.size,
+    initialCurrent,
     filterValues,
     fussyKey,
   ]);
@@ -376,13 +379,14 @@ export default function useApiTable<Model = any>({
       paginationData.size,
       defaultFilterValues,
       [],
-      DEFAULT_PAGE,
+      initialCurrent,
       setIsLoading,
       fussyKey,
     );
   }, [
     defaultQueryField,
     defaultFilterValues,
+    initialCurrent,
     readAction,
     reset,
     fussyKey,
@@ -446,7 +450,7 @@ export default function useApiTable<Model = any>({
       paginationData.size,
       filterValues,
       dateValues,
-      DEFAULT_PAGE,
+      initialCurrent,
       setIsLoading,
       fussyKey,
     );
@@ -460,6 +464,7 @@ export default function useApiTable<Model = any>({
     queryField,
     readAction,
     paginationData.size,
+    initialCurrent,
     filterValues,
     dateValues,
     fussyKey,
