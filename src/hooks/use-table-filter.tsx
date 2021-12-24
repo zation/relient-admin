@@ -8,6 +8,7 @@ export interface UseTableFilterParams extends Pick<ColumnType<any>, 'filterIcon'
   dataKey: string
   options: ColumnFilterItem[]
   multiple?: boolean
+  showButtons?: boolean
 }
 
 export default function useTableFilter({
@@ -16,6 +17,7 @@ export default function useTableFilter({
   options,
   multiple,
   filterIcon,
+  showButtons,
 }: UseTableFilterParams) {
   const [filterDropdownVisible, onFilterDropdownVisibleChange] = useState(false);
   const [filteredValue, setFilteredValue] = useState<Key[]>();
@@ -26,6 +28,7 @@ export default function useTableFilter({
     onFilterDropdownVisibleChange,
     filteredValue,
     filterIcon,
+    // TODO: change selectedKeys according to filterValue
     filterDropdown: ({
       prefixCls,
       setSelectedKeys,
@@ -36,6 +39,7 @@ export default function useTableFilter({
       visible,
     }: FilterDropdownProps) => (
       <TableFilter
+        showButtons={showButtons}
         multiple={multiple}
         prefixCls={prefixCls}
         setSelectedKeys={setSelectedKeys}
@@ -44,12 +48,21 @@ export default function useTableFilter({
         filters={filters}
         visible={visible}
         confirm={confirm}
+        onSelect={(newSelectedKeys) => {
+          if (!showButtons) {
+            changeFilterValue(newSelectedKeys, dataKey);
+            setFilteredValue(newSelectedKeys);
+          }
+        }}
         onConfirm={() => {
           changeFilterValue(selectedKeys, dataKey);
           setFilteredValue(selectedKeys);
           onFilterDropdownVisibleChange(false);
         }}
         onReset={() => {
+          if (clearFilters) {
+            clearFilters();
+          }
           setFilteredValue(undefined);
           changeFilterValue([], dataKey);
         }}

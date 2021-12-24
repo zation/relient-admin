@@ -2,7 +2,7 @@ import React, { useCallback, useContext, Key } from 'react';
 import { array, string, func, bool } from 'prop-types';
 import { ConfigContext } from 'antd/lib/config-provider';
 import { Menu, Button, Checkbox, Radio } from 'antd';
-import { flow, prop, map, toString } from 'lodash/fp';
+import { map, toString } from 'lodash/fp';
 import type { ColumnFilterItem } from 'antd/es/table/interface';
 
 const { SubMenu, Item: MenuItem } = Menu;
@@ -41,37 +41,37 @@ function renderFilterItems(
 
 export interface TableFilterProps {
   // from antd
+  prefixCls: string
   filters?: ColumnFilterItem[]
   selectedKeys: Key[]
   setSelectedKeys: (selectedKeys: string[]) => void
   clearFilters?: () => void
 
   // from usage
-  onReset: () => void
-  onConfirm: (params: { selectedKeys: Key[] }) => void
+  onReset?: () => void
+  onConfirm?: () => void
+  onSelect?: (selectedKeys: string[]) => void
   multiple?: boolean
+  showButtons?: boolean
 }
 
 const result = ({
   filters,
   selectedKeys,
   setSelectedKeys,
-  clearFilters,
   onReset,
   onConfirm,
+  onSelect,
   multiple = true,
+  showButtons = true,
 }: TableFilterProps) => {
   const { locale, getPrefixCls } = useContext(ConfigContext);
-  const select = useCallback(flow(prop('selectedKeys'), setSelectedKeys), [setSelectedKeys]);
-  const onFinalConfirm = useCallback(() => {
-    onConfirm({ selectedKeys });
-  }, [selectedKeys, onConfirm]);
-  const onFinalReset = useCallback(() => {
-    if (clearFilters) {
-      clearFilters();
+  const select = useCallback(({ selectedKeys: newSelectedKeys }) => {
+    setSelectedKeys(newSelectedKeys);
+    if (onSelect) {
+      onSelect(newSelectedKeys);
     }
-    onReset();
-  }, [setSelectedKeys, onReset]);
+  }, [setSelectedKeys, onSelect]);
   const dropdownPrefixCls = getPrefixCls('dropdown');
   const prefixCls = getPrefixCls('table-filter');
 
@@ -92,14 +92,16 @@ const result = ({
           multiple,
         )}
       </Menu>
-      <div className={`${prefixCls}-dropdown-btns`}>
-        <Button type="link" size="small" disabled={selectedKeys.length === 0} onClick={onFinalReset}>
-          {locale?.Table?.filterReset}
-        </Button>
-        <Button type="primary" size="small" onClick={onFinalConfirm}>
-          {locale?.Table?.filterConfirm}
-        </Button>
-      </div>
+      {showButtons && (
+        <div className={`${prefixCls}-dropdown-btns`}>
+          <Button type="link" size="small" disabled={selectedKeys.length === 0} onClick={onReset}>
+            {locale?.Table?.filterReset}
+          </Button>
+          <Button type="primary" size="small" onClick={onConfirm}>
+            {locale?.Table?.filterConfirm}
+          </Button>
+        </div>
+      )}
     </>
   );
 };
@@ -115,9 +117,11 @@ result.propTypes = {
   visible: bool.isRequired,
 
   // from usage
-  onReset: func.isRequired,
-  onConfirm: func.isRequired,
+  onReset: func,
+  onConfirm: func,
+  onSelect: func,
   multiple: bool,
+  showButtons: bool,
 };
 
 result.displayName = __filename;

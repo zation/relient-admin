@@ -13,6 +13,7 @@ export interface UseTableSearchParams extends Pick<ColumnType<any>, 'filterIcon'
   dataKey: string
   placeholder?: string
   width?: number
+  showButtons?: boolean
 }
 
 export default function useTableSearch({
@@ -22,6 +23,7 @@ export default function useTableSearch({
   filterIcon = defaultFilterIcon,
   placeholder,
   width,
+  showButtons,
 }: UseTableSearchParams) {
   const [filterDropdownVisible, onFilterDropdownVisibleChange] = useState(false);
   const [filteredValue, setFilteredValue] = useState<Key[]>();
@@ -32,21 +34,12 @@ export default function useTableSearch({
       onFilterDropdownVisibleChange,
       filteredValue, // used for icon highlight
       filterIcon,
+      // TODO: change inputValue in TableSearch according to filterValue
       filterDropdown: ({
-        prefixCls,
-        setSelectedKeys,
-        selectedKeys,
-        confirm,
         clearFilters,
-        visible,
       }: FilterDropdownProps) => (
         <TableSearch
-          prefixCls={prefixCls}
-          setSelectedKeys={setSelectedKeys}
-          selectedKeys={selectedKeys}
-          clearFilters={clearFilters}
-          visible={visible}
-          confirm={confirm}
+          showButtons={showButtons}
           placeholder={placeholder}
           width={width}
           onConfirm={(value) => {
@@ -60,6 +53,9 @@ export default function useTableSearch({
             onFilterDropdownVisibleChange(false);
           }}
           onReset={() => {
+            if (clearFilters) {
+              clearFilters();
+            }
             if (changeFilterValue) {
               changeFilterValue([], dataKey);
             }
