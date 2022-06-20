@@ -52,8 +52,8 @@ const getDateParams = reduce((result, { dataKey, value }) => {
   if (value && value.length > 1) {
     return {
       ...result,
-      [`${dataKey}After`]: new Date(value[0]).toISOString(),
-      [`${dataKey}Before`]: new Date(value[1]).toISOString(),
+      [`${dataKey}After`]: value[0] ? new Date(value[0]).toISOString() : undefined,
+      [`${dataKey}Before`]: value[1] ? new Date(value[1]).toISOString() : undefined,
     };
   }
   return result;
@@ -131,7 +131,7 @@ export interface UseApiTableParams<Model> {
   }[]
   getDataSource: (state: any) => (ids: ID[]) => any
   pagination?: {
-    size?: number
+    pageSize?: number
     showTotal?: ShowTotal
   }
   paginationInitialData: PaginationData

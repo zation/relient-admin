@@ -70,7 +70,7 @@ export interface UseLocalTableParams<Model> {
     disabledDate: (date: Moment) => boolean
   }[]
   pagination?: {
-    size?: number
+    pageSize?: number
     showTotal?: ShowTotal
   }
   paginationInitialData: PaginationData
@@ -222,7 +222,7 @@ export default function useLocalTable<Model = any>({
     filterValues,
   ]);
   const onDateChange = useCallback((value, dataKey) => {
-    const onChange = flow(find(propEq('dataKey', dataKey)), prop('onChange'))(datePickers);
+    const onChange = flow(find(propEq('dataKey', dataKey)), prop('onDateChange'))(datePickers);
     if (isFunction(onChange)) {
       onChange(value);
     }
