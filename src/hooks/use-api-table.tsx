@@ -1,4 +1,8 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+} from 'react';
 import { useSelector } from 'react-redux';
 import {
   concat,
@@ -119,6 +123,7 @@ export interface UseApiTableParams<Model> {
     width?: number
     placeholder?: string
     fussyKey?: string
+    searchWhenValueChange?: boolean
   }
   showReset?: boolean
   filters?: Filter<Model>[]
@@ -161,7 +166,15 @@ export default function useApiTable<Model = any>({
   editor,
   details,
 }: UseApiTableParams<Model>) {
-  const { onFieldChange, onValueChange, fields, width, placeholder, fussyKey } = query || {};
+  const {
+    onFieldChange,
+    onValueChange,
+    fields,
+    width,
+    placeholder,
+    fussyKey,
+    searchWhenValueChange = true,
+  } = query || {};
   const {
     onSubmit: creatorSubmit,
     onClose: creatorOnClose,
@@ -260,23 +273,52 @@ export default function useApiTable<Model = any>({
     onValueChange,
     fussyKey,
   ]);
+  const onSearch = useCallback(() => {
+    if (!searchWhenValueChange) {
+      onFetch(
+        queryValue,
+        queryField,
+        readAction,
+        setPaginationData,
+        paginationData.size,
+        filterValues,
+        dateValues,
+        initialCurrent,
+        setIsLoading,
+        fussyKey,
+      );
+    }
+  }, [
+    queryValue,
+    queryField,
+    readAction,
+    setPaginationData,
+    paginationData.size,
+    filterValues,
+    dateValues,
+    initialCurrent,
+    setIsLoading,
+    fussyKey,
+  ]);
   const onQueryValueChange = useCallback(({ target: { value } }) => {
     if (isFunction(onValueChange)) {
       onValueChange(value);
     }
     setQueryValue(value);
-    onQueryFetch(
-      value,
-      queryField,
-      readAction,
-      setPaginationData,
-      paginationData.size,
-      filterValues,
-      dateValues,
-      initialCurrent,
-      setIsLoading,
-      fussyKey,
-    );
+    if (searchWhenValueChange) {
+      onQueryFetch(
+        value,
+        queryField,
+        readAction,
+        setPaginationData,
+        paginationData.size,
+        filterValues,
+        dateValues,
+        initialCurrent,
+        setIsLoading,
+        fussyKey,
+      );
+    }
   }, [
     onValueChange,
     queryField,
@@ -286,6 +328,7 @@ export default function useApiTable<Model = any>({
     filterValues,
     dateValues,
     fussyKey,
+    searchWhenValueChange,
   ]);
   const onFilterValueChange = useCallback(async (value, dataKey) => {
     if (isFilterValuesSame(value, dataKey, filterValues)) {
@@ -516,6 +559,7 @@ export default function useApiTable<Model = any>({
         width,
         placeholder,
         fussy: !!fussyKey,
+        onSearch,
       }}
       createButton={createButton}
       filter={{

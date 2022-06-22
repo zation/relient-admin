@@ -92,7 +92,13 @@ export default function useLocalTable<Model = any>({
   editor,
   details,
 }: UseLocalTableParams<Model>) {
-  const { onFieldChange, onValueChange, fields, width, fussy } = query || {};
+  const {
+    onFieldChange,
+    onValueChange,
+    fields,
+    width,
+    fussy,
+  } = query || {};
   const {
     current: initialCurrent = 1,
     size: initialSize = 20,

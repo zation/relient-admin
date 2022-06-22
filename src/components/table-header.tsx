@@ -24,6 +24,7 @@ import {
 import { useI18N } from 'relient/i18n';
 import type { OptionType } from 'antd/es/select';
 import type { ButtonType, ButtonSize } from 'antd/es/button';
+import type { SearchProps } from 'antd/es/input';
 import type {
   OptionData,
   OptionGroupData,
@@ -74,6 +75,7 @@ export interface TableHeaderProps {
     fields?: QueryField[]
     placeholder?: string
     fussy?: boolean
+    onSearch?: SearchProps['onSearch']
   }
   createButton?: CreateButton
   filter: {
@@ -207,6 +209,7 @@ const result = ({
                 : i18n('search'))?.toString()}
               onChange={query.onValueChange}
               value={query.value}
+              onSearch={query.onSearch}
             />
           </div>
         )}
