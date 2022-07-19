@@ -8,13 +8,11 @@ import {
   string,
   node,
   func,
-  bool,
-  array,
   ReactComponentLike,
   ReactNodeLike,
+  elementType,
 } from 'prop-types';
 import {
-  map,
   omit,
   pick,
 } from 'lodash/fp';
@@ -26,7 +24,7 @@ import type {
   ValidatorRule,
   NamePath,
 } from 'rc-field-form/es/interface';
-import type { FormListFieldData } from 'antd/es/form/FormList';
+import type { FormListFieldData, FormListProps } from 'antd/es/form/FormList';
 import type { FormItemProps } from 'antd/es/form';
 import { useI18N } from 'relient/i18n';
 import {
@@ -34,16 +32,12 @@ import {
   wrapperCol,
 } from '../../constants/default-field-layout';
 
-const { Item, List, ErrorList } = Form;
-
-// @ts-ignore
-const mapWithIndex = map.convert({ cap: false });
+const { Item, List } = Form;
 
 export interface FieldProps extends Omit<FormItemProps, 'children'>, Attributes {
   component: ReactComponentLike
   name: NamePath
-  fields: FieldProps[]
-  isArray?: boolean
+  children?: FormListProps['children']
   element: ReactNodeLike
   getLabel?: (formListFieldData: FormListFieldData, index: number) => ReactNodeLike
 }
@@ -80,7 +74,7 @@ const itemPropKeys = [
 ];
 
 const result = ({
-  isArray,
+  children,
   component = Input,
   element,
   getLabel,
@@ -104,26 +98,9 @@ const result = ({
     );
   }
 
-  return isArray ? (
+  return children ? (
     <List initialValue={field.initialValue} name={field.name} rules={field.rules as ValidatorRule[]}>
-      {(fields, _, { errors }) => (
-        <>
-          {mapWithIndex((formListFieldData: FormListFieldData, index: number) => (
-            <Item
-              labelCol={labelCol}
-              wrapperCol={wrapperCol}
-              {...itemProps}
-              name={formListFieldData.name}
-              fieldKey={formListFieldData.fieldKey}
-              key={formListFieldData.key}
-              label={getLabel ? getLabel(formListFieldData, index) : label}
-            >
-              {createElement(component, componentProps)}
-            </Item>
-          ))(fields)}
-          <ErrorList errors={errors} />
-        </>
-      )}
+      {children}
     </List>
   ) : (
     <Item
@@ -138,14 +115,10 @@ const result = ({
 };
 
 result.propTypes = {
+  component: elementType,
   name: string,
   element: node,
-  isArray: bool,
-  htmlType: string,
-  onValueChange: func,
-  parse: func,
-  format: func,
-  fields: array,
+  getLabel: func,
 };
 
 result.displayName = __filename;
