@@ -207,20 +207,20 @@ export default function useLocalTable<Model = any>({
   }, [
     onValueChange,
   ]);
-  const onFilterValueChange = useCallback((values, dataKey) => {
-    if (isFilterValuesSame(values, dataKey, filterValues)) {
+  const onFilterValueChange = useCallback((value, dataKey) => {
+    if (isFilterValuesSame(value, dataKey, filterValues)) {
       return;
     }
     const onChange = flow(find(propEq('dataKey', dataKey)), prop('onChange'))(filters);
     if (isFunction(onChange)) {
-      onChange(values);
+      onChange(value);
     }
     setCurrentPage(1);
     setFilterValues(flow(
       reject(propEq('dataKey')(dataKey)),
-      concat({
+      concat<FilterValue>({
         dataKey,
-        values,
+        value,
       }),
     )(filterValues));
   }, [
