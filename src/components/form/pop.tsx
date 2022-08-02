@@ -2,12 +2,16 @@
 import React, {
   useCallback,
   useEffect,
+  ReactNode,
 } from 'react';
 import {
   Button,
   Drawer,
   Form,
   Modal,
+  FormInstance,
+  DrawerProps,
+  ModalProps,
 } from 'antd';
 import {
   func,
@@ -17,40 +21,40 @@ import {
   number,
   oneOfType,
   elementType,
-  ReactNodeLike,
   ReactComponentLike,
 } from 'prop-types';
 import { map } from 'lodash/fp';
-import type { FormInstance } from 'antd/es/form';
-import type { DrawerProps } from 'antd/es/drawer';
-import type { ModalProps } from 'antd/es/modal';
 import { useI18N } from 'relient/i18n';
-import useForm, { OnSubmit, Submit } from '../../hooks/use-form';
+import useForm, {
+  OnSubmit,
+  Submit,
+} from '../../hooks/use-form';
 import Error from './error';
 import Field, { FieldProps } from './field';
 
-export interface FooterParams {
+export interface FooterParams<Values, SubmitReturn> {
   onCancel?: () => void
-  form: FormInstance
-  submit?: Submit
+  form: FormInstance<Values>
+  submit?: Submit<Values, SubmitReturn>
 }
 
-export interface FormPopProps extends Omit<DrawerProps, 'getContainer'>, Omit<ModalProps, 'getContainer'> {
-  onSubmit: OnSubmit
+export interface FormPopProps<Values, SubmitReturn>
+  extends Omit<DrawerProps, 'getContainer'>, Omit<ModalProps, 'getContainer'> {
+  onSubmit: OnSubmit<Values, SubmitReturn>
   visible: boolean
-  initialValues?: any
+  initialValues?: Partial<Values>
   onClose: () => void
   onCancel?: () => void
   fields?: FieldProps[]
-  getFields?: (form: FormInstance) => FieldProps[]
+  getFields?: (form: FormInstance<Values>) => FieldProps[]
   component?: ReactComponentLike
   width?: number
   checkEditing?: boolean
-  footer?: (params: FooterParams) => ReactNodeLike
+  getFooter?: (params: FooterParams<Values, SubmitReturn>) => ReactNode
   levelMove?: number
 }
 
-const result = ({
+function result<Values, SubmitReturn>({
   onSubmit,
   visible,
   onClose,
@@ -61,10 +65,10 @@ const result = ({
   component,
   width = 540,
   checkEditing,
-  footer,
+  getFooter,
   levelMove = 370,
   ...props
-}: FormPopProps) => {
+}: FormPopProps<Values, SubmitReturn>) {
   const {
     submit,
     submitting,
@@ -73,7 +77,7 @@ const result = ({
     pristine,
     onFieldsChange,
     form,
-  } = useForm(onSubmit, [], checkEditing, true);
+  } = useForm<Values, SubmitReturn>(onSubmit, [], checkEditing, true);
   const i18n = useI18N();
 
   useEffect(() => {
@@ -87,7 +91,7 @@ const result = ({
     }
     onClose();
   }, [onCancel, onClose]);
-  const finalFooter = footer ? footer({ onCancel, form, submit }) : (
+  const finalFooter = getFooter ? getFooter({ onCancel, form, submit }) : (
     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
       <Button
         htmlType="button"
@@ -99,7 +103,6 @@ const result = ({
       </Button>
       <Button
         htmlType="submit"
-        onClick={submit}
         style={{ marginLeft: 20 }}
         type="primary"
         loading={submitting}
@@ -110,7 +113,7 @@ const result = ({
     </div>
   );
   const children = (
-    <Form initialValues={initialValues} form={form} onFieldsChange={onFieldsChange}>
+    <Form initialValues={initialValues} form={form} onFieldsChange={onFieldsChange} onFinish={submit}>
       <Error error={defaultError} />
 
       {map(
@@ -146,7 +149,7 @@ const result = ({
       {children}
     </Modal>
   );
-};
+}
 
 result.propTypes = {
   onSubmit: func.isRequired,

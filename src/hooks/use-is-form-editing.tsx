@@ -1,10 +1,8 @@
 import { useEffect } from 'react';
 
 declare global {
-  namespace NodeJS {
-    interface Global {
-      isFormEditing: boolean
-    }
+  interface Window {
+    isFormEditing: boolean
   }
 }
 
@@ -16,8 +14,8 @@ interface Params {
 }
 
 export default ({ dirty, submitSucceeded, checkEditing, visible }: Params) => useEffect(() => {
-  global.isFormEditing = !!checkEditing && dirty && !submitSucceeded && !!visible;
+  window.isFormEditing = !!checkEditing && dirty && !submitSucceeded && !!visible;
   return () => {
-    global.isFormEditing = false;
+    window.isFormEditing = false;
   };
 }, [dirty, submitSucceeded, checkEditing, visible]);

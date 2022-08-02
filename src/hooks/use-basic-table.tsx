@@ -7,15 +7,17 @@ import {
   clone,
   find,
   first,
-  flow, isEqual,
+  flow,
+  isEqual,
   isUndefined,
   map,
-  prop, propEq,
+  prop,
+  propEq,
   reject,
   isArray,
 } from 'lodash/fp';
 import useDetails, { UseDetails } from './use-details';
-import type { Option, Filter, FilterValue, DateValue } from '../interface';
+import type { QueryField, Filter, FilterValue, DateValue } from '../interface';
 
 export const isFilterValuesSame = (
   value: Key[] | Key | undefined | null,
@@ -42,7 +44,7 @@ export const isFilterValuesSame = (
 )(filterValues);
 
 export interface UseBasicTableParams<Item> extends UseDetails<Item> {
-  fields: Option[] | null | undefined
+  fields: QueryField[] | null | undefined
   filters: Filter<Item>[] | null | undefined
   editorOnOpen?: (item: Item) => void
   editorOnClose?: () => void
@@ -60,7 +62,7 @@ export default function useBasicTable<Model>({
   detailsOnOpen,
   detailsOnClose,
 }: UseBasicTableParams<Model>) {
-  const defaultQueryField = flow(first, prop('dataKey'))(fields);
+  const defaultQueryField = flow(first, prop<QueryField, 'dataKey'>('dataKey'))(fields);
   const defaultFilterValues = flow(
     reject(flow(prop('defaultValue'), isUndefined)),
     map(({ defaultValue, dataKey }: Filter<Model>) => ({
@@ -74,7 +76,7 @@ export default function useBasicTable<Model>({
   const [filterValues, setFilterValues] = useState<FilterValue[]>(defaultFilterValues);
   const [creatorVisible, setCreatorVisible] = useState(false);
   const [editorVisible, setEditorVisible] = useState(false);
-  const [editItem, setEditItem] = useState(null);
+  const [editItem, setEditItem] = useState<Model | null>(null);
 
   const openCreator = useCallback(() => {
     setCreatorVisible(true);
@@ -88,7 +90,7 @@ export default function useBasicTable<Model>({
       creatorOnClose();
     }
   }, [creatorOnClose]);
-  const openEditor = useCallback((item) => {
+  const openEditor = useCallback((item: Model) => {
     setEditorVisible(true);
     setEditItem(item);
     if (editorOnOpen) {

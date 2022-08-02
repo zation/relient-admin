@@ -1,4 +1,5 @@
 import React, {
+  ChangeEventHandler,
   useCallback,
   useEffect,
   useState,
@@ -22,9 +23,12 @@ import {
   keys,
   isArray,
 } from 'lodash/fp';
-import { message } from 'antd';
+import {
+  FormInstance,
+  message,
+} from 'antd';
 import { useI18N } from 'relient/i18n';
-import moment, { Moment } from 'moment';
+import moment from 'moment';
 import TableHeader, { CreateButton } from '../components/table-header';
 import useBasicTable, { isFilterValuesSame } from './use-basic-table';
 import type {
@@ -32,29 +36,28 @@ import type {
   Details,
   Editor,
   Filter,
-  Option,
+  QueryField,
   ShowTotal,
   PaginationData,
   FilterValue,
   DateValue,
   OnFilter,
+  DatePicker,
+  ID,
 } from '../interface';
-import { ID } from '../interface';
 
 export interface CustomQuery<Model> {
   dataKey: string
   onFilter: (item: Model, field: string, value: string | undefined | null) => boolean
 }
 
-export interface CustomQueryValue {
-  [dataKey: string]: undefined | string | null
-}
+export type CustomQueryValue = Record<string, undefined | string | null>;
 
-export interface UseLocalTableParams<Model> {
+export interface UseLocalTableParams<Model, CreatorValues, EditorValues, CreatorReturn, EditorReturn> {
   query?: {
     onFieldChange?: (fieldKey: string) => void
     onValueChange?: (value?: string) => void
-    fields?: Option[]
+    fields?: QueryField[]
     width?: number
     placeholder?: string
     fussy?: boolean
@@ -63,23 +66,22 @@ export interface UseLocalTableParams<Model> {
   showReset?: boolean
   filters?: Filter<Model>[]
   createButton?: CreateButton
-  datePickers?: {
-    dataKey: string,
-    label: string,
-    onDateChange: (value: [string, string]) => void
-    disabledDate: (date: Moment) => boolean
-  }[]
+  datePickers?: DatePicker[]
   pagination?: {
     pageSize?: number
     showTotal?: ShowTotal
   }
   paginationInitialData: PaginationData
-  creator?: Creator
-  editor?: Editor<Model>
+  creator?: Creator<CreatorValues, CreatorReturn>
+  editor?: Editor<Model, EditorValues, EditorReturn>
   details?: Details<Model>
 }
 
-export default function useLocalTable<Model = any>({
+export default function useLocalTable<Model = any,
+  CreatorValues = Partial<Model>,
+  EditorValues = Partial<Model>,
+  CreatorReturn = Partial<Model>,
+  EditorReturn = Partial<Model>>({
   query,
   customQueries,
   showReset,
@@ -91,7 +93,7 @@ export default function useLocalTable<Model = any>({
   creator,
   editor,
   details,
-}: UseLocalTableParams<Model>) {
+}: UseLocalTableParams<Model, CreatorValues, EditorValues, CreatorReturn, EditorReturn>) {
   const {
     onFieldChange,
     onValueChange,
@@ -168,7 +170,7 @@ export default function useLocalTable<Model = any>({
       setCurrentPage(initialCurrent);
     }
   }, [initialSize, initialCurrent]);
-  const onPageChange = useCallback((newCurrentPage, newPageSize) => {
+  const onPageChange = useCallback((newCurrentPage: number, newPageSize: number) => {
     if (newCurrentPage !== currentPage) {
       setCurrentPage(newCurrentPage);
     }
@@ -179,13 +181,13 @@ export default function useLocalTable<Model = any>({
 
   const [customQueryValues, setCustomQueryValues] = useState<CustomQueryValue>({});
 
-  const changeCustomQueryValue = useCallback((value, field) => {
+  const changeCustomQueryValue = useCallback((value: undefined | string | null, field: keyof CustomQueryValue) => {
     if (customQueryValues[field] !== value) {
       setCustomQueryValues({ ...customQueryValues, [field]: value });
     }
   }, [customQueryValues, setCustomQueryValues]);
 
-  const onQueryFieldChange = useCallback((fieldKey) => {
+  const onQueryFieldChange = useCallback((fieldKey: string) => {
     if (isFunction(onFieldChange)) {
       onFieldChange(fieldKey);
     }
@@ -198,7 +200,7 @@ export default function useLocalTable<Model = any>({
     onFieldChange,
     onValueChange,
   ]);
-  const onQueryValueChange = useCallback(({ target: { value } }) => {
+  const onQueryValueChange: ChangeEventHandler<HTMLInputElement> = useCallback(({ target: { value } }) => {
     if (isFunction(onValueChange)) {
       onValueChange(value);
     }
@@ -207,7 +209,7 @@ export default function useLocalTable<Model = any>({
   }, [
     onValueChange,
   ]);
-  const onFilterValueChange = useCallback((value, dataKey) => {
+  const onFilterValueChange = useCallback((value: FilterValue['value'], dataKey: FilterValue['dataKey']) => {
     if (isFilterValuesSame(value, dataKey, filterValues)) {
       return;
     }
@@ -227,7 +229,7 @@ export default function useLocalTable<Model = any>({
     filters,
     filterValues,
   ]);
-  const onDateChange = useCallback((value, dataKey) => {
+  const onDateChange = useCallback((value: DateValue['value'], dataKey: DateValue['dataKey']) => {
     const onChange = flow(find(propEq('dataKey', dataKey)), prop('onDateChange'))(datePickers);
     if (isFunction(onChange)) {
       onChange(value);
@@ -244,7 +246,7 @@ export default function useLocalTable<Model = any>({
     datePickers,
     dateValues,
   ]);
-  const onCreatorSubmit = useCallback(async (values, formInstance) => {
+  const onCreatorSubmit = useCallback(async (values: CreatorValues, formInstance: FormInstance<CreatorValues>) => {
     if (creatorSubmit) {
       await creatorSubmit(values, formInstance);
     }
@@ -255,7 +257,7 @@ export default function useLocalTable<Model = any>({
   }, [
     creatorSubmit,
   ]);
-  const onEditorSubmit = useCallback(async (values, formInstance) => {
+  const onEditorSubmit = useCallback(async (values: EditorValues, formInstance: FormInstance<EditorValues>) => {
     if (editorSubmit) {
       await editorSubmit({ ...values, id: (editItem as any).id as ID }, formInstance, editItem);
     }
@@ -397,7 +399,7 @@ export default function useLocalTable<Model = any>({
       details={details && {
         ...details,
         dataSource: getDetailsDataSource
-          ? getDataSource(detailsItem)
+          ? getDetailsDataSource(detailsItem!)
           : detailsItem,
         visible: detailsVisible,
         close: closeDetails,

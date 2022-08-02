@@ -15,7 +15,7 @@ export interface ImagesProps {
   className?: string
 }
 
-export default ({ images, space = 20, width, imageClassName, className }: ImagesProps) => (
+const result = ({ images, space = 20, width, imageClassName, className }: ImagesProps) => (
   <div className={className} style={{ marginRight: -space }}>
     <PreviewGroup>
       {mapWithIndex((image: string, index: number) => (
@@ -30,3 +30,7 @@ export default ({ images, space = 20, width, imageClassName, className }: Images
     </PreviewGroup>
   </div>
 );
+
+result.displayName = __filename;
+
+export default result;

@@ -5,6 +5,7 @@ import React, {
 import {
   Form,
   Button,
+  FormInstance,
 } from 'antd';
 import {
   func,
@@ -13,7 +14,6 @@ import {
   array,
 } from 'prop-types';
 import { map } from 'lodash/fp';
-import type { FormInstance } from 'antd/es/form';
 import { useI18N } from 'relient/i18n';
 import useForm, { OnSubmit } from '../../hooks/use-form';
 import Error from './error';
@@ -21,21 +21,21 @@ import Field, { FieldProps } from './field';
 
 const { Item } = Form;
 
-export interface FormProps {
-  initialValues?: any
-  onSubmit: OnSubmit
+export interface FormProps<Values, SubmitReturn> {
+  initialValues?: Partial<Values>
+  onSubmit: OnSubmit<Values, SubmitReturn>
   fields?: FieldProps[]
-  getFields?: (form: FormInstance) => FieldProps[]
+  getFields?: (form: FormInstance<Values>) => FieldProps[]
   checkEditing?: boolean
 }
 
-const result = ({
+function result<Values, SubmitReturn>({
   initialValues,
   onSubmit,
   fields,
   getFields,
   checkEditing,
-}: FormProps) => {
+}: FormProps<Values, SubmitReturn>) {
   const {
     submit,
     submitting,
@@ -82,7 +82,7 @@ const result = ({
       </Item>
     </Form>
   );
-};
+}
 
 result.propTypes = {
   onSubmit: func.isRequired,

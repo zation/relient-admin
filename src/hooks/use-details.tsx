@@ -1,17 +1,17 @@
 import { useCallback, useState } from 'react';
 
-export interface UseDetails<Item = any> {
+export interface UseDetails<Item> {
   detailsOnOpen?: (item: Item) => void
   detailsOnClose?: () => void
 }
 
-export default ({
+export default function useDetails<Item>({
   detailsOnOpen,
   detailsOnClose,
-}: UseDetails = {}) => {
+}: UseDetails<Item> = {}) {
   const [detailsVisible, setDetailsVisible] = useState(false);
-  const [detailsItem, setDetailsItem] = useState(null);
-  const openDetails = useCallback((item) => {
+  const [detailsItem, setDetailsItem] = useState<Item | null>(null);
+  const openDetails = useCallback((item: Item) => {
     setDetailsVisible(true);
     setDetailsItem(item);
     if (detailsOnOpen) {
@@ -31,4 +31,4 @@ export default ({
     openDetails,
     closeDetails,
   };
-};
+}

@@ -1,7 +1,13 @@
-import React, { useCallback, useContext, useState } from 'react';
+import React, {
+  ChangeEventHandler,
+  useCallback,
+  useContext,
+  useState,
+} from 'react';
 import { func, string, bool } from 'prop-types';
-import { ConfigContext } from 'antd/lib/config-provider';
-import { Input, Button } from 'antd';
+import { Input, Button, ConfigProvider } from 'antd';
+
+const { ConfigContext } = ConfigProvider;
 
 export interface TableSearchProps {
   width?: number
@@ -22,7 +28,7 @@ const result = ({
 
   const [inputValue, setInputValue] = useState('');
 
-  const onInputChange = useCallback(({ target: { value } }) => {
+  const onInputChange: ChangeEventHandler<HTMLInputElement> = useCallback(({ target: { value } }) => {
     setInputValue(value);
     if (!showButtons) {
       onConfirm(value);

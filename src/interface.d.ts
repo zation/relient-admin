@@ -1,13 +1,18 @@
-import type { ReactNode, Key } from 'react';
+import type {
+  ReactNode,
+  Key,
+} from 'react';
 import type { FormInstance } from 'antd/es/form';
+import { Moment } from 'moment';
 import type { FormPopProps } from './components/form/pop';
 import type { DetailsProps } from './components/details';
+import type { FilterItem } from './components/table-header';
 
 export interface Style {
   [key: string]: string | number | null | undefined
 }
 
-export interface Option {
+export interface QueryField {
   dataKey?: string | number
   value?: string | number | null
   label?: string
@@ -17,16 +22,9 @@ export interface OnFilter<Model> {
   (item: Model, dataKey: string, value: Key[] | Key | undefined | null): boolean
 }
 
-export interface Filter<Model> {
-  dataKey: string
-  label?: string
-  options: Option[]
-  mode?: 'multiple' | 'tags'
-  defaultValue: Key[] | Key | undefined | null
-  dropdownMatchSelectWidth?: boolean
+export interface Filter<Model> extends FilterItem {
   onFilterChange?: (value: string) => void
   onFilter?: OnFilter<Model>
-  disabled?: boolean
 }
 
 export interface FilterValue {
@@ -48,21 +46,34 @@ export interface PaginationData {
   ids: ID[]
 }
 
+export interface DatePicker {
+  dataKey: string,
+  label: string,
+  onDateChange: (value: [string, string]) => void
+  disabledDate: (date: Moment) => boolean
+}
+
 export interface ShowTotal {
   (total: number, range: [number, number]): ReactNode
 }
 
-export interface Creator extends FormPopProps {
+export interface Creator<Values, SubmitReturn> extends FormPopProps<Values, SubmitReturn> {
   onOpen?: () => void
   showSuccessMessage?: boolean
 }
 
-export interface Editor<Item> extends Omit<FormPopProps, 'onSubmit'> {
+export interface Editor<Item, Values, SubmitReturn> extends FormPopProps {
   onOpen?: () => void
   shouldReload?: boolean
-  getInitialValues?: (item: Item | null | undefined) => any
-  onSubmit: (valuesWithId: any, form: FormInstance, item: Item | null | undefined) => Promise<any>
+  getInitialValues?: (item: Item | null | undefined) => Partial<Values>
+  onSubmit: (
+    valuesWithId: Values & { id: ID },
+    form: FormInstance<Values>,
+    item: Item | null | undefined,
+  ) => Promise<SubmitReturn>
   showSuccessMessage?: boolean
+  // NOTICE: without onClose will cause ts error in api table and local table
+  onClose: () => void
 }
 
 export interface Details<Item> extends DetailsProps {

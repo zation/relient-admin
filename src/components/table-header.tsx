@@ -1,8 +1,8 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, {
-  ChangeEvent,
   Key,
   MouseEventHandler,
+  ReactNode,
 } from 'react';
 import {
   func,
@@ -14,6 +14,8 @@ import {
   Button,
   Select,
   DatePicker,
+  SelectProps,
+  ButtonProps,
 } from 'antd';
 import {
   map,
@@ -22,33 +24,20 @@ import {
   prop,
 } from 'lodash/fp';
 import { useI18N } from 'relient/i18n';
-import type { OptionType } from 'antd/es/select';
-import type { ButtonType, ButtonSize } from 'antd/es/button';
-import type { SearchProps } from 'antd/es/input';
-import type {
-  OptionData,
-  OptionGroupData,
-} from 'rc-select/es/interface';
+import type { SearchProps } from 'antd/lib/input';
 import type { Moment } from 'moment';
 import type { DetailsProps } from './details';
-import Link from './link';
 import FormPop, { FormPopProps } from './form/pop';
 import Details from './details';
-import type { Option as QueryField } from '../interface';
+import type { QueryField } from '../interface';
 
 const { Search } = Input;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
-export interface FilterItem {
-  label?: string
-  placeholder?: string
-  options: OptionType[]
+export interface FilterItem extends SelectProps {
   dataKey: string
-  disabled?: boolean
-  dropdownMatchSelectWidth?: boolean
-  value?: string | number
-  mode?: 'multiple' | 'tags'
+  label?: string
 }
 
 export interface DatePickerItem {
@@ -59,16 +48,16 @@ export interface DatePickerItem {
 
 export interface CreateButton {
   text: string
-  link?: string
+  element?: ReactNode
   onClick: MouseEventHandler<HTMLElement>
-  size?: ButtonSize
-  type?: ButtonType
+  size?: ButtonProps['size']
+  type?: ButtonProps['type']
 }
 
 export interface TableHeaderProps {
   query?: {
-    onFieldChange: (value: any, option: OptionData | OptionGroupData) => void
-    onValueChange: (event?: ChangeEvent<HTMLInputElement>) => void
+    onFieldChange: SelectProps['onSelect'],
+    onValueChange: SearchProps['onChange']
     field?: string
     value?: string
     width?: number
@@ -116,16 +105,7 @@ const result = ({
       {editor && <FormPop {...editor} />}
 
       <div>
-        {createButton && (createButton.link ? (
-          <Link to={createButton.link}>
-            <Button
-              type={createButton.type || 'primary'}
-              size={createButton.size || 'large'}
-            >
-              {createButton.text}
-            </Button>
-          </Link>
-        ) : (
+        {createButton && (createButton.element ? createButton.element : (
           <Button
             type={createButton.type || 'primary'}
             size={createButton.size || 'large'}
@@ -137,35 +117,17 @@ const result = ({
       </div>
 
       <div className="relient-admin-table-header-operations">
-        {filter && map(({
+        {filter && map<FilterItem, ReactNode>(({
           label,
-          options,
-          placeholder,
           dataKey,
-          value,
-          dropdownMatchSelectWidth = false,
-          mode,
-        }: FilterItem) => (
+          ...others
+        }) => (
           <div key={dataKey}>
             <span className="relient-admin-table-header-operation-label">{label}</span>
             <Select
-              mode={mode}
-              onSelect={(selectedValue) => filter.onSelect(selectedValue, dataKey)}
-              placeholder={placeholder}
-              value={value}
-              dropdownMatchSelectWidth={dropdownMatchSelectWidth}
-            >
-              {map(({ label: optionLabel, value: optionValue, disabled, className: optionClassName }) => (
-                <Option
-                  value={optionValue}
-                  key={optionValue}
-                  disabled={disabled}
-                  className={optionClassName}
-                >
-                  {optionLabel}
-                </Option>
-              ))(options)}
-            </Select>
+              onSelect={(selectedValue: typeof others.value) => filter.onSelect(selectedValue, dataKey)}
+              {...others}
+            />
           </div>
         ))(filter.items)}
 

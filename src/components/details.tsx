@@ -53,7 +53,6 @@ export interface DetailsProps<DataSource = any> {
   editable?: boolean
   openEditor?: (dataSource?: DataSource) => void
   close?: () => void
-  id: string
   defaultDisplay: string
 }
 
@@ -71,7 +70,6 @@ const result = ({
   children,
   level,
   levelMove,
-  id = 'details',
   defaultDisplay = '-',
 }: DetailsProps) => {
   const i18n = useI18N();
@@ -103,11 +101,8 @@ const result = ({
       onClose={close}
       width={528}
       closable={false}
-      // @ts-ignore
       level={level}
-      // @ts-ignore
       levelMove={levelMove}
-      id={id}
     >
       <table className="relient-admin-details-table">
         <tbody>

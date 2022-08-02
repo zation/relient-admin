@@ -15,20 +15,21 @@ import {
   eq,
 } from 'lodash/fp';
 import type { FormInstance } from 'antd/es/form';
+import type { FieldError } from 'rc-field-form/es/interface';
 import useIsFormEditing from './use-is-form-editing';
 
 const { useForm } = Form;
 
-export interface OnSubmit {
-  (values: any, form: FormInstance): Promise<any>
+export interface OnSubmit<Values, SubmitReturn> {
+  (values: Values, form: FormInstance): Promise<SubmitReturn>
 }
 
-export interface Submit {
-  (values: any): any
+export interface Submit<Values, SubmitReturn> {
+  (values: Values): Promise<SubmitReturn | null>
 }
 
-interface Result {
-  submit: Submit
+interface Result<Values, SubmitReturn> {
+  submit: Submit<Values, SubmitReturn>
   submitting: boolean | undefined
   submitSucceeded: boolean
   submitFailed: boolean
@@ -41,15 +42,15 @@ interface Result {
   form: FormInstance
 }
 
-const checkValid = every(flow(prop('errors'), size, eq(0)));
+const checkValid = every<FieldError>(flow(prop('errors'), size, eq(0)));
 
-export default (
-  onSubmit: OnSubmit,
+export default function useFormHook<Values, SubmitReturn>(
+  onSubmit: OnSubmit<Values, SubmitReturn>,
   deps = [],
   checkEditing = false,
   visible = false,
-): Result => {
-  const [form] = useForm();
+): Result<Values, SubmitReturn> {
+  const [form] = useForm<Values>();
   const [dirty, setDirty] = useState(form.isFieldsTouched());
   const [valid, setValid] = useState(checkValid(form.getFieldsError()));
   const onFieldsChange = useCallback(() => {
@@ -76,13 +77,15 @@ export default (
       } catch (e) {
         console.warn('Submission error:', e);
         setSubmitting(false);
-        setDefaultError(find(propEq('field', 'default'))(e));
+        if (e instanceof Array) {
+          setDefaultError(find(propEq('field', 'default'))(e));
+        }
         setSubmitSucceeded(false);
         setSubmitFailed(true);
         if (isArray(e) && form) {
           form.setFields(map(({ field, message }) => ({ name: field, errors: [message] }))(e));
         }
-        return e;
+        return null;
       }
     }, [onSubmit, form, ...deps]),
     submitting,
@@ -96,4 +99,4 @@ export default (
     invalid: !valid,
     form,
   };
-};
+}

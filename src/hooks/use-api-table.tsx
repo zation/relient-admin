@@ -2,8 +2,8 @@ import React, {
   useState,
   useCallback,
   useEffect,
+  ChangeEventHandler,
 } from 'react';
-import { useSelector } from 'react-redux';
 import {
   concat,
   debounce,
@@ -22,13 +22,19 @@ import {
   join,
   isArray,
 } from 'lodash/fp';
-import { message } from 'antd';
+import {
+  FormInstance,
+  message,
+  PaginationProps,
+} from 'antd';
 import { useI18N } from 'relient/i18n';
-import { Moment } from 'moment';
-import TableHeader, { CreateButton } from '../components/table-header';
+import TableHeader, {
+  CreateButton,
+  FilterItem,
+} from '../components/table-header';
 import useBasicTable, { isFilterValuesSame } from './use-basic-table';
 import type {
-  Option,
+  QueryField,
   Filter,
   FilterValue,
   DateValue,
@@ -38,6 +44,7 @@ import type {
   Editor,
   PaginationData,
   ID,
+  DatePicker,
 } from '../interface';
 
 const omitEmpty = omitBy((val) => (isNil(val) || val === ''));
@@ -115,11 +122,11 @@ async function onFetch<Modal>(
 
 const onQueryFetch = debounce(500, onFetch);
 
-export interface UseApiTableParams<Model> {
+export interface UseApiTableParams<Model, CreatorValues, EditorValues, CreatorReturn, EditorReturn> {
   query?: {
     onFieldChange?: (fieldKey: string) => void
     onValueChange?: (value?: string) => void
-    fields?: Option[]
+    fields?: QueryField[]
     width?: number
     placeholder?: string
     fussyKey?: string
@@ -128,25 +135,21 @@ export interface UseApiTableParams<Model> {
   showReset?: boolean
   filters?: Filter<Model>[]
   createButton?: CreateButton
-  datePickers?: {
-    dataKey: string,
-    label: string,
-    onDateChange: (value: [string, string]) => void
-    disabledDate: (date: Moment) => boolean
-  }[]
-  getDataSource: (state: any) => (ids: ID[]) => any
-  pagination?: {
-    pageSize?: number
-    showTotal?: ShowTotal
-  }
+  datePickers?: DatePicker[]
+  getDataSource: (ids: ID[]) => Model[]
+  pagination?: PaginationProps
   paginationInitialData: PaginationData
   readAction: ReadAction<Model>
-  creator?: Creator
-  editor?: Editor<Model>
+  creator?: Creator<CreatorValues, CreatorReturn>
+  editor?: Editor<Model, EditorValues, EditorReturn>
   details?: Details<Model>
 }
 
-export default function useApiTable<Model = any>({
+export default function useApiTable<Model = any,
+  CreatorValues = Partial<Model>,
+  EditorValues = Partial<Model>,
+  CreatorReturn = Partial<Model>,
+  EditorReturn = Partial<Model>>({
   query,
   showReset,
   filters,
@@ -165,7 +168,7 @@ export default function useApiTable<Model = any>({
   creator,
   editor,
   details,
-}: UseApiTableParams<Model>) {
+}: UseApiTableParams<Model, CreatorValues, EditorValues, CreatorReturn, EditorReturn>) {
   const {
     onFieldChange,
     onValueChange,
@@ -204,7 +207,7 @@ export default function useApiTable<Model = any>({
       setPaginationData(paginationInitialData);
     }
   }, [initialSize, initialCurrent, initialTotal, join(',')(initialIds)]);
-  const data = useSelector((state) => getDataSource(state)(paginationData.ids));
+  const dataSource = getDataSource(paginationData.ids);
   const [isLoading, setIsLoading] = useState(false);
   const i18n = useI18N();
 
@@ -242,7 +245,7 @@ export default function useApiTable<Model = any>({
     detailsOnOpen,
   });
 
-  const onQueryFieldChange = useCallback(async (fieldKey) => {
+  const onQueryFieldChange = useCallback(async (fieldKey: string) => {
     setQueryField(fieldKey);
     setQueryValue('');
     if (isFunction(onFieldChange)) {
@@ -300,7 +303,7 @@ export default function useApiTable<Model = any>({
     setIsLoading,
     fussyKey,
   ]);
-  const onQueryValueChange = useCallback(({ target: { value } }) => {
+  const onQueryValueChange: ChangeEventHandler<HTMLInputElement> = useCallback(({ target: { value } }) => {
     if (isFunction(onValueChange)) {
       onValueChange(value);
     }
@@ -330,7 +333,7 @@ export default function useApiTable<Model = any>({
     fussyKey,
     searchWhenValueChange,
   ]);
-  const onFilterValueChange = useCallback(async (value, dataKey) => {
+  const onFilterValueChange = useCallback(async (value: FilterValue['value'], dataKey: FilterValue['dataKey']) => {
     if (isFilterValuesSame(value, dataKey, filterValues)) {
       return null;
     }
@@ -369,20 +372,20 @@ export default function useApiTable<Model = any>({
     fussyKey,
     filterValues,
   ]);
-  const onDateChange = useCallback(async (value, dataKey) => {
+  const onDateChange = useCallback(async (value: DateValue['value'], dataKey: DateValue['dataKey']) => {
     if (flow(
-      find(propEq('dataKey')(dataKey)),
+      find<FilterValue>(propEq('dataKey')(dataKey)),
       propEq('value', value),
     )(filterValues)) {
       return null;
     }
-    const onChange = flow(find(propEq('dataKey', dataKey)), prop('onDateChange'))(datePickers);
+    const onChange = flow(find<DatePicker>(propEq('dataKey', dataKey)), prop('onDateChange'))(datePickers);
     if (isFunction(onChange)) {
       onChange(value);
     }
     const newDates = flow(
-      reject(propEq('dataKey')(dataKey)),
-      concat({
+      reject<DateValue>(propEq('dataKey')(dataKey)),
+      concat<DateValue>({
         dataKey,
         value,
       }),
@@ -434,7 +437,7 @@ export default function useApiTable<Model = any>({
     reset,
     fussyKey,
   ]);
-  const onPageChange = useCallback((page, pageSize) => {
+  const onPageChange = useCallback((page: number, pageSize: number) => {
     const { current, size } = paginationData;
     if (current !== page - 1 || size !== pageSize) {
       onFetch(
@@ -481,7 +484,7 @@ export default function useApiTable<Model = any>({
     paginationData.current,
     fussyKey,
   ]);
-  const onCreatorSubmit = useCallback(async (values, formInstance) => {
+  const onCreatorSubmit = useCallback(async (values: CreatorValues, formInstance: FormInstance<CreatorValues>) => {
     if (creatorSubmit) {
       await creatorSubmit(values, formInstance);
     }
@@ -512,7 +515,7 @@ export default function useApiTable<Model = any>({
     dateValues,
     fussyKey,
   ]);
-  const onEditorSubmit = useCallback(async (values, formInstance) => {
+  const onEditorSubmit = useCallback(async (values: EditorValues, formInstance: FormInstance<EditorValues>) => {
     if (editorSubmit) {
       await editorSubmit({ ...values, id: (editItem as any)?.id }, formInstance, editItem);
     }
@@ -531,7 +534,7 @@ export default function useApiTable<Model = any>({
   ]);
 
   return {
-    data,
+    dataSource,
     openCreator,
     openEditor,
     openDetails,
@@ -563,13 +566,13 @@ export default function useApiTable<Model = any>({
       }}
       createButton={createButton}
       filter={{
-        items: map(({
+        items: map<Filter<Model>, FilterItem>(({
           dataKey,
           options,
           ...others
         }) => ({
           dataKey,
-          value: flow(find(propEq('dataKey')(dataKey)), prop('value'))(filterValues),
+          value: flow(find<FilterValue>(propEq('dataKey')(dataKey)), prop<FilterValue, 'value'>('value'))(filterValues),
           options,
           ...others,
         }))(filters),
@@ -586,7 +589,7 @@ export default function useApiTable<Model = any>({
       details={details && {
         ...details,
         dataSource: getDetailsDataSource
-          ? getDataSource(detailsItem)
+          ? getDetailsDataSource(detailsItem!)
           : detailsItem,
         visible: detailsVisible,
         close: closeDetails,
