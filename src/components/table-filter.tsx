@@ -1,7 +1,12 @@
 import React, { useCallback, useContext, Key } from 'react';
 import { array, string, func, bool } from 'prop-types';
 import { ConfigContext } from 'antd/lib/config-provider';
-import { Menu, Button, Checkbox, Radio } from 'antd';
+import {
+  Menu,
+  Button,
+  Checkbox,
+  Radio,
+} from 'antd';
 import { map, toString } from 'lodash/fp';
 import type { ColumnFilterItem } from 'antd/es/table/interface';
 
@@ -66,7 +71,7 @@ const result = ({
   showButtons = true,
 }: TableFilterProps) => {
   const { locale, getPrefixCls } = useContext(ConfigContext);
-  const select = useCallback(({ selectedKeys: newSelectedKeys }) => {
+  const select = useCallback(({ selectedKeys: newSelectedKeys }: { selectedKeys: string[] }) => {
     setSelectedKeys(newSelectedKeys);
     if (onSelect) {
       onSelect(newSelectedKeys);

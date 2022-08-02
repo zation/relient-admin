@@ -14,13 +14,13 @@ import {
   ModalProps,
 } from 'antd';
 import {
-  func,
-  bool,
-  array,
-  object,
-  number,
-  oneOfType,
-  elementType,
+  // func,
+  // bool,
+  // array,
+  // object,
+  // number,
+  // oneOfType,
+  // elementType,
   ReactComponentLike,
 } from 'prop-types';
 import { map } from 'lodash/fp';
@@ -113,7 +113,7 @@ function result<Values, SubmitReturn>({
     </div>
   );
   const children = (
-    <Form initialValues={initialValues} form={form} onFieldsChange={onFieldsChange} onFinish={submit}>
+    <Form<Values> initialValues={initialValues} form={form} onFieldsChange={onFieldsChange} onFinish={submit}>
       <Error error={defaultError} />
 
       {map(
@@ -151,21 +151,22 @@ function result<Values, SubmitReturn>({
   );
 }
 
-result.propTypes = {
-  onSubmit: func.isRequired,
-  initialValues: object,
-  fields: array,
-  getFields: func,
-  layout: object,
-  checkEditing: bool,
-  visible: bool.isRequired,
-  onCancel: func,
-  width: number,
-  component: elementType.isRequired,
-  footer: func,
-  levelMove: oneOfType([number, array, func]),
-  onClose: func.isRequired,
-};
+// NOTICE: conflict with ts
+// result.propTypes = {
+//   onSubmit: func.isRequired,
+//   initialValues: object,
+//   fields: array,
+//   getFields: func,
+//   layout: object,
+//   checkEditing: bool,
+//   visible: bool.isRequired,
+//   onCancel: func,
+//   width: number,
+//   component: elementType.isRequired,
+//   footer: func,
+//   levelMove: oneOfType([number, array, func]),
+//   onClose: func.isRequired,
+// };
 
 result.displayName = __filename;
 

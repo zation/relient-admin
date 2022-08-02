@@ -76,7 +76,7 @@ export default function useBasicTable<Model>({
   const [filterValues, setFilterValues] = useState<FilterValue[]>(defaultFilterValues);
   const [creatorVisible, setCreatorVisible] = useState(false);
   const [editorVisible, setEditorVisible] = useState(false);
-  const [editItem, setEditItem] = useState<Model | null>(null);
+  const [editItem, setEditItem] = useState<Model | undefined>();
 
   const openCreator = useCallback(() => {
     setCreatorVisible(true);
@@ -99,7 +99,7 @@ export default function useBasicTable<Model>({
   }, [editorOnOpen]);
   const closeEditor = useCallback(() => {
     setEditorVisible(false);
-    setEditItem(null);
+    setEditItem(undefined);
     if (editorOnClose) {
       editorOnClose();
     }
@@ -111,7 +111,7 @@ export default function useBasicTable<Model>({
     setFilterValues(defaultFilterValues);
     setCreatorVisible(false);
     setEditorVisible(false);
-    setEditItem(null);
+    setEditItem(undefined);
   }, [
     defaultQueryField,
     defaultFilterValues,

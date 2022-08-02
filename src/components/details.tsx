@@ -1,17 +1,20 @@
-import { Button, Drawer } from 'antd';
-import React, { ReactNode } from 'react';
 import {
-  node,
-  bool,
-  object,
-  func,
-  arrayOf,
-  shape,
-  string,
-  oneOfType,
-  array,
-  number,
-} from 'prop-types';
+  Button,
+  Drawer,
+  DrawerProps,
+} from 'antd';
+import React, { ReactNode } from 'react';
+// import {
+//   node,
+//   bool,
+//   object,
+//   func,
+//   arrayOf,
+//   shape,
+//   string,
+//   oneOfType,
+//   number,
+// } from 'prop-types';
 import {
   reduce,
   flow,
@@ -26,37 +29,36 @@ import {
 import { useI18N } from 'relient/i18n';
 import { Style } from '../interface';
 
-type LevelMove = number | [number, number];
-export interface DetailsItem<DataSource = any> {
+export interface DetailsItem<Model> {
   element?: ReactNode
   title?: string
   dataIndex?: string | string[]
-  render?: (value: any, dataSource: DataSource) => ReactNode
-  display?: boolean
+  render?: (value: any, dataSource?: Model) => ReactNode
+  display?: boolean | ((item: any, dataSource?: Model) => boolean)
   dataStyle?: Style
   titleStyle?: Style
   dark?: boolean
   key?: string
 }
 
-export interface DetailsProps<DataSource = any> {
+export interface DetailsProps<Model> {
   visible: boolean
-  title?: string
-  dataSource?: DataSource
-  items: DetailsItem<DataSource>[]
+  title?: ReactNode
+  dataSource?: Model
+  items: DetailsItem<Model>[]
   itemTitleStyle?: Style
   itemDataStyle?: Style
   editButtonText?: string
   children?: ReactNode
-  level?: string | string[] | null
-  levelMove?: LevelMove | ((event: { target: HTMLElement; open: boolean }) => LevelMove)
+  level?: DrawerProps['level']
+  levelMove?: DrawerProps['levelMove']
   editable?: boolean
-  openEditor?: (dataSource?: DataSource) => void
+  openEditor?: (dataSource?: Model) => void
   close?: () => void
-  defaultDisplay: string
+  defaultDisplay?: string
 }
 
-const result = ({
+const Details = function <Model>({
   visible,
   title,
   dataSource,
@@ -71,7 +73,7 @@ const result = ({
   level,
   levelMove,
   defaultDisplay = '-',
-}: DetailsProps) => {
+}: DetailsProps<Model>) {
   const i18n = useI18N();
 
   return (
@@ -107,11 +109,11 @@ const result = ({
       <table className="relient-admin-details-table">
         <tbody>
           {flow(
-            filter(({ dataIndex, display }) => display === true
+            filter<DetailsItem<Model>>(({ dataIndex, display }) => display === true
               || isUndefined(display)
               || (isFunction(display)
                 && display(dataIndex ? prop(dataIndex)(dataSource) : dataSource, dataSource))),
-            reduce((newItems: DetailsItem[], item: DetailsItem) => {
+            reduce((newItems: DetailsItem<Model>[], item: DetailsItem<Model>) => {
               if (flow(last, prop('dark'))(newItems) || item.element) {
                 return [...newItems, item];
               }
@@ -178,36 +180,36 @@ const result = ({
   );
 };
 
-result.propTypes = {
-  title: node,
-  dataSource: object,
-  visible: bool.isRequired,
-  openEditor: func,
-  editable: bool,
-  close: func.isRequired,
-  items: arrayOf(
-    shape({
-      element: node,
-      title: string,
-      dataIndex: oneOfType([string, array]),
-      render: func,
-      display: bool,
-      dataStyle: object,
-      titleStyle: object,
-      dark: bool,
-      key: string,
-    }),
-  ).isRequired,
-  itemTitleStyle: object,
-  itemDataStyle: object,
-  editButtonText: string,
-  children: node,
-  level: oneOfType([string, arrayOf(string)]),
-  levelMove: oneOfType([number, arrayOf(number), func]),
-  id: string,
-  defaultDisplay: string,
-};
+// NOTICE: conflict with ts
+// Details.propTypes = {
+//   visible: bool.isRequired,
+//   title: node,
+//   dataSource: object,
+//   items: arrayOf(
+//     shape({
+//       element: node,
+//       title: string,
+//       dataIndex: oneOfType([string, arrayOf(string)]),
+//       render: func,
+//       display: oneOfType([bool, func]),
+//       dataStyle: object,
+//       titleStyle: object,
+//       dark: bool,
+//       key: string,
+//     }),
+//   ).isRequired,
+//   itemTitleStyle: object,
+//   itemDataStyle: object,
+//   editButtonText: string,
+//   children: node,
+//   level: oneOfType([string, arrayOf(string)]),
+//   levelMove: oneOfType([number, arrayOf(number), func]),
+//   editable: bool,
+//   openEditor: func,
+//   close: func.isRequired,
+//   defaultDisplay: string,
+// };
 
-result.displayName = __filename;
+Details.displayName = __filename;
 
-export default result;
+export default Details;

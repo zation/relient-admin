@@ -76,7 +76,7 @@ export interface Editor<Item, Values, SubmitReturn> extends FormPopProps {
   onClose: () => void
 }
 
-export interface Details<Item> extends DetailsProps {
+export interface Details<Item> extends DetailsProps<Item> {
   getDataSource?: (detailsItems: Item) => any
   onOpen?: (detailsItems: Item) => void
   onClose?: () => void

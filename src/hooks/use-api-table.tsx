@@ -485,9 +485,7 @@ export default function useApiTable<Model = any,
     fussyKey,
   ]);
   const onCreatorSubmit = useCallback(async (values: CreatorValues, formInstance: FormInstance<CreatorValues>) => {
-    if (creatorSubmit) {
-      await creatorSubmit(values, formInstance);
-    }
+    const submitReturn = await creatorSubmit!(values, formInstance);
     await onFetch(
       queryValue,
       queryField,
@@ -504,6 +502,7 @@ export default function useApiTable<Model = any,
     if (creatorShowSuccessMessage !== false) {
       message.success(i18n('createSuccess'));
     }
+    return submitReturn;
   }, [
     creatorSubmit,
     queryValue,
@@ -516,9 +515,7 @@ export default function useApiTable<Model = any,
     fussyKey,
   ]);
   const onEditorSubmit = useCallback(async (values: EditorValues, formInstance: FormInstance<EditorValues>) => {
-    if (editorSubmit) {
-      await editorSubmit({ ...values, id: (editItem as any)?.id }, formInstance, editItem);
-    }
+    const submitReturn = await editorSubmit!({ ...values, id: (editItem as any)?.id }, formInstance, editItem);
     if (shouldReload) {
       await onReload();
     }
@@ -526,6 +523,7 @@ export default function useApiTable<Model = any,
     if (editorShowSuccessMessage !== false) {
       message.success(i18n('editSuccess'));
     }
+    return submitReturn;
   }, [
     editorSubmit,
     editItem,

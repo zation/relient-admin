@@ -247,13 +247,12 @@ export default function useLocalTable<Model = any,
     dateValues,
   ]);
   const onCreatorSubmit = useCallback(async (values: CreatorValues, formInstance: FormInstance<CreatorValues>) => {
-    if (creatorSubmit) {
-      await creatorSubmit(values, formInstance);
-    }
+    const submitReturn = await creatorSubmit!(values, formInstance);
     closeCreator();
     if (creatorShowSuccessMessage !== false) {
       message.success(i18n('createSuccess'));
     }
+    return submitReturn;
   }, [
     creatorSubmit,
   ]);

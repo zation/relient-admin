@@ -54,7 +54,7 @@ export interface CreateButton {
   type?: ButtonProps['type']
 }
 
-export interface TableHeaderProps {
+export interface TableHeaderProps<Model, CreatorValues, CreatorSubmitReturn, EditorValues, EditorSubmitReturn> {
   query?: {
     onFieldChange: SelectProps['onSelect'],
     onValueChange: SearchProps['onChange']
@@ -76,14 +76,14 @@ export interface TableHeaderProps {
     items: DatePickerItem[]
     onSelect: (selectedValue: [string, string], dataKey: string) => void
   }
-  details?: DetailsProps
-  creator?: FormPopProps
-  editor?: FormPopProps
+  details?: DetailsProps<Model>
+  creator?: FormPopProps<CreatorValues, CreatorSubmitReturn>
+  editor?: FormPopProps<EditorValues, EditorSubmitReturn>
   openCreator?: () => void
   openEditor?: (dataSource?: any) => void
 }
 
-const result = ({
+function TableHeader<Model, CreatorValues, CreatorSubmitReturn, EditorValues, EditorSubmitReturn>({
   query,
   createButton,
   filter,
@@ -93,16 +93,16 @@ const result = ({
   creator,
   openCreator,
   editor,
-}: TableHeaderProps) => {
+}: TableHeaderProps<Model, CreatorValues, CreatorSubmitReturn, EditorValues, EditorSubmitReturn>) {
   const i18n = useI18N();
 
   return (
     <div className="relient-admin-table-header-root">
-      {details && <Details {...details} />}
+      {details && <Details<Model> {...details} />}
 
-      {creator && <FormPop {...creator} />}
+      {creator && <FormPop<CreatorValues, CreatorSubmitReturn> {...creator} />}
 
-      {editor && <FormPop {...editor} />}
+      {editor && <FormPop<EditorValues, EditorSubmitReturn> {...editor} />}
 
       <div>
         {createButton && (createButton.element ? createButton.element : (
@@ -182,9 +182,9 @@ const result = ({
       </div>
     </div>
   );
-};
+}
 
-result.propTypes = {
+TableHeader.propTypes = {
   query: object,
   createButton: object,
   filter: object,
@@ -205,6 +205,6 @@ result.propTypes = {
   reset: func,
 };
 
-result.displayName = __filename;
+TableHeader.displayName = __filename;
 
-export default result;
+export default TableHeader;

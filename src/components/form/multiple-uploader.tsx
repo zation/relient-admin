@@ -110,7 +110,7 @@ const result = ({
           setPreview({
             visible: true,
             title: file.name || file.url,
-            image: file.url || (await getBase64(file.originFileObj)),
+            image: file.url || (file.originFileObj && await getBase64(file.originFileObj)),
           });
         }}
         onRemove={({ uid }) => onChange(

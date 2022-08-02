@@ -49,7 +49,7 @@ function result<Values, SubmitReturn>({
   const reset = useCallback(() => form.resetFields(), [form.resetFields]);
 
   return (
-    <Form onFinish={submit} form={form} initialValues={initialValues} onFieldsChange={onFieldsChange}>
+    <Form<Values> onFinish={submit} form={form} initialValues={initialValues} onFieldsChange={onFieldsChange}>
       <Error error={defaultError} />
 
       {map(
