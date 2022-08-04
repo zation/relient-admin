@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, {
+  createElement,
   Key,
   MouseEventHandler,
   ReactNode,
@@ -95,14 +96,16 @@ function TableHeader<Model, CreatorValues, CreatorSubmitReturn, EditorValues, Ed
   editor,
 }: TableHeaderProps<Model, CreatorValues, CreatorSubmitReturn, EditorValues, EditorSubmitReturn>) {
   const i18n = useI18N();
+  const CreatorFormPop = FormPop<CreatorValues, CreatorSubmitReturn>;
+  const EditorFormPop = FormPop<EditorValues, EditorSubmitReturn>;
 
   return (
     <div className="relient-admin-table-header-root">
       {details && <Details<Model> {...details} />}
 
-      {creator && <FormPop<CreatorValues, CreatorSubmitReturn> {...creator} />}
+      {creator && createElement(CreatorFormPop, creator)}
 
-      {editor && <FormPop<EditorValues, EditorSubmitReturn> {...editor} />}
+      {editor && createElement(EditorFormPop, editor)}
 
       <div>
         {createButton && (createButton.element ? createButton.element : (

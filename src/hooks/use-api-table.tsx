@@ -463,7 +463,7 @@ export default function useApiTable<Model = any,
     fussyKey,
     paginationData.current,
   ]);
-  const onReload = useCallback(() => onFetch(
+  const onReload = useCallback((page = paginationData.current) => onFetch(
     queryValue,
     queryField,
     readAction,
@@ -471,7 +471,7 @@ export default function useApiTable<Model = any,
     paginationData.size,
     filterValues,
     dateValues,
-    paginationData.current,
+    page,
     setIsLoading,
     fussyKey,
   ), [

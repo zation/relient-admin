@@ -14,16 +14,18 @@ import {
   ModalProps,
 } from 'antd';
 import {
-  // func,
-  // bool,
-  // array,
-  // object,
-  // number,
-  // oneOfType,
-  // elementType,
+  func,
+  bool,
+  array,
+  object,
+  number,
+  elementType,
   ReactComponentLike,
+  any,
 } from 'prop-types';
-import { map } from 'lodash/fp';
+import {
+  map,
+} from 'lodash/fp';
 import { useI18N } from 'relient/i18n';
 import useForm, {
   OnSubmit,
@@ -51,10 +53,9 @@ export interface FormPopProps<Values, SubmitReturn>
   width?: number
   checkEditing?: boolean
   getFooter?: (params: FooterParams<Values, SubmitReturn>) => ReactNode
-  levelMove?: number
 }
 
-function result<Values, SubmitReturn>({
+function Pop<Values, SubmitReturn>({
   onSubmit,
   visible,
   onClose,
@@ -129,7 +130,6 @@ function result<Values, SubmitReturn>({
         footer={finalFooter}
         onClose={onCloseOrCancel}
         width={width}
-        // @ts-ignore
         levelMove={levelMove}
         {...props}
       >
@@ -152,22 +152,19 @@ function result<Values, SubmitReturn>({
 }
 
 // NOTICE: conflict with ts
-// result.propTypes = {
-//   onSubmit: func.isRequired,
-//   initialValues: object,
-//   fields: array,
-//   getFields: func,
-//   layout: object,
-//   checkEditing: bool,
-//   visible: bool.isRequired,
-//   onCancel: func,
-//   width: number,
-//   component: elementType.isRequired,
-//   footer: func,
-//   levelMove: oneOfType([number, array, func]),
-//   onClose: func.isRequired,
-// };
+Pop.propTypes = {
+  onSubmit: func.isRequired,
+  initialValues: any,
+  fields: array,
+  getFields: func,
+  layout: object,
+  checkEditing: bool,
+  visible: bool.isRequired,
+  onCancel: func,
+  width: number,
+  component: elementType.isRequired,
+  getFooter: func,
+  onClose: func.isRequired,
+};
 
-result.displayName = __filename;
-
-export default result;
+export default Pop;
