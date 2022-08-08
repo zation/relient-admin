@@ -43,7 +43,6 @@ import type {
   DateValue,
   OnFilter,
   DatePicker,
-  ID,
 } from '../interface';
 
 export interface CustomQuery<Model> {
@@ -257,13 +256,12 @@ export default function useLocalTable<Model = any,
     creatorSubmit,
   ]);
   const onEditorSubmit = useCallback(async (values: EditorValues, formInstance: FormInstance<EditorValues>) => {
-    if (editorSubmit) {
-      await editorSubmit({ ...values, id: (editItem as any).id as ID }, formInstance, editItem);
-    }
+    const submitReturn = await editorSubmit!(values, formInstance, editItem!);
     closeEditor();
     if (editorShowSuccessMessage !== false) {
       message.success(i18n('editSuccess'));
     }
+    return submitReturn;
   }, [
     editorSubmit,
     editItem,

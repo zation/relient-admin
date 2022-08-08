@@ -515,7 +515,7 @@ export default function useApiTable<Model = any,
     fussyKey,
   ]);
   const onEditorSubmit = useCallback(async (values: EditorValues, formInstance: FormInstance<EditorValues>) => {
-    const submitReturn = await editorSubmit!({ ...values, id: (editItem as any)?.id }, formInstance, editItem);
+    const submitReturn = await editorSubmit!(values, formInstance, editItem!);
     if (shouldReload) {
       await onReload();
     }

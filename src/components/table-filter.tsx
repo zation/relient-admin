@@ -6,6 +6,7 @@ import {
   Button,
   Checkbox,
   Radio,
+  MenuProps,
 } from 'antd';
 import { map, toString } from 'lodash/fp';
 import type { ColumnFilterItem } from 'antd/es/table/interface';
@@ -71,7 +72,7 @@ const result = ({
   showButtons = true,
 }: TableFilterProps) => {
   const { locale, getPrefixCls } = useContext(ConfigContext);
-  const select = useCallback(({ selectedKeys: newSelectedKeys }: { selectedKeys: string[] }) => {
+  const select = useCallback<NonNullable<MenuProps['onSelect']>>(({ selectedKeys: newSelectedKeys }) => {
     setSelectedKeys(newSelectedKeys);
     if (onSelect) {
       onSelect(newSelectedKeys);

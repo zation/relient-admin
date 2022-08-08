@@ -62,18 +62,16 @@ export interface Creator<Values, SubmitReturn> extends FormPopProps<Values, Subm
   showSuccessMessage?: boolean
 }
 
-export interface Editor<Item, Values, SubmitReturn> extends FormPopProps {
+export interface Editor<Item, Values, SubmitReturn> extends Omit<FormPopProps<Values, SubmitReturn>, 'onSubmit'> {
   onOpen?: () => void
   shouldReload?: boolean
-  getInitialValues?: (item: Item | null | undefined) => Partial<Values>
+  getInitialValues?: (item: Item | undefined) => Partial<Values>
   onSubmit: (
-    valuesWithId: Values & { id: ID },
+    values: Values,
     form: FormInstance<Values>,
-    item: Item | null | undefined,
+    item: Item,
   ) => Promise<SubmitReturn>
   showSuccessMessage?: boolean
-  // NOTICE: without onClose will cause ts error in api table and local table
-  onClose: () => void
 }
 
 export interface Details<Item> extends DetailsProps<Item> {

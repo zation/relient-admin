@@ -96,16 +96,14 @@ function TableHeader<Model, CreatorValues, CreatorSubmitReturn, EditorValues, Ed
   editor,
 }: TableHeaderProps<Model, CreatorValues, CreatorSubmitReturn, EditorValues, EditorSubmitReturn>) {
   const i18n = useI18N();
-  const CreatorFormPop = FormPop<CreatorValues, CreatorSubmitReturn>;
-  const EditorFormPop = FormPop<EditorValues, EditorSubmitReturn>;
 
   return (
     <div className="relient-admin-table-header-root">
-      {details && <Details<Model> {...details} />}
+      {details && createElement((Details<Model>), details)}
 
-      {creator && createElement(CreatorFormPop, creator)}
+      {creator && createElement((FormPop<CreatorValues, CreatorSubmitReturn>), creator)}
 
-      {editor && createElement(EditorFormPop, editor)}
+      {editor && createElement((FormPop<EditorValues, EditorSubmitReturn>), editor)}
 
       <div>
         {createButton && (createButton.element ? createButton.element : (
@@ -128,7 +126,7 @@ function TableHeader<Model, CreatorValues, CreatorSubmitReturn, EditorValues, Ed
           <div key={dataKey}>
             <span className="relient-admin-table-header-operation-label">{label}</span>
             <Select
-              onSelect={(selectedValue: typeof others.value) => filter.onSelect(selectedValue, dataKey)}
+              onSelect={(selectedValue: FilterItem['value']) => filter.onSelect(selectedValue, dataKey)}
               {...others}
             />
           </div>
