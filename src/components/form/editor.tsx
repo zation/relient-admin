@@ -1,8 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading,prefer-promise-reject-errors */
 import React, {
   useContext,
-  useEffect,
-  useState,
+  useMemo,
 } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import type { IProps } from '@tinymce/tinymce-react/lib/es2015/main/ts/components/Editor';
@@ -12,12 +11,45 @@ import {
   string,
   object,
 } from 'prop-types';
-import type {
-  Editor as TinyMCEEditor,
-  EditorManager,
-  EditorOptions,
-} from 'tinymce';
 import { ConfigContext } from 'antd/lib/config-provider';
+import tinymce, {
+  Editor as TinyMCEEditor,
+  EditorOptions,
+} from 'tinymce/tinymce';
+import 'tinymce/models/dom/model';
+import 'tinymce/themes/silver';
+import 'tinymce/icons/default';
+import 'tinymce/skins/ui/oxide/skin.min.css';
+import 'tinymce/plugins/advlist';
+import 'tinymce/plugins/anchor';
+import 'tinymce/plugins/autolink';
+import 'tinymce/plugins/autoresize';
+import 'tinymce/plugins/autosave';
+import 'tinymce/plugins/charmap';
+import 'tinymce/plugins/code';
+import 'tinymce/plugins/codesample';
+import 'tinymce/plugins/directionality';
+import 'tinymce/plugins/emoticons';
+import 'tinymce/plugins/fullscreen';
+import 'tinymce/plugins/help';
+import 'tinymce/plugins/image';
+import 'tinymce/plugins/importcss';
+import 'tinymce/plugins/insertdatetime';
+import 'tinymce/plugins/link';
+import 'tinymce/plugins/lists';
+import 'tinymce/plugins/media';
+import 'tinymce/plugins/nonbreaking';
+import 'tinymce/plugins/pagebreak';
+import 'tinymce/plugins/preview';
+import 'tinymce/plugins/quickbars';
+import 'tinymce/plugins/save';
+import 'tinymce/plugins/searchreplace';
+import 'tinymce/plugins/table';
+import 'tinymce/plugins/template';
+import 'tinymce/plugins/visualblocks';
+import 'tinymce/plugins/visualchars';
+import 'tinymce/plugins/wordcount';
+import 'tinymce/plugins/emoticons/js/emojis';
 // @ts-ignore
 import contentCss from 'tinymce/skins/content/default/content.min.css?inline';
 // @ts-ignore
@@ -25,12 +57,14 @@ import contentUiCss from 'tinymce/skins/ui/oxide/content.min.css?inline';
 
 import zhCN from './editor-zh';
 
-const imageUploadHandler: EditorOptions['images_upload_handler'] = (
+tinymce.addI18n('zh_cn', zhCN);
+
+const getImageUploadHandler = ({ uploadUrl }: { uploadUrl?: string }): EditorOptions['images_upload_handler'] => (
   blobInfo,
   progress,
 ) => new Promise((resolve, reject) => {
   const xhr = new XMLHttpRequest();
-  xhr.open('POST', `${global.location.origin}/api/resource`);
+  xhr.open('POST', uploadUrl || `${window.location.origin}/api/resource`);
 
   xhr.upload.onprogress = (e) => {
     if (progress) {
@@ -80,77 +114,37 @@ const imageUploadHandler: EditorOptions['images_upload_handler'] = (
 
 export interface EditorProps extends Omit<IProps, 'onEditorChange'>, Omit<IEvents, 'onChange'> {
   onChange: (a: string, editor: TinyMCEEditor) => void
+  uploadUrl?: string
 }
 
 const defaultInit = {
   height: 500,
+  skin: false,
   menubar: false,
   plugins: [
-    'advlist autolink lists link image charmap anchor',
-    'searchreplace code fullscreen',
-    'insertdatetime media table code help wordcount',
+    'advlist', 'anchor', 'autolink', 'help', 'image', 'link', 'lists',
+    'searchreplace', 'table', 'wordcount',
   ],
-  toolbar: [
-    'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | '
-    + 'bullist numlist outdent indent | image | removeformat | help',
-  ],
-  skin: false,
+  toolbar: 'undo redo | blocks | '
+    + 'bold italic forecolor | alignleft aligncenter '
+    + 'alignright alignjustify | bullist numlist outdent indent | '
+    + 'image | removeformat | help',
   content_css: false,
-  // eslint-disable-next-line no-underscore-dangle
   content_style: [contentCss, contentUiCss].join('\n'),
-  images_upload_handler: imageUploadHandler,
 };
-
-declare global {
-  interface Window {
-    tinymce: EditorManager
-  }
-}
 
 function RelientEditor({
   onChange,
   initialValue,
   value,
   init,
+  uploadUrl,
   ...props
 }: EditorProps) {
-  const [isTinyMCELoaded, setIsTinyMCELoaded] = useState(false);
-  useEffect(() => {
-    async function loadTinyMCE() {
-      await import('tinymce/tinymce');
-      window.tinymce.addI18n('zh_CN', zhCN);
-      await Promise.all([
-        import('tinymce/models/dom/model'),
-        import('tinymce/themes/silver'),
-        import('tinymce/icons/default'),
-
-        import('tinymce/plugins/advlist'),
-        import('tinymce/plugins/anchor'),
-        import('tinymce/plugins/autolink'),
-        import('tinymce/plugins/link'),
-        import('tinymce/plugins/image'),
-        import('tinymce/plugins/lists'),
-        import('tinymce/plugins/charmap'),
-        import('tinymce/plugins/searchreplace'),
-        import('tinymce/plugins/wordcount'),
-        import('tinymce/plugins/code'),
-        import('tinymce/plugins/fullscreen'),
-        import('tinymce/plugins/insertdatetime'),
-        import('tinymce/plugins/media'),
-        import('tinymce/plugins/nonbreaking'),
-        import('tinymce/plugins/table'),
-        import('tinymce/plugins/template'),
-        import('tinymce/plugins/help'),
-      ]);
-      setIsTinyMCELoaded(true);
-    }
-
-    loadTinyMCE();
-  }, []);
-
   const { locale } = useContext(ConfigContext);
+  const imageUploadHandler = useMemo(() => getImageUploadHandler({ uploadUrl }), [uploadUrl]);
 
-  return isTinyMCELoaded && (
+  return (
     <Editor
       onEditorChange={onChange}
       initialValue={initialValue}
@@ -158,6 +152,7 @@ function RelientEditor({
       init={{
         ...defaultInit,
         language: locale?.locale === 'zh-cn' ? 'zh_CN' : undefined,
+        images_upload_handler: imageUploadHandler,
         ...init,
       }}
       {...props}
