@@ -26,7 +26,6 @@ import {
 import {
   map,
 } from 'lodash/fp';
-import { useI18N } from 'relient/i18n';
 import useForm, {
   OnSubmit,
   Submit,
@@ -40,7 +39,7 @@ export interface FooterParams<Values, SubmitReturn> {
   submit?: Submit<Values, SubmitReturn>
 }
 
-export interface FormPopProps<Values, SubmitReturn>
+export interface FormPopProps<Values, SubmitReturn = void>
   extends Omit<DrawerProps, 'getContainer'>, Omit<ModalProps, 'getContainer'> {
   onSubmit: OnSubmit<Values, SubmitReturn>
   visible: boolean
@@ -52,10 +51,12 @@ export interface FormPopProps<Values, SubmitReturn>
   component?: ReactComponentLike
   width?: number
   checkEditing?: boolean
-  getFooter?: (params: FooterParams<Values, SubmitReturn>) => ReactNode
+  getFooter?: (params: FooterParams<Values, SubmitReturn | undefined>) => ReactNode
+  cancelText?: string
+  submitText?: string
 }
 
-function Pop<Values, SubmitReturn>({
+function Pop<Values, SubmitReturn = void>({
   onSubmit,
   visible,
   onClose,
@@ -68,6 +69,8 @@ function Pop<Values, SubmitReturn>({
   checkEditing,
   getFooter,
   levelMove = 370,
+  submitText = '提交',
+  cancelText = '取消',
   ...props
 }: FormPopProps<Values, SubmitReturn>) {
   const {
@@ -79,7 +82,6 @@ function Pop<Values, SubmitReturn>({
     onFieldsChange,
     form,
   } = useForm<Values, SubmitReturn>(onSubmit, [], checkEditing, true);
-  const i18n = useI18N();
 
   useEffect(() => {
     if (visible) {
@@ -100,7 +102,7 @@ function Pop<Values, SubmitReturn>({
         type="primary"
         ghost
       >
-        {i18n('cancel')}
+        {cancelText}
       </Button>
       <Button
         htmlType="submit"
@@ -109,7 +111,7 @@ function Pop<Values, SubmitReturn>({
         loading={submitting}
         disabled={invalid || pristine}
       >
-        {i18n('submit')}
+        {submitText}
       </Button>
     </div>
   );

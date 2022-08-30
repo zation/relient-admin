@@ -14,7 +14,6 @@ import {
   array,
 } from 'prop-types';
 import { map } from 'lodash/fp';
-import { useI18N } from 'relient/i18n';
 import useForm, { OnSubmit } from '../../hooks/use-form';
 import Error from './error';
 import Field, { FieldProps } from './field';
@@ -24,18 +23,22 @@ const { Item } = Form;
 export interface FormProps<Values, SubmitReturn> {
   initialValues?: Partial<Values>
   onSubmit: OnSubmit<Values, SubmitReturn>
-  fields?: FieldProps[]
-  getFields?: (form: FormInstance<Values>) => FieldProps[]
+  fields?: FieldProps<Values>[]
+  getFields?: (form: FormInstance<Values>) => FieldProps<Values>[]
   checkEditing?: boolean
+  submitText?: string
+  resetText?: string
 }
 
-function result<Values, SubmitReturn>({
+const result = <Values, SubmitReturn = void>({
   initialValues,
   onSubmit,
   fields,
   getFields,
   checkEditing,
-}: FormProps<Values, SubmitReturn>) {
+  submitText = '提交',
+  resetText = '重置',
+}: FormProps<Values, SubmitReturn>) => {
   const {
     submit,
     submitting,
@@ -45,7 +48,6 @@ function result<Values, SubmitReturn>({
     onFieldsChange,
     form,
   } = useForm(onSubmit, [], checkEditing, true);
-  const i18n = useI18N();
   const reset = useCallback(() => form.resetFields(), [form.resetFields]);
 
   return (
@@ -53,7 +55,7 @@ function result<Values, SubmitReturn>({
       <Error error={defaultError} />
 
       {map(
-        (field: FieldProps) => {
+        (field: FieldProps<Values>) => {
           const { name, label } = field;
           let key = '';
           if (name) {
@@ -74,15 +76,15 @@ function result<Values, SubmitReturn>({
           loading={submitting}
           disabled={invalid || pristine}
         >
-          {i18n('submit')}
+          {submitText}
         </Button>
         <Button size="large" htmlType="button" onClick={reset}>
-          {i18n('reset')}
+          {resetText}
         </Button>
       </Item>
     </Form>
   );
-}
+};
 
 result.propTypes = {
   onSubmit: func.isRequired,

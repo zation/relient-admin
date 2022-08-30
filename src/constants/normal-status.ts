@@ -1,6 +1,6 @@
 import { values, eq } from 'lodash/fp';
-import getText from 'relient/get-text';
-import getOptions from 'relient/get-options';
+import getText from '../utils/get-text';
+import getOptions from '../utils/get-options';
 
 export enum NormalStatus {
   Active = 'ACTIVE',
@@ -8,8 +8,8 @@ export enum NormalStatus {
 }
 
 const textMap = {
-  [NormalStatus.Active]: 'active',
-  [NormalStatus.Inactive]: 'inactive',
+  [NormalStatus.Active]: '已激活',
+  [NormalStatus.Inactive]: '已禁用',
 };
 
 export const normalStatuses = values(NormalStatus);

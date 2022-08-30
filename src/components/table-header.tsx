@@ -24,7 +24,6 @@ import {
   join,
   prop,
 } from 'lodash/fp';
-import { useI18N } from 'relient/i18n';
 import type { SearchProps } from 'antd/lib/input';
 import type { Moment } from 'moment';
 import type { DetailsProps } from './details';
@@ -55,7 +54,19 @@ export interface CreateButton {
   type?: ButtonProps['type']
 }
 
-export interface TableHeaderProps<Model, CreatorValues, CreatorSubmitReturn, EditorValues, EditorSubmitReturn> {
+export interface ResetButton {
+  text?: string
+  element?: ReactNode
+  onClick: MouseEventHandler<HTMLElement>
+  size?: ButtonProps['size']
+  type?: ButtonProps['type']
+}
+
+export interface TableHeaderProps<Model,
+  CreatorValues,
+  EditorValues,
+  CreatorSubmitReturn,
+  EditorSubmitReturn> {
   query?: {
     onFieldChange: SelectProps['onSelect'],
     onValueChange: SearchProps['onChange']
@@ -72,7 +83,7 @@ export interface TableHeaderProps<Model, CreatorValues, CreatorSubmitReturn, Edi
     items: FilterItem[]
     onSelect: (selectedValue: Key[] | Key | null | undefined, dataKey: string) => void
   }
-  reset?: () => void
+  resetButton?: ResetButton
   datePicker?: {
     items: DatePickerItem[]
     onSelect: (selectedValue: [string, string], dataKey: string) => void
@@ -84,19 +95,17 @@ export interface TableHeaderProps<Model, CreatorValues, CreatorSubmitReturn, Edi
   openEditor?: (dataSource?: any) => void
 }
 
-function TableHeader<Model, CreatorValues, CreatorSubmitReturn, EditorValues, EditorSubmitReturn>({
+function TableHeader<Model, CreatorValues, EditorValues, CreatorSubmitReturn = void, EditorSubmitReturn = void>({
   query,
   createButton,
   filter,
-  reset,
+  resetButton,
   datePicker,
   details,
   creator,
   openCreator,
   editor,
-}: TableHeaderProps<Model, CreatorValues, CreatorSubmitReturn, EditorValues, EditorSubmitReturn>) {
-  const i18n = useI18N();
-
+}: TableHeaderProps<Model, CreatorValues, EditorValues, CreatorSubmitReturn, EditorSubmitReturn>) {
   return (
     <div className="relient-admin-table-header-root">
       {details && createElement((Details<Model>), details)}
@@ -168,8 +177,8 @@ function TableHeader<Model, CreatorValues, CreatorSubmitReturn, EditorValues, Ed
             <Search
               style={{ width: query.width || 362 }}
               placeholder={query.placeholder || (query.fussy
-                ? i18n('searchBy', { keywords: flow(map(prop('label')), join('、'))(query.fields) })
-                : i18n('search'))?.toString()}
+                ? `根据 ${flow(map(prop('label')), join('、'))(query.fields)} 搜索`
+                : '搜索')}
               onChange={query.onValueChange}
               value={query.value}
               onSearch={query.onSearch}
@@ -177,9 +186,15 @@ function TableHeader<Model, CreatorValues, CreatorSubmitReturn, EditorValues, Ed
           </div>
         )}
 
-        {reset && (
-          <Button onClick={reset}>{i18n('reset')}</Button>
-        )}
+        {resetButton && (resetButton.element ? resetButton.element : (
+          <Button
+            type={resetButton.type}
+            size={resetButton.size}
+            onClick={resetButton.onClick}
+          >
+            {resetButton.text || '重置'}
+          </Button>
+        ))}
       </div>
     </div>
   );

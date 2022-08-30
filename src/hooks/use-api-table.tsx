@@ -27,10 +27,10 @@ import {
   message,
   PaginationProps,
 } from 'antd';
-import { useI18N } from 'relient/i18n';
 import TableHeader, {
   CreateButton,
   FilterItem,
+  ResetButton,
 } from '../components/table-header';
 import useBasicTable, { isFilterValuesSame } from './use-basic-table';
 import type {
@@ -132,9 +132,9 @@ export interface UseApiTableParams<Model, CreatorValues, EditorValues, CreatorRe
     fussyKey?: string
     searchWhenValueChange?: boolean
   }
-  showReset?: boolean
   filters?: Filter<Model>[]
   createButton?: CreateButton
+  resetButton?: ResetButton | boolean
   datePickers?: DatePicker[]
   getDataSource: (ids: ID[]) => Model[]
   pagination?: PaginationProps
@@ -145,13 +145,12 @@ export interface UseApiTableParams<Model, CreatorValues, EditorValues, CreatorRe
   details?: Details<Model>
 }
 
-export default function useApiTable<Model = any,
+export default function useApiTable<Model,
   CreatorValues = Partial<Model>,
   EditorValues = Partial<Model>,
-  CreatorReturn = Partial<Model>,
-  EditorReturn = Partial<Model>>({
+  CreatorSubmitReturn = void,
+  EditorSubmitReturn = void>({
   query,
-  showReset,
   filters,
   createButton,
   datePickers,
@@ -168,7 +167,8 @@ export default function useApiTable<Model = any,
   creator,
   editor,
   details,
-}: UseApiTableParams<Model, CreatorValues, EditorValues, CreatorReturn, EditorReturn>) {
+  resetButton,
+}: UseApiTableParams<Model, CreatorValues, EditorValues, CreatorSubmitReturn, EditorSubmitReturn>) {
   const {
     onFieldChange,
     onValueChange,
@@ -182,7 +182,7 @@ export default function useApiTable<Model = any,
     onSubmit: creatorSubmit,
     onClose: creatorOnClose,
     onOpen: creatorOnOpen,
-    showSuccessMessage: creatorShowSuccessMessage,
+    successMessage: creatorSuccessMessage,
   } = creator || {};
   const {
     onSubmit: editorSubmit,
@@ -190,7 +190,7 @@ export default function useApiTable<Model = any,
     onClose: editorOnClose,
     onOpen: editorOnOpen,
     getInitialValues: getEditorInitialValues,
-    showSuccessMessage: editorShowSuccessMessage,
+    successMessage: editorSuccessMessage,
   } = editor || {};
   const {
     getDataSource: getDetailsDataSource,
@@ -209,7 +209,6 @@ export default function useApiTable<Model = any,
   }, [initialSize, initialCurrent, initialTotal, join(',')(initialIds)]);
   const dataSource = getDataSource(paginationData.ids);
   const [isLoading, setIsLoading] = useState(false);
-  const i18n = useI18N();
 
   const {
     dateValues,
@@ -499,8 +498,10 @@ export default function useApiTable<Model = any,
       fussyKey,
     );
     closeCreator();
-    if (creatorShowSuccessMessage !== false) {
-      message.success(i18n('createSuccess'));
+    if (typeof creatorSuccessMessage === 'string') {
+      message.success(creatorSuccessMessage);
+    } else if (creatorSuccessMessage !== false) {
+      message.success('创建成功');
     }
     return submitReturn;
   }, [
@@ -520,8 +521,10 @@ export default function useApiTable<Model = any,
       await onReload();
     }
     closeEditor();
-    if (editorShowSuccessMessage !== false) {
-      message.success(i18n('editSuccess'));
+    if (typeof editorSuccessMessage === 'string') {
+      message.success(editorSuccessMessage);
+    } else if (editorSuccessMessage !== false) {
+      message.success('编辑成功');
     }
     return submitReturn;
   }, [
@@ -534,8 +537,11 @@ export default function useApiTable<Model = any,
   return {
     dataSource,
     openCreator,
+    closeCreator,
     openEditor,
+    closeEditor,
     openDetails,
+    closeDetails,
     reload: onReload,
     reset: onReset,
     isLoading,
@@ -543,14 +549,14 @@ export default function useApiTable<Model = any,
     changeFilterValue: onFilterValueChange,
     changeDate: onDateChange,
     pagination: {
-      showTotal: ((total) => `${i18n('totalPage', { total })}`) as ShowTotal,
+      showTotal: ((total) => `共 ${total} 条`) as ShowTotal,
       pageSize: paginationData.size,
       current: paginationData.current + 1,
       total: paginationData.total,
       onChange: onPageChange,
       ...pagination,
     },
-    tableHeader: <TableHeader
+    tableHeader: <TableHeader<Model, CreatorValues, EditorValues, CreatorSubmitReturn, EditorSubmitReturn>
       query={{
         onFieldChange: onQueryFieldChange,
         onValueChange: onQueryValueChange,
@@ -602,14 +608,17 @@ export default function useApiTable<Model = any,
         ...editor,
         initialValues: getEditorInitialValues
           ? getEditorInitialValues(editItem)
-          : editItem,
+          : editItem as Partial<EditorValues>,
         onSubmit: onEditorSubmit,
         visible: editorVisible,
         onClose: closeEditor,
       }}
       openEditor={openEditor}
       openCreator={openCreator}
-      reset={showReset ? onReset : undefined}
+      resetButton={resetButton ? {
+        onClick: onReset,
+        ...(typeof resetButton === 'boolean' ? {} : resetButton),
+      } : undefined}
     />,
   };
 }

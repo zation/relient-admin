@@ -24,12 +24,12 @@ export interface OnSubmit<Values, SubmitReturn> {
   (values: Values, form: FormInstance): Promise<SubmitReturn>
 }
 
-export interface Submit<Values, SubmitReturn> {
-  (values: Values): Promise<SubmitReturn | null>
+export interface Submit<Values, SubmitReturn = void> {
+  (values: Values): Promise<SubmitReturn>
 }
 
 interface Result<Values, SubmitReturn> {
-  submit: Submit<Values, SubmitReturn>
+  submit: Submit<Values, SubmitReturn | undefined>
   submitting: boolean | undefined
   submitSucceeded: boolean
   submitFailed: boolean
@@ -44,7 +44,7 @@ interface Result<Values, SubmitReturn> {
 
 const checkValid = every<FieldError>(flow(prop('errors'), size, eq(0)));
 
-export default function useFormHook<Values, SubmitReturn>(
+export default function useFormHook<Values, SubmitReturn = void>(
   onSubmit: OnSubmit<Values, SubmitReturn>,
   deps = [],
   checkEditing = false,
@@ -85,7 +85,7 @@ export default function useFormHook<Values, SubmitReturn>(
         if (isArray(e) && form) {
           form.setFields(map(({ field, message }) => ({ name: field, errors: [message] }))(e));
         }
-        return null;
+        return undefined;
       }
     }, [onSubmit, form, ...deps]),
     submitting,

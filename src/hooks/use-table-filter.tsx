@@ -3,12 +3,13 @@ import React, { Key, useMemo, useState } from 'react';
 import type { ColumnFilterItem, ColumnType, FilterDropdownProps } from 'antd/es/table/interface';
 import TableFilter from '../components/table-filter';
 
-export interface UseTableFilterParams extends Pick<ColumnType<any>, 'filterIcon'> {
+export interface UseTableFilterParams {
   changeFilterValue: (values: Key[], dataKey: string) => void
   dataKey: string
   options: ColumnFilterItem[]
   multiple?: boolean
   showButtons?: boolean
+  filterIcon: ColumnType<never>['filterIcon'],
 }
 
 export default function useTableFilter({

@@ -1,11 +1,8 @@
+/* eslint-disable react/no-array-index-key */
 import React from 'react';
 import { Image } from 'antd';
-import { map } from 'lodash/fp';
 
 const { PreviewGroup } = Image;
-
-// @ts-ignore
-const mapWithIndex = map.convert({ cap: false });
 
 export interface ImagesProps {
   images: string[]
@@ -18,7 +15,7 @@ export interface ImagesProps {
 const result = ({ images, space = 20, width, imageClassName, className }: ImagesProps) => (
   <div className={className} style={{ marginRight: -space }}>
     <PreviewGroup>
-      {mapWithIndex((image: string, index: number) => (
+      {images.map((image, index) => (
         <Image
           key={`${image}${index}`}
           wrapperClassName={imageClassName}
@@ -26,7 +23,7 @@ const result = ({ images, space = 20, width, imageClassName, className }: Images
           width={width}
           src={image}
         />
-      ))(images)}
+      ))}
     </PreviewGroup>
   </div>
 );

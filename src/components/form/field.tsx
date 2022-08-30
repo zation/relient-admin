@@ -11,6 +11,9 @@ import {
   ReactComponentLike,
   ReactNodeLike,
   elementType,
+  oneOfType,
+  number,
+  arrayOf,
 } from 'prop-types';
 import {
   omit,
@@ -24,9 +27,11 @@ import type {
   ValidatorRule,
   NamePath,
 } from 'rc-field-form/es/interface';
-import type { FormListFieldData, FormListProps } from 'antd/es/form/FormList';
+import type {
+  FormListFieldData,
+  FormListProps,
+} from 'antd/es/form/FormList';
 import type { FormItemProps } from 'antd/es/form';
-import { useI18N } from 'relient/i18n';
 import {
   labelCol,
   wrapperCol,
@@ -34,11 +39,11 @@ import {
 
 const { Item, List } = Form;
 
-export interface FieldProps extends Omit<FormItemProps, 'children'>, Attributes {
-  component: ReactComponentLike
+export interface FieldProps<Values = any> extends Omit<FormItemProps<Values>, 'children'>, Attributes {
+  component?: ReactComponentLike
   name: NamePath
   children?: FormListProps['children']
-  element: ReactNodeLike
+  element?: ReactNodeLike
   getLabel?: (formListFieldData: FormListFieldData, index: number) => ReactNodeLike
 }
 
@@ -80,10 +85,8 @@ const result = ({
   getLabel,
   ...field
 }: FieldProps) => {
-  const i18n = useI18N();
   const itemProps = pick(itemPropKeys, field);
   const componentProps = omit(itemPropKeys, field);
-  const label = typeof itemProps.label === 'string' ? i18n(itemProps.label) : itemProps.label;
 
   if (isValidElement(element)) {
     return (
@@ -91,7 +94,6 @@ const result = ({
         labelCol={labelCol}
         wrapperCol={wrapperCol}
         {...itemProps}
-        label={label}
       >
         {element}
       </Item>
@@ -107,7 +109,6 @@ const result = ({
       labelCol={labelCol}
       wrapperCol={wrapperCol}
       {...itemProps}
-      label={label}
     >
       {createElement(component, componentProps)}
     </Item>
@@ -116,7 +117,7 @@ const result = ({
 
 result.propTypes = {
   component: elementType,
-  name: string,
+  name: oneOfType([string, number, arrayOf(oneOfType([string, number]))]),
   element: node,
   getLabel: func,
 };

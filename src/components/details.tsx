@@ -26,7 +26,6 @@ import {
   last,
   join,
 } from 'lodash/fp';
-import { useI18N } from 'relient/i18n';
 import { Style } from '../interface';
 
 export interface DetailsItem<Model> {
@@ -74,8 +73,6 @@ const Details = function <Model>({
   levelMove,
   defaultDisplay = '-',
 }: DetailsProps<Model>) {
-  const i18n = useI18N();
-
   return (
     <Drawer
       visible={visible}
@@ -84,7 +81,7 @@ const Details = function <Model>({
           <div
             className="relient-admin-details-title-text"
           >
-            {title || i18n('viewDetails')}
+            {title || '查看详情'}
           </div>
           {editable && (
             <Button
@@ -95,7 +92,7 @@ const Details = function <Model>({
                 }
               }}
             >
-              {editButtonText || i18n('edit')}
+              {editButtonText || '编辑'}
             </Button>
           )}
         </div>

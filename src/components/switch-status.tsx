@@ -7,7 +7,6 @@ import {
   number,
   oneOf,
 } from 'prop-types';
-import { useI18N } from 'relient/i18n';
 import {
   NormalStatus,
   normalStatuses,
@@ -23,16 +22,15 @@ export interface SwitchStatusProps extends UpdateParams {
 }
 
 const result = ({ id, status, update }: SwitchStatusProps) => {
-  const i18n = useI18N();
   const toggleNormalStatus = useCallback(async () => {
     await update({
       id,
       status: status === NormalStatus.Active ? NormalStatus.Inactive : NormalStatus.Active,
     });
-    message.success(i18n('editSuccess'));
-  }, [status, id, i18n]);
+    message.success('编辑成功');
+  }, [status, id]);
 
-  return <Switch checked={status === 'ACTIVE'} onChange={toggleNormalStatus} />;
+  return <Switch checked={status === NormalStatus.Active} onChange={toggleNormalStatus} />;
 };
 
 result.propTypes = {

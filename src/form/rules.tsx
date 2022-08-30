@@ -12,7 +12,7 @@ import type {
   Rule,
   RuleRender,
 } from 'rc-field-form/es/interface';
-import type { I18N } from 'relient/i18n';
+import type { I18N } from '../interface';
 
 export interface SameAsRule {
   (targetNamePath: NamePath, targetLabel: string): RuleRender

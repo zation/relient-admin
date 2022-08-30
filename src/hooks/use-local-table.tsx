@@ -27,9 +27,11 @@ import {
   FormInstance,
   message,
 } from 'antd';
-import { useI18N } from 'relient/i18n';
 import moment from 'moment';
-import TableHeader, { CreateButton } from '../components/table-header';
+import TableHeader, {
+  CreateButton,
+  ResetButton,
+} from '../components/table-header';
 import useBasicTable, { isFilterValuesSame } from './use-basic-table';
 import type {
   Creator,
@@ -65,6 +67,7 @@ export interface UseLocalTableParams<Model, CreatorValues, EditorValues, Creator
   showReset?: boolean
   filters?: Filter<Model>[]
   createButton?: CreateButton
+  resetButton?: ResetButton
   datePickers?: DatePicker[]
   pagination?: {
     pageSize?: number
@@ -76,14 +79,14 @@ export interface UseLocalTableParams<Model, CreatorValues, EditorValues, Creator
   details?: Details<Model>
 }
 
-export default function useLocalTable<Model = any,
+export default function useLocalTable<Model,
   CreatorValues = Partial<Model>,
   EditorValues = Partial<Model>,
-  CreatorReturn = Partial<Model>,
-  EditorReturn = Partial<Model>>({
+  CreatorSubmitReturn = void,
+  EditorSubmitReturn = void>({
   query,
   customQueries,
-  showReset,
+  resetButton,
   filters = [],
   createButton,
   datePickers,
@@ -92,7 +95,7 @@ export default function useLocalTable<Model = any,
   creator,
   editor,
   details,
-}: UseLocalTableParams<Model, CreatorValues, EditorValues, CreatorReturn, EditorReturn>) {
+}: UseLocalTableParams<Model, CreatorValues, EditorValues, CreatorSubmitReturn, EditorSubmitReturn>) {
   const {
     onFieldChange,
     onValueChange,
@@ -108,14 +111,14 @@ export default function useLocalTable<Model = any,
     onSubmit: creatorSubmit,
     onClose: creatorOnClose,
     onOpen: creatorOnOpen,
-    showSuccessMessage: creatorShowSuccessMessage,
+    successMessage: creatorSuccessMessage,
   } = creator || {};
   const {
     onSubmit: editorSubmit,
     onClose: editorOnClose,
     onOpen: editorOnOpen,
     getInitialValues: getEditorInitialValues,
-    showSuccessMessage: editorShowSuccessMessage,
+    successMessage: editorSuccessMessage,
   } = editor || {};
   const {
     getDataSource: getDetailsDataSource,
@@ -154,7 +157,6 @@ export default function useLocalTable<Model = any,
     detailsOnClose,
     detailsOnOpen,
   });
-  const i18n = useI18N();
   const [currentPage, setCurrentPage] = useState(initialCurrent);
   const [pageSize, setPageSize] = useState(initialSize);
   const onReset = useCallback(() => {
@@ -248,8 +250,10 @@ export default function useLocalTable<Model = any,
   const onCreatorSubmit = useCallback(async (values: CreatorValues, formInstance: FormInstance<CreatorValues>) => {
     const submitReturn = await creatorSubmit!(values, formInstance);
     closeCreator();
-    if (creatorShowSuccessMessage !== false) {
-      message.success(i18n('createSuccess'));
+    if (typeof creatorSuccessMessage === 'string') {
+      message.success(creatorSuccessMessage);
+    } else if (creatorSuccessMessage !== false) {
+      message.success('创建成功');
     }
     return submitReturn;
   }, [
@@ -258,8 +262,10 @@ export default function useLocalTable<Model = any,
   const onEditorSubmit = useCallback(async (values: EditorValues, formInstance: FormInstance<EditorValues>) => {
     const submitReturn = await editorSubmit!(values, formInstance, editItem!);
     closeEditor();
-    if (editorShowSuccessMessage !== false) {
-      message.success(i18n('editSuccess'));
+    if (typeof editorSuccessMessage === 'string') {
+      message.success(editorSuccessMessage);
+    } else if (editorSuccessMessage !== false) {
+      message.success('编辑成功');
     }
     return submitReturn;
   }, [
@@ -350,17 +356,20 @@ export default function useLocalTable<Model = any,
     filterValues,
     changeFilterValue: onFilterValueChange,
     openCreator,
+    closeCreator,
     openEditor,
+    closeEditor,
     openDetails,
+    closeDetails,
     reset: onReset,
     pagination: {
-      showTotal: ((total) => `${i18n('totalPage', { total })}`) as ShowTotal,
+      showTotal: ((total) => `共 ${total} 条`) as ShowTotal,
       pageSize,
       onChange: onPageChange,
       current: currentPage,
       ...pagination,
     },
-    tableHeader: <TableHeader
+    tableHeader: <TableHeader<Model, CreatorValues, EditorValues, CreatorSubmitReturn, EditorSubmitReturn>
       query={{
         onFieldChange: onQueryFieldChange,
         onValueChange: onQueryValueChange,
@@ -388,7 +397,7 @@ export default function useLocalTable<Model = any,
         ...editor,
         initialValues: getEditorInitialValues
           ? getEditorInitialValues(editItem)
-          : editItem,
+          : editItem as Partial<EditorValues>,
         onSubmit: onEditorSubmit,
         visible: editorVisible,
         onClose: closeEditor,
@@ -409,7 +418,10 @@ export default function useLocalTable<Model = any,
       }}
       openEditor={openEditor}
       openCreator={openCreator}
-      reset={showReset ? onReset : undefined}
+      resetButton={resetButton ? {
+        onClick: onReset,
+        ...(typeof resetButton === 'boolean' ? {} : resetButton),
+      } : undefined}
       datePicker={{
         items: map(({ dataKey, ...others }) => ({
           dataKey,

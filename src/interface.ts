@@ -8,6 +8,15 @@ import type { FormPopProps } from './components/form/pop';
 import type { DetailsProps } from './components/details';
 import type { FilterItem } from './components/table-header';
 
+export interface I18N {
+  (
+    messageKey: string,
+    values?: {
+      [key: string]: ReactNode | string | number
+    },
+  ): string | undefined | (ReactNode | string | number)[]
+}
+
 export interface Style {
   [key: string]: string | number | null | undefined
 }
@@ -57,12 +66,13 @@ export interface ShowTotal {
   (total: number, range: [number, number]): ReactNode
 }
 
-export interface Creator<Values, SubmitReturn> extends FormPopProps<Values, SubmitReturn> {
+export interface Creator<Values, SubmitReturn = void> extends FormPopProps<Values, SubmitReturn> {
   onOpen?: () => void
-  showSuccessMessage?: boolean
+  successMessage?: boolean | string
 }
 
-export interface Editor<Item, Values, SubmitReturn> extends Omit<FormPopProps<Values, SubmitReturn>, 'onSubmit'> {
+export interface Editor<Item, Values, SubmitReturn = void>
+  extends Omit<FormPopProps<Values, SubmitReturn>, 'onSubmit'> {
   onOpen?: () => void
   shouldReload?: boolean
   getInitialValues?: (item: Item | undefined) => Partial<Values>
@@ -71,7 +81,7 @@ export interface Editor<Item, Values, SubmitReturn> extends Omit<FormPopProps<Va
     form: FormInstance<Values>,
     item: Item,
   ) => Promise<SubmitReturn>
-  showSuccessMessage?: boolean
+  successMessage?: boolean | string
 }
 
 export interface Details<Item> extends DetailsProps<Item> {

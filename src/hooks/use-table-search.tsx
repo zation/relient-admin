@@ -7,13 +7,14 @@ import TableSearch from '../components/table-search';
 
 const defaultFilterIcon = <SearchOutlined />;
 
-export interface UseTableSearchParams extends Pick<ColumnType<any>, 'filterIcon'> {
+export interface UseTableSearchParams {
   changeFilterValue?: (values: Key[], dataKey: string) => void
   changeCustomQueryValue?: (value: string | undefined | null, dataKey: string) => void
   dataKey: string
   placeholder?: string
   width?: number
   showButtons?: boolean
+  filterIcon: ColumnType<never>['filterIcon'],
 }
 
 export default function useTableSearch({
