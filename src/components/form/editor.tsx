@@ -1,6 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading,prefer-promise-reject-errors */
 import React, {
-  useContext,
   useMemo,
 } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
@@ -11,7 +10,6 @@ import {
   string,
   object,
 } from 'prop-types';
-import { ConfigContext } from 'antd/lib/config-provider';
 import tinymce, {
   Editor as TinyMCEEditor,
   EditorOptions,
@@ -57,7 +55,7 @@ import contentUiCss from 'tinymce/skins/ui/oxide/content.min.css?inline';
 
 import zhCN from './editor-zh';
 
-tinymce.addI18n('zh_cn', zhCN);
+tinymce.addI18n('zh_CN', zhCN);
 
 const getImageUploadHandler = ({ uploadUrl }: { uploadUrl?: string }): EditorOptions['images_upload_handler'] => (
   blobInfo,
@@ -115,6 +113,7 @@ const getImageUploadHandler = ({ uploadUrl }: { uploadUrl?: string }): EditorOpt
 export interface EditorProps extends Omit<IProps, 'onEditorChange'>, Omit<IEvents, 'onChange'> {
   onChange: (a: string, editor: TinyMCEEditor) => void
   uploadUrl?: string
+  language?: 'en_US' | 'zh_CN'
 }
 
 const defaultInit = {
@@ -139,9 +138,9 @@ function RelientEditor({
   value,
   init,
   uploadUrl,
+  language = 'zh_CN',
   ...props
 }: EditorProps) {
-  const { locale } = useContext(ConfigContext);
   const imageUploadHandler = useMemo(() => getImageUploadHandler({ uploadUrl }), [uploadUrl]);
 
   return (
@@ -151,7 +150,7 @@ function RelientEditor({
       value={value}
       init={{
         ...defaultInit,
-        language: locale?.locale === 'zh-cn' ? 'zh_CN' : undefined,
+        language,
         images_upload_handler: imageUploadHandler,
         ...init,
       }}
