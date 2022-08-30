@@ -56,7 +56,7 @@ export interface FormPopProps<Values, SubmitReturn = void>
   submitText?: string
 }
 
-function Pop<Values, SubmitReturn = void>({
+function RelientFormPop<Values, SubmitReturn = void>({
   onSubmit,
   visible,
   onClose,
@@ -154,7 +154,7 @@ function Pop<Values, SubmitReturn = void>({
 }
 
 // NOTICE: conflict with ts
-Pop.propTypes = {
+RelientFormPop.propTypes = {
   onSubmit: func.isRequired,
   initialValues: any,
   fields: array,
@@ -169,4 +169,4 @@ Pop.propTypes = {
   onClose: func.isRequired,
 };
 
-export default Pop;
+export default RelientFormPop;

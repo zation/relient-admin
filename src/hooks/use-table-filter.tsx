@@ -31,24 +31,17 @@ export default function useTableFilter({
     filterIcon,
     // TODO: change selectedKeys according to filterValue
     filterDropdown: ({
-      prefixCls,
       setSelectedKeys,
       selectedKeys,
-      confirm,
       clearFilters,
       filters,
-      visible,
     }: FilterDropdownProps) => (
       <TableFilter
         showButtons={showButtons}
         multiple={multiple}
-        prefixCls={prefixCls}
         setSelectedKeys={setSelectedKeys}
         selectedKeys={selectedKeys}
-        clearFilters={clearFilters}
         filters={filters}
-        visible={visible}
-        confirm={confirm}
         onSelect={(newSelectedKeys) => {
           if (!showButtons) {
             changeFilterValue(newSelectedKeys, dataKey);

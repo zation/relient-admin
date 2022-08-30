@@ -27,7 +27,7 @@ import {
   message,
   PaginationProps,
 } from 'antd';
-import TableHeader, {
+import RelientTableHeader, {
   CreateButton,
   FilterItem,
   ResetButton,
@@ -556,7 +556,7 @@ export default function useApiTable<Model,
       onChange: onPageChange,
       ...pagination,
     },
-    tableHeader: <TableHeader<Model, CreatorValues, EditorValues, CreatorSubmitReturn, EditorSubmitReturn>
+    tableHeader: <RelientTableHeader<Model, CreatorValues, EditorValues, CreatorSubmitReturn, EditorSubmitReturn>
       query={{
         onFieldChange: onQueryFieldChange,
         onValueChange: onQueryValueChange,

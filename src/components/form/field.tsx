@@ -78,13 +78,13 @@ const itemPropKeys = [
   'wrapperCol',
 ];
 
-const result = ({
+function RelientField({
   children,
   component = Input,
   element,
   getLabel,
   ...field
-}: FieldProps) => {
+}: FieldProps) {
   const itemProps = pick(itemPropKeys, field);
   const componentProps = omit(itemPropKeys, field);
 
@@ -113,15 +113,13 @@ const result = ({
       {createElement(component, componentProps)}
     </Item>
   );
-};
+}
 
-result.propTypes = {
+RelientField.propTypes = {
   component: elementType,
   name: oneOfType([string, number, arrayOf(oneOfType([string, number]))]),
   element: node,
   getLabel: func,
 };
 
-result.displayName = __filename;
-
-export default result;
+export default RelientField;

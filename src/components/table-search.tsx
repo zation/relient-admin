@@ -17,13 +17,13 @@ export interface TableSearchProps {
   showButtons?: boolean
 }
 
-const result = ({
+function RelientTableSearch({
   width = 188,
   placeholder,
   onConfirm,
   onReset,
   showButtons = true,
-}: TableSearchProps) => {
+}: TableSearchProps) {
   const { locale, getPrefixCls } = useContext(ConfigContext);
 
   const [inputValue, setInputValue] = useState('');
@@ -72,9 +72,9 @@ const result = ({
       )}
     </div>
   );
-};
+}
 
-result.propTypes = {
+RelientTableSearch.propTypes = {
   placeholder: string,
   onConfirm: func.isRequired,
   onReset: func.isRequired,
@@ -82,4 +82,4 @@ result.propTypes = {
   showButtons: bool,
 };
 
-export default result;
+export default RelientTableSearch;

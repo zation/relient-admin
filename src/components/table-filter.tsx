@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, Key } from 'react';
-import { array, string, func, bool } from 'prop-types';
+import { array, func, bool } from 'prop-types';
 import { ConfigContext } from 'antd/lib/config-provider';
 import {
   Menu,
@@ -47,11 +47,9 @@ function renderFilterItems(
 
 export interface TableFilterProps {
   // from antd
-  prefixCls: string
   filters?: ColumnFilterItem[]
   selectedKeys: Key[]
   setSelectedKeys: (selectedKeys: string[]) => void
-  clearFilters?: () => void
 
   // from usage
   onReset?: () => void
@@ -61,7 +59,7 @@ export interface TableFilterProps {
   showButtons?: boolean
 }
 
-const result = ({
+function RelientTableFilter({
   filters,
   selectedKeys,
   setSelectedKeys,
@@ -70,7 +68,7 @@ const result = ({
   onSelect,
   multiple = true,
   showButtons = true,
-}: TableFilterProps) => {
+}: TableFilterProps) {
   const { locale, getPrefixCls } = useContext(ConfigContext);
   const select = useCallback<NonNullable<MenuProps['onSelect']>>(({ selectedKeys: newSelectedKeys }) => {
     setSelectedKeys(newSelectedKeys);
@@ -110,17 +108,13 @@ const result = ({
       )}
     </>
   );
-};
+}
 
-result.propTypes = {
+RelientTableFilter.propTypes = {
   // from antd
-  prefixCls: string.isRequired,
+  filters: array.isRequired,
   setSelectedKeys: func.isRequired,
   selectedKeys: array.isRequired,
-  confirm: func.isRequired,
-  clearFilters: func.isRequired,
-  filters: array.isRequired,
-  visible: bool.isRequired,
 
   // from usage
   onReset: func,
@@ -130,6 +124,4 @@ result.propTypes = {
   showButtons: bool,
 };
 
-result.displayName = __filename;
-
-export default result;
+export default RelientTableFilter;

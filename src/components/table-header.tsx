@@ -28,7 +28,7 @@ import type { SearchProps } from 'antd/lib/input';
 import type { Moment } from 'moment';
 import type { DetailsProps } from './details';
 import FormPop, { FormPopProps } from './form/pop';
-import Details from './details';
+import RelientDetails from './details';
 import type { QueryField } from '../interface';
 
 const { Search } = Input;
@@ -95,7 +95,7 @@ export interface TableHeaderProps<Model,
   openEditor?: (dataSource?: any) => void
 }
 
-function TableHeader<Model, CreatorValues, EditorValues, CreatorSubmitReturn = void, EditorSubmitReturn = void>({
+function RelientTableHeader<Model, CreatorValues, EditorValues, CreatorSubmitReturn = void, EditorSubmitReturn = void>({
   query,
   createButton,
   filter,
@@ -108,7 +108,7 @@ function TableHeader<Model, CreatorValues, EditorValues, CreatorSubmitReturn = v
 }: TableHeaderProps<Model, CreatorValues, EditorValues, CreatorSubmitReturn, EditorSubmitReturn>) {
   return (
     <div className="relient-admin-table-header-root">
-      {details && createElement((Details<Model>), details)}
+      {details && createElement((RelientDetails<Model>), details)}
 
       {creator && createElement((FormPop<CreatorValues, CreatorSubmitReturn>), creator)}
 
@@ -200,7 +200,7 @@ function TableHeader<Model, CreatorValues, EditorValues, CreatorSubmitReturn = v
   );
 }
 
-TableHeader.propTypes = {
+RelientTableHeader.propTypes = {
   query: object,
   createButton: object,
   filter: object,
@@ -221,6 +221,4 @@ TableHeader.propTypes = {
   reset: func,
 };
 
-TableHeader.displayName = __filename;
-
-export default TableHeader;
+export default RelientTableHeader;

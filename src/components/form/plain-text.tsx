@@ -9,15 +9,13 @@ export interface PlainTextProps {
   render?: (value: any) => ReactNode
 }
 
-const result = ({ value, render }: PlainTextProps) => (
-  <span className="ant-form-text">{render ? render(value) : value}</span>
-);
+function RelientPlainText({ value, render }: PlainTextProps) {
+  return <span className="ant-form-text">{render ? render(value) : value}</span>;
+}
 
-result.propTypes = {
+RelientPlainText.propTypes = {
   value: any,
   render: func,
 };
 
-result.displayName = __filename;
-
-export default result;
+export default RelientPlainText;

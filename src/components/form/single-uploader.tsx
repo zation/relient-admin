@@ -25,7 +25,7 @@ export interface SingleUploaderProps {
   className?: string
 }
 
-const result = ({
+function RelientSingleUploader({
   onChange,
   value,
   placeholder,
@@ -37,7 +37,8 @@ const result = ({
   action,
   fileType,
   authorizationCookie = 'AUTHORIZATION',
-}: SingleUploaderProps) => {
+  className,
+}: SingleUploaderProps) {
   const { cdnDomain } = useContext(DomainContext);
   const authorization = cookie.get(authorizationCookie);
 
@@ -53,6 +54,7 @@ const result = ({
         borderRadius: 6,
         ...style,
       }}
+      className={className}
     >
       {!disabled
       && (
@@ -87,9 +89,9 @@ const result = ({
       )}
     </div>
   );
-};
+}
 
-result.propTypes = {
+RelientSingleUploader.propTypes = {
   value: object,
   onChange: func,
   placeholder: string,
@@ -103,6 +105,4 @@ result.propTypes = {
   fileType: string,
 };
 
-result.displayName = __filename;
-
-export default result;
+export default RelientSingleUploader;

@@ -59,7 +59,7 @@ export interface MultipleUploaderProps {
   className?: string
 }
 
-const result = ({
+function RelientMultipleUploader({
   onChange,
   value,
   fileType,
@@ -72,7 +72,7 @@ const result = ({
   placeholderClassName,
   className,
   authorizationCookie = 'AUTHORIZATION',
-}: MultipleUploaderProps) => {
+}: MultipleUploaderProps) {
   const { cdnDomain } = useContext(DomainContext);
   const [preview, setPreview] = useState<Preview>({ visible: false });
   const defaultFileList = useMemo(() => map(({ url, ...others }: UploadFile) => ({
@@ -139,9 +139,9 @@ const result = ({
       </Modal>
     </div>
   );
-};
+}
 
-result.propTypes = {
+RelientMultipleUploader.propTypes = {
   value: array,
   onChange: func,
   placeholder: string,
@@ -155,6 +155,4 @@ result.propTypes = {
   className: string,
 };
 
-result.displayName = __filename;
-
-export default result;
+export default RelientMultipleUploader;

@@ -1,5 +1,8 @@
 import React from 'react';
-import { array, string } from 'prop-types';
+import {
+  array,
+  string,
+} from 'prop-types';
 import { map } from 'lodash/fp';
 import { Alert } from 'antd';
 
@@ -8,7 +11,7 @@ export interface ErrorProps {
   error?: string
 }
 
-const result = ({ errors, error }: ErrorProps) => {
+function RelientError({ errors, error }: ErrorProps) {
   if (error) {
     return (
       <Alert
@@ -19,27 +22,27 @@ const result = ({ errors, error }: ErrorProps) => {
     );
   }
   if (errors && errors.length > 0) {
+    const message = errors.length > 1
+      ? (
+        <ul style={{ margin: 0 }}>
+          {map((item: string) => <li key={item}>{item}</li>)(errors)}
+        </ul>
+      ) : errors[0];
+
     return (
       <Alert
         style={{ marginBottom: 20 }}
-        message={errors.length > 1
-          ? (
-            <ul style={{ margin: 0 }}>
-              {map((item: string) => <li>{item}</li>)(errors)}
-            </ul>
-          ) : errors[0]}
+        message={message}
         type="warning"
       />
     );
   }
   return null;
-};
+}
 
-result.propTypes = {
+RelientError.propTypes = {
   errors: array,
   error: string,
 };
 
-result.displayName = __filename;
-
-export default result;
+export default RelientError;

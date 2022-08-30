@@ -28,7 +28,7 @@ import {
   message,
 } from 'antd';
 import moment from 'moment';
-import TableHeader, {
+import RelientTableHeader, {
   CreateButton,
   ResetButton,
 } from '../components/table-header';
@@ -369,7 +369,7 @@ export default function useLocalTable<Model,
       current: currentPage,
       ...pagination,
     },
-    tableHeader: <TableHeader<Model, CreatorValues, EditorValues, CreatorSubmitReturn, EditorSubmitReturn>
+    tableHeader: <RelientTableHeader<Model, CreatorValues, EditorValues, CreatorSubmitReturn, EditorSubmitReturn>
       query={{
         onFieldChange: onQueryFieldChange,
         onValueChange: onQueryValueChange,

@@ -21,7 +21,7 @@ export interface SwitchStatusProps extends UpdateParams {
   update: (params: UpdateParams) => void
 }
 
-const result = ({ id, status, update }: SwitchStatusProps) => {
+function RelientSwitchStatus({ id, status, update }: SwitchStatusProps) {
   const toggleNormalStatus = useCallback(async () => {
     await update({
       id,
@@ -31,13 +31,11 @@ const result = ({ id, status, update }: SwitchStatusProps) => {
   }, [status, id]);
 
   return <Switch checked={status === NormalStatus.Active} onChange={toggleNormalStatus} />;
-};
+}
 
-result.propTypes = {
+RelientSwitchStatus.propTypes = {
   id: number.isRequired,
   status: oneOf(normalStatuses).isRequired,
 };
 
-result.displayName = __filename;
-
-export default result;
+export default RelientSwitchStatus;

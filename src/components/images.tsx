@@ -12,22 +12,22 @@ export interface ImagesProps {
   className?: string
 }
 
-const result = ({ images, space = 20, width, imageClassName, className }: ImagesProps) => (
-  <div className={className} style={{ marginRight: -space }}>
-    <PreviewGroup>
-      {images.map((image, index) => (
-        <Image
-          key={`${image}${index}`}
-          wrapperClassName={imageClassName}
-          wrapperStyle={{ marginRight: space }}
-          width={width}
-          src={image}
-        />
-      ))}
-    </PreviewGroup>
-  </div>
-);
+function RelientImages({ images, space = 20, width, imageClassName, className }: ImagesProps) {
+  return (
+    <div className={className} style={{ marginRight: -space }}>
+      <PreviewGroup>
+        {images.map((image, index) => (
+          <Image
+            key={`${image}${index}`}
+            wrapperClassName={imageClassName}
+            wrapperStyle={{ marginRight: space }}
+            width={width}
+            src={image}
+          />
+        ))}
+      </PreviewGroup>
+    </div>
+  );
+}
 
-result.displayName = __filename;
-
-export default result;
+export default RelientImages;

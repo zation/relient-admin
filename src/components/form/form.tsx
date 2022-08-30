@@ -30,7 +30,7 @@ export interface FormProps<Values, SubmitReturn> {
   resetText?: string
 }
 
-const result = <Values, SubmitReturn = void>({
+function RelientForm<Values, SubmitReturn = void>({
   initialValues,
   onSubmit,
   fields,
@@ -38,7 +38,7 @@ const result = <Values, SubmitReturn = void>({
   checkEditing,
   submitText = '提交',
   resetText = '重置',
-}: FormProps<Values, SubmitReturn>) => {
+}: FormProps<Values, SubmitReturn>) {
   const {
     submit,
     submitting,
@@ -84,9 +84,9 @@ const result = <Values, SubmitReturn = void>({
       </Item>
     </Form>
   );
-};
+}
 
-result.propTypes = {
+RelientForm.propTypes = {
   onSubmit: func.isRequired,
   initialValues: object,
   fields: array,
@@ -95,6 +95,4 @@ result.propTypes = {
   checkEditing: bool,
 };
 
-result.displayName = __filename;
-
-export default result;
+export default RelientForm;

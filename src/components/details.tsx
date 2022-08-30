@@ -57,7 +57,7 @@ export interface DetailsProps<Model> {
   defaultDisplay?: string
 }
 
-const Details = function <Model>({
+function RelientDetails<Model>({
   visible,
   title,
   dataSource,
@@ -175,7 +175,7 @@ const Details = function <Model>({
       {children}
     </Drawer>
   );
-};
+}
 
 // NOTICE: conflict with ts
 // Details.propTypes = {
@@ -207,6 +207,4 @@ const Details = function <Model>({
 //   defaultDisplay: string,
 // };
 
-Details.displayName = __filename;
-
-export default Details;
+export default RelientDetails;
