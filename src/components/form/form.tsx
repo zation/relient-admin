@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, {
+  ReactNode,
   useCallback,
 } from 'react';
 import {
@@ -54,8 +55,8 @@ function RelientForm<Values, SubmitReturn = void>({
     <Form<Values> onFinish={submit} form={form} initialValues={initialValues} onFieldsChange={onFieldsChange}>
       <Error error={defaultError} />
 
-      {map(
-        (field: FieldProps<Values>) => {
+      {map<FieldProps<Values>, ReactNode>(
+        (field) => {
           const { name, label } = field;
           let key = '';
           if (name) {

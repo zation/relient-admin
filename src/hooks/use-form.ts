@@ -1,6 +1,7 @@
 import { Form } from 'antd';
 import {
   useCallback,
+  useEffect,
   useState,
 } from 'react';
 import {
@@ -51,8 +52,8 @@ export default function useFormHook<Values, SubmitReturn = void>(
   visible = false,
 ): Result<Values, SubmitReturn> {
   const [form] = useForm<Values>();
-  const [dirty, setDirty] = useState(form.isFieldsTouched());
-  const [valid, setValid] = useState(checkValid(form.getFieldsError()));
+  const [dirty, setDirty] = useState(false);
+  const [valid, setValid] = useState(true);
   const onFieldsChange = useCallback(() => {
     setDirty(form.isFieldsTouched());
     setValid(checkValid(form.getFieldsError()));
@@ -62,6 +63,19 @@ export default function useFormHook<Values, SubmitReturn = void>(
   const [submitFailed, setSubmitFailed] = useState(false);
   const [defaultError, setDefaultError] = useState<string>();
   useIsFormEditing({ dirty, submitSucceeded, checkEditing, visible });
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout | undefined = setTimeout(() => {
+      setDirty(form.isFieldsTouched());
+      setValid(checkValid(form.getFieldsError()));
+      timeoutId = undefined;
+    });
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, []);
 
   return {
     submit: useCallback(async () => {

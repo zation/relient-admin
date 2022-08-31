@@ -128,6 +128,7 @@ function RelientFormPop<Values, SubmitReturn = void>({
   if (component === Drawer) {
     return (
       <Drawer
+        forceRender
         visible={visible}
         footer={finalFooter}
         onClose={onCloseOrCancel}
@@ -142,6 +143,7 @@ function RelientFormPop<Values, SubmitReturn = void>({
 
   return (
     <Modal
+      forceRender
       visible={visible}
       footer={finalFooter}
       onCancel={onCloseOrCancel}
