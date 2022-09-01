@@ -1,34 +1,27 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, {
-  Attributes,
   createElement,
   isValidElement,
+  ComponentType,
+  ReactElement,
 } from 'react';
 import {
   string,
   node,
   func,
-  ReactComponentLike,
-  ReactNodeLike,
   elementType,
   oneOfType,
   number,
   arrayOf,
 } from 'prop-types';
 import {
-  omit,
-  pick,
-} from 'lodash/fp';
-import {
   Form,
   Input,
 } from 'antd';
 import type {
-  ValidatorRule,
   NamePath,
 } from 'rc-field-form/es/interface';
 import type {
-  FormListFieldData,
   FormListProps,
 } from 'antd/es/form/FormList';
 import type { FormItemProps } from 'antd/es/form';
@@ -39,55 +32,21 @@ import {
 
 const { Item, List } = Form;
 
-export interface FieldProps<Values = any> extends Omit<FormItemProps<Values>, 'children'>, Attributes {
-  component?: ReactComponentLike
+export interface FieldProps<Values = any> extends Omit<FormItemProps<Values>, 'children'> {
+  component?: ComponentType
   name: NamePath
-  children?: FormListProps['children']
-  element?: ReactNodeLike
-  getLabel?: (formListFieldData: FormListFieldData, index: number) => ReactNodeLike
+  element?: ReactElement
+  componentProps?: Record<string, any>
+  listProps?: FormListProps
 }
 
-const itemPropKeys = [
-  'colon',
-  'dependencies',
-  'extra',
-  'getValueFromEvent',
-  'getValueProps',
-  'hasFeedback',
-  'help',
-  'hidden',
-  'htmlFor',
-  'initialValue',
-  'label',
-  'labelAlign',
-  'labelCol',
-  'messageVariables',
-  'name',
-  'normalize',
-  'noStyle',
-  'preserve',
-  'required',
-  'rules',
-  'shouldUpdate',
-  'tooltip',
-  'trigger',
-  'validateFirst',
-  'validateStatus',
-  'validateTrigger',
-  'valuePropName',
-  'wrapperCol',
-];
-
 function RelientField({
-  children,
   component = Input,
   element,
-  getLabel,
-  ...field
+  componentProps,
+  listProps,
+  ...itemProps
 }: FieldProps) {
-  const itemProps = pick(itemPropKeys, field);
-  const componentProps = omit(itemPropKeys, field);
-
   if (isValidElement(element)) {
     return (
       <Item
@@ -100,11 +59,7 @@ function RelientField({
     );
   }
 
-  return children ? (
-    <List initialValue={field.initialValue} name={field.name} rules={field.rules as ValidatorRule[]}>
-      {children}
-    </List>
-  ) : (
+  return listProps ? createElement(List, listProps) : (
     <Item
       labelCol={labelCol}
       wrapperCol={wrapperCol}

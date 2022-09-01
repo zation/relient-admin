@@ -6,12 +6,12 @@ import {
 import { map } from 'lodash/fp';
 import { Alert } from 'antd';
 
-export interface ErrorProps {
+export interface FormErrorProps {
   errors?: string[]
   error?: string
 }
 
-function RelientError({ errors, error }: ErrorProps) {
+function RelientFormError({ errors, error }: FormErrorProps) {
   if (error) {
     return (
       <Alert
@@ -40,9 +40,9 @@ function RelientError({ errors, error }: ErrorProps) {
   return null;
 }
 
-RelientError.propTypes = {
+RelientFormError.propTypes = {
   errors: array,
   error: string,
 };
 
-export default RelientError;
+export default RelientFormError;

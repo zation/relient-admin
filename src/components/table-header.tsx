@@ -65,8 +65,8 @@ export interface ResetButton {
 export interface TableHeaderProps<Model,
   CreatorValues,
   EditorValues,
-  CreatorSubmitReturn,
-  EditorSubmitReturn> {
+  CreatorSubmitReturn = void,
+  EditorSubmitReturn = void> {
   query?: {
     onFieldChange: SelectProps['onSelect'],
     onValueChange: SearchProps['onChange']

@@ -33,7 +33,7 @@ import useForm, {
 import Error from './error';
 import Field, { FieldProps } from './field';
 
-export interface FooterParams<Values, SubmitReturn> {
+export interface FooterParams<Values, SubmitReturn = void> {
   onCancel?: () => void
   form: FormInstance<Values>
   submit?: Submit<Values, SubmitReturn>

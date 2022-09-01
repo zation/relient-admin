@@ -6,6 +6,8 @@ import {
 import {
   number,
   oneOf,
+  func,
+  string,
 } from 'prop-types';
 import {
   NormalStatus,
@@ -19,15 +21,21 @@ interface UpdateParams {
 
 export interface SwitchStatusProps extends UpdateParams {
   update: (params: UpdateParams) => void
+  successMessage?: string
 }
 
-function RelientSwitchStatus({ id, status, update }: SwitchStatusProps) {
+function RelientSwitchStatus({
+  id,
+  status,
+  update,
+  successMessage = '编辑成功',
+}: SwitchStatusProps) {
   const toggleNormalStatus = useCallback(async () => {
     await update({
       id,
       status: status === NormalStatus.Active ? NormalStatus.Inactive : NormalStatus.Active,
     });
-    message.success('编辑成功');
+    message.success(successMessage);
   }, [status, id]);
 
   return <Switch checked={status === NormalStatus.Active} onChange={toggleNormalStatus} />;
@@ -36,6 +44,8 @@ function RelientSwitchStatus({ id, status, update }: SwitchStatusProps) {
 RelientSwitchStatus.propTypes = {
   id: number.isRequired,
   status: oneOf(normalStatuses).isRequired,
+  update: func.isRequired,
+  successMessage: string,
 };
 
 export default RelientSwitchStatus;

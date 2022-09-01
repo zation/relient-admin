@@ -21,7 +21,7 @@ import Field, { FieldProps } from './field';
 
 const { Item } = Form;
 
-export interface FormProps<Values, SubmitReturn> {
+export interface FormProps<Values, SubmitReturn = void> {
   initialValues?: Partial<Values>
   onSubmit: OnSubmit<Values, SubmitReturn>
   fields?: FieldProps<Values>[]
