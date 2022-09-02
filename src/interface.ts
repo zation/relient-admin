@@ -66,12 +66,12 @@ export interface ShowTotal {
   (total: number, range: [number, number]): ReactNode
 }
 
-export interface Creator<Values, SubmitReturn = void> extends FormPopProps<Values, SubmitReturn> {
+export interface Creator<Values, SubmitReturn = any> extends FormPopProps<Values, SubmitReturn> {
   onOpen?: () => void
   successMessage?: boolean | string
 }
 
-export interface Editor<Item, Values, SubmitReturn = void>
+export interface Editor<Item, Values, SubmitReturn = any>
   extends Omit<FormPopProps<Values, SubmitReturn>, 'onSubmit'> {
   onOpen?: () => void
   shouldReload?: boolean

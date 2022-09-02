@@ -21,7 +21,7 @@ import Field, { FieldProps } from './field';
 
 const { Item } = Form;
 
-export interface FormProps<Values, SubmitReturn = void> {
+export interface FormProps<Values, SubmitReturn = any> {
   initialValues?: Partial<Values>
   onSubmit: OnSubmit<Values, SubmitReturn>
   fields?: FieldProps<Values>[]
@@ -31,7 +31,7 @@ export interface FormProps<Values, SubmitReturn = void> {
   resetText?: string
 }
 
-function RelientForm<Values, SubmitReturn = void>({
+function RelientForm<Values, SubmitReturn = any>({
   initialValues,
   onSubmit,
   fields,

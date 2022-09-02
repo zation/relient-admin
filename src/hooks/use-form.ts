@@ -25,7 +25,7 @@ export interface OnSubmit<Values, SubmitReturn> {
   (values: Values, form: FormInstance): Promise<SubmitReturn>
 }
 
-export interface Submit<Values, SubmitReturn = void> {
+export interface Submit<Values, SubmitReturn = any> {
   (values: Values): Promise<SubmitReturn>
 }
 
@@ -45,7 +45,7 @@ interface Result<Values, SubmitReturn> {
 
 const checkValid = every<FieldError>(flow(prop('errors'), size, eq(0)));
 
-export default function useFormHook<Values, SubmitReturn = void>(
+export default function useFormHook<Values, SubmitReturn = any>(
   onSubmit: OnSubmit<Values, SubmitReturn>,
   deps = [],
   checkEditing = false,

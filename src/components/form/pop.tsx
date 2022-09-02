@@ -33,13 +33,13 @@ import useForm, {
 import Error from './error';
 import Field, { FieldProps } from './field';
 
-export interface FooterParams<Values, SubmitReturn = void> {
+export interface FooterParams<Values, SubmitReturn = any> {
   onCancel?: () => void
   form: FormInstance<Values>
   submit?: Submit<Values, SubmitReturn>
 }
 
-export interface FormPopProps<Values, SubmitReturn = void>
+export interface FormPopProps<Values, SubmitReturn = any>
   extends Omit<DrawerProps, 'getContainer'>, Omit<ModalProps, 'getContainer'> {
   onSubmit: OnSubmit<Values, SubmitReturn>
   visible: boolean
@@ -56,7 +56,7 @@ export interface FormPopProps<Values, SubmitReturn = void>
   submitText?: string
 }
 
-function RelientFormPop<Values, SubmitReturn = void>({
+function RelientFormPop<Values, SubmitReturn = any>({
   onSubmit,
   visible,
   onClose,

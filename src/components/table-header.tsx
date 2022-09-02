@@ -49,7 +49,7 @@ export interface DatePickerItem {
 export interface CreateButton {
   text: string
   element?: ReactNode
-  onClick: MouseEventHandler<HTMLElement>
+  onClick?: MouseEventHandler<HTMLElement>
   size?: ButtonProps['size']
   type?: ButtonProps['type']
 }
@@ -65,8 +65,8 @@ export interface ResetButton {
 export interface TableHeaderProps<Model,
   CreatorValues,
   EditorValues,
-  CreatorSubmitReturn = void,
-  EditorSubmitReturn = void> {
+  CreatorSubmitReturn = any,
+  EditorSubmitReturn = any> {
   query?: {
     onFieldChange: SelectProps['onSelect'],
     onValueChange: SearchProps['onChange']
@@ -95,7 +95,7 @@ export interface TableHeaderProps<Model,
   openEditor?: (dataSource?: any) => void
 }
 
-function RelientTableHeader<Model, CreatorValues, EditorValues, CreatorSubmitReturn = void, EditorSubmitReturn = void>({
+function RelientTableHeader<Model, CreatorValues, EditorValues, CreatorSubmitReturn = any, EditorSubmitReturn = any>({
   query,
   createButton,
   filter,

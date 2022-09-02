@@ -122,7 +122,11 @@ async function onFetch<Modal>(
 
 const onQueryFetch = debounce(500, onFetch);
 
-export interface UseApiTableParams<Model, CreatorValues, EditorValues, CreatorReturn, EditorReturn> {
+export interface UseApiTableParams<Model,
+  CreatorValues,
+  EditorValues,
+  CreatorSubmitReturn = any,
+  EditorSubmitReturn = any> {
   query?: {
     onFieldChange?: (fieldKey: string) => void
     onValueChange?: (value?: string) => void
@@ -140,16 +144,16 @@ export interface UseApiTableParams<Model, CreatorValues, EditorValues, CreatorRe
   pagination?: PaginationProps
   paginationInitialData: PaginationData
   readAction: ReadAction<Model>
-  creator?: Creator<CreatorValues, CreatorReturn>
-  editor?: Editor<Model, EditorValues, EditorReturn>
+  creator?: Creator<CreatorValues, CreatorSubmitReturn>
+  editor?: Editor<Model, EditorValues, EditorSubmitReturn>
   details?: Details<Model>
 }
 
 export default function useApiTable<Model,
-  CreatorValues = Partial<Model>,
+  CreatorValues = Omit<Model, 'id'>,
   EditorValues = Partial<Model>,
-  CreatorSubmitReturn = void,
-  EditorSubmitReturn = void>({
+  CreatorSubmitReturn = any,
+  EditorSubmitReturn = any>({
   query,
   filters,
   createButton,

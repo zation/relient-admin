@@ -54,7 +54,11 @@ export interface CustomQuery<Model> {
 
 export type CustomQueryValue = Record<string, undefined | string | null>;
 
-export interface UseLocalTableParams<Model, CreatorValues, EditorValues, CreatorReturn, EditorReturn> {
+export interface UseLocalTableParams<Model,
+  CreatorValues,
+  EditorValues,
+  CreatorSubmitReturn = any,
+  EditorSubmitReturn = any> {
   query?: {
     onFieldChange?: (fieldKey: string) => void
     onValueChange?: (value?: string) => void
@@ -74,16 +78,16 @@ export interface UseLocalTableParams<Model, CreatorValues, EditorValues, Creator
     showTotal?: ShowTotal
   }
   paginationInitialData: PaginationData
-  creator?: Creator<CreatorValues, CreatorReturn>
-  editor?: Editor<Model, EditorValues, EditorReturn>
+  creator?: Creator<CreatorValues, CreatorSubmitReturn>
+  editor?: Editor<Model, EditorValues, EditorSubmitReturn>
   details?: Details<Model>
 }
 
 export default function useLocalTable<Model,
-  CreatorValues = Partial<Model>,
+  CreatorValues = Omit<Model, 'id'>,
   EditorValues = Partial<Model>,
-  CreatorSubmitReturn = void,
-  EditorSubmitReturn = void>({
+  CreatorSubmitReturn = any,
+  EditorSubmitReturn = any>({
   query,
   customQueries,
   resetButton,
