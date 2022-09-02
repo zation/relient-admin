@@ -32,7 +32,7 @@ import {
 
 const { Item, List } = Form;
 
-export interface FieldProps<Values = any> extends Omit<FormItemProps<Values>, 'children'> {
+export interface FieldProps extends Omit<FormItemProps, 'children'> {
   component?: ComponentType
   name: NamePath
   element?: ReactElement

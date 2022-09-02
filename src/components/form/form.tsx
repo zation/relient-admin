@@ -24,8 +24,8 @@ const { Item } = Form;
 export interface FormProps<Values, SubmitReturn = any> {
   initialValues?: Partial<Values>
   onSubmit: OnSubmit<Values, SubmitReturn>
-  fields?: FieldProps<Values>[]
-  getFields?: (form: FormInstance<Values>) => FieldProps<Values>[]
+  fields?: FieldProps[]
+  getFields?: (form: FormInstance<Values>) => FieldProps[]
   checkEditing?: boolean
   submitText?: string
   resetText?: string
@@ -55,7 +55,7 @@ function RelientForm<Values, SubmitReturn = any>({
     <Form<Values> onFinish={submit} form={form} initialValues={initialValues} onFieldsChange={onFieldsChange}>
       <Error error={defaultError} />
 
-      {map<FieldProps<Values>, ReactNode>(
+      {map<FieldProps, ReactNode>(
         (field) => {
           const { name, label } = field;
           let key = '';
