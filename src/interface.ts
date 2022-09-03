@@ -66,13 +66,16 @@ export interface ShowTotal {
   (total: number, range: [number, number]): ReactNode
 }
 
-export interface Creator<Values, SubmitReturn = any> extends FormPopProps<Values, SubmitReturn> {
+export interface Creator<Values, SubmitReturn = any>
+  extends Omit<FormPopProps<Values, SubmitReturn>, 'visible' | 'onClose'> {
   onOpen?: () => void
   successMessage?: boolean | string
+  visible?: boolean
+  onClose?: () => void
 }
 
 export interface Editor<Item, Values, SubmitReturn = any>
-  extends Omit<FormPopProps<Values, SubmitReturn>, 'onSubmit'> {
+  extends Omit<FormPopProps<Values, SubmitReturn>, 'onSubmit' | 'visible' | 'onClose'> {
   onOpen?: () => void
   shouldReload?: boolean
   getInitialValues?: (item: Item | undefined) => Partial<Values>
@@ -82,6 +85,8 @@ export interface Editor<Item, Values, SubmitReturn = any>
     item: Item,
   ) => Promise<SubmitReturn>
   successMessage?: boolean | string
+  visible?: boolean
+  onClose?: () => void
 }
 
 export interface Details<Item> extends DetailsProps<Item> {

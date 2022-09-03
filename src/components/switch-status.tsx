@@ -4,7 +4,6 @@ import {
   Switch,
 } from 'antd';
 import {
-  number,
   oneOf,
   func,
   string,
@@ -14,22 +13,19 @@ import {
   normalStatuses,
 } from '../constants/normal-status';
 
-interface UpdateParams {
-  id: number | string
+export interface SwitchStatusProps<ID> {
+  id: ID
   status?: NormalStatus
-}
-
-export interface SwitchStatusProps extends UpdateParams {
-  update: (params: UpdateParams) => void
+  update: (params: { id: ID, status?: NormalStatus }) => any
   successMessage?: string
 }
 
-function RelientSwitchStatus({
+function RelientSwitchStatus<ID>({
   id,
   status,
   update,
   successMessage = '编辑成功',
-}: SwitchStatusProps) {
+}: SwitchStatusProps<ID>) {
   const toggleNormalStatus = useCallback(async () => {
     await update({
       id,
@@ -42,7 +38,7 @@ function RelientSwitchStatus({
 }
 
 RelientSwitchStatus.propTypes = {
-  id: number.isRequired,
+  // id: any.isRequired, // NOTICE: conflict with ts check
   status: oneOf(normalStatuses).isRequired,
   update: func.isRequired,
   successMessage: string,

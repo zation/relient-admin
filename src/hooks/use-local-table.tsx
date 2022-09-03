@@ -77,7 +77,7 @@ export interface UseLocalTableParams<Model,
     pageSize?: number
     showTotal?: ShowTotal
   }
-  paginationInitialData: PaginationData
+  paginationInitialData?: PaginationData
   creator?: Creator<CreatorValues, CreatorSubmitReturn>
   editor?: Editor<Model, EditorValues, EditorSubmitReturn>
   details?: Details<Model>

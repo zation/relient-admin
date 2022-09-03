@@ -11,22 +11,24 @@ import {
 import type {
   NamePath,
 } from 'rc-field-form/es/interface';
-import { FormRule, FormInstance } from 'antd';
+import {
+  FormRule,
+} from 'antd';
 import type { I18N } from '../interface';
 
 export const createSameAsRule = (i18n: I18N = identity) => (messageKey: string) => (
   targetNamePath: NamePath,
   targetLabel?: string,
-) => ({ getFieldValue }: FormInstance) => ({
-  async validator(rule: FormRule, value: any) {
-    if (value && getFieldValue(targetNamePath) !== value) {
+): FormRule => (form) => ({
+  async validator(_: any, value: any) {
+    if (value && form.getFieldValue(targetNamePath) !== value) {
       throw i18n(messageKey, { targetLabel, value });
     }
   },
 });
 
 export const createPositiveNumberRule = (i18n: I18N = identity) => (messageKey: string) => ({
-  async validator(rule: FormRule, value: any) {
+  async validator(_: any, value: any) {
     if (value !== '' && Number(value) <= 0) {
       throw i18n(messageKey, { value });
     }
@@ -34,7 +36,7 @@ export const createPositiveNumberRule = (i18n: I18N = identity) => (messageKey: 
 });
 
 export const createPriceRule = (i18n: I18N = identity) => (messageKey: string) => ({
-  async validator(rule: FormRule, value: any) {
+  async validator(_: any, value: any) {
     if (value === '' || isNil(value)) {
       return undefined;
     }
