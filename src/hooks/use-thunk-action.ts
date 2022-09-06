@@ -10,15 +10,16 @@ import {
   useDispatch,
 } from 'react-redux';
 
-type GetReturned<T> = T extends AsyncThunk<infer Returned, any, any> ? Returned : never;
-type GetThunkArg<T> = T extends AsyncThunk<any, infer ThunkArg, any> ? ThunkArg : never;
+type AnyAsyncThunk = AsyncThunk<any, any, any>;
 
-const bindThunkAction = <T extends AsyncThunk<any, any, any>, D extends ThunkDispatch<any, any, any>>(
+type BindThunkAction<T extends AnyAsyncThunk> = (arg: Parameters<T>[0]) => Promise<Parameters<T>[1]>;
+
+const bindThunkAction = <T extends AnyAsyncThunk, D extends ThunkDispatch<any, any, any>>(
   actionCreator: T,
   dispatch: D,
-) => (arg: GetThunkArg<T>): Promise<GetReturned<T>> => dispatch(actionCreator(arg)).unwrap();
+): BindThunkAction<T> => (arg) => dispatch(actionCreator(arg)).unwrap();
 
-export const useThunkAction = <T extends AsyncThunk<any, any, any>>(actionCreator: T) => {
+export const useThunkAction = <T extends AnyAsyncThunk>(actionCreator: T) => {
   const dispatch = useDispatch();
   return useCallback(
     bindThunkAction(actionCreator, dispatch),
@@ -26,15 +27,9 @@ export const useThunkAction = <T extends AsyncThunk<any, any, any>>(actionCreato
   );
 };
 
-type Params = {
-  [key: string]: AsyncThunk<any, any, any>
-};
-
-type Result<P extends Params> = {
-  [K in keyof P]: (args: GetThunkArg<P[K]>) => Promise<GetReturned<P[K]>>
-};
-
-export const useThunkActions = <P extends Params>(actionCreators: P): Result<P> => {
+export const useThunkActions = <T extends { [key: string]: AnyAsyncThunk }>(
+  actionCreators: T,
+): { [Key in keyof T]: BindThunkAction<T[Key]> } => {
   const dispatch = useDispatch();
   return useMemo(
     () => {
