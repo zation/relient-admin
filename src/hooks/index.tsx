@@ -5,3 +5,4 @@ export { default as useIsFormEditing } from './use-is-form-editing';
 export { default as useDetails } from './use-details';
 export { default as useTableFilter } from './use-table-filter';
 export { default as useTableSearch } from './use-table-search';
+export { useThunkActions, useThunkAction } from './use-thunk-action';
