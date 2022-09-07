@@ -12,6 +12,7 @@ import {
   FormInstance,
   DrawerProps,
   ModalProps,
+  FormProps,
 } from 'antd';
 import {
   func,
@@ -32,6 +33,10 @@ import useForm, {
 } from '../../hooks/use-form';
 import Error from './error';
 import Field, { FieldProps } from './field';
+import {
+  defaultLabelCol,
+  defaultWrapperCol,
+} from '../../constants/default-field-layout';
 
 export interface FooterParams<Values, SubmitReturn = any> {
   onCancel?: () => void
@@ -39,8 +44,9 @@ export interface FooterParams<Values, SubmitReturn = any> {
   submit?: Submit<Values, SubmitReturn>
 }
 
-export interface FormPopProps<Values, SubmitReturn = any>
-  extends Omit<DrawerProps, 'getContainer'>, Omit<ModalProps, 'getContainer'> {
+export interface FormPopProps<Values, SubmitReturn = any> extends Omit<DrawerProps, 'getContainer'>,
+  Omit<ModalProps, 'getContainer'>,
+  Pick<FormProps<Values>, 'labelCol' | 'wrapperCol' | 'name'> {
   onSubmit: OnSubmit<Values, SubmitReturn>
   visible: boolean
   initialValues?: Partial<Values>
@@ -71,6 +77,9 @@ function RelientFormPop<Values, SubmitReturn = any>({
   levelMove = 370,
   submitText = '提交',
   cancelText = '取消',
+  labelCol = defaultLabelCol,
+  wrapperCol = defaultWrapperCol,
+  name,
   ...props
 }: FormPopProps<Values, SubmitReturn>) {
   const {
@@ -116,11 +125,19 @@ function RelientFormPop<Values, SubmitReturn = any>({
     </div>
   );
   const children = (
-    <Form<Values> initialValues={initialValues} form={form} onFieldsChange={onFieldsChange} onFinish={submit}>
+    <Form<Values>
+      initialValues={initialValues}
+      form={form}
+      onFieldsChange={onFieldsChange}
+      onFinish={submit}
+      labelCol={labelCol}
+      wrapperCol={wrapperCol}
+      name={name}
+    >
       <Error error={defaultError} />
 
-      {map(
-        (field: FieldProps) => (<Field key={field.name.toString()} {...field} />),
+      {map<FieldProps, ReactNode>(
+        (field) => (<Field key={field.name.toString()} {...field} />),
       )(fields || (getFields && getFields(form)))}
     </Form>
   );

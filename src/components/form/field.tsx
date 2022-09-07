@@ -1,5 +1,4 @@
-/* eslint-disable react/jsx-props-no-spreading */
-import React, {
+import {
   createElement,
   isValidElement,
   ComponentType,
@@ -25,10 +24,6 @@ import type {
   FormListProps,
 } from 'antd/es/form/FormList';
 import type { FormItemProps } from 'antd/es/form';
-import {
-  labelCol,
-  wrapperCol,
-} from '../../constants/default-field-layout';
 
 const { Item, List } = Form;
 
@@ -48,26 +43,12 @@ function RelientField({
   ...itemProps
 }: FieldProps) {
   if (isValidElement(element)) {
-    return (
-      <Item
-        labelCol={labelCol}
-        wrapperCol={wrapperCol}
-        {...itemProps}
-      >
-        {element}
-      </Item>
-    );
+    return createElement(Item, itemProps, element);
   }
 
-  return listProps ? createElement(List, listProps) : (
-    <Item
-      labelCol={labelCol}
-      wrapperCol={wrapperCol}
-      {...itemProps}
-    >
-      {createElement(component, componentProps)}
-    </Item>
-  );
+  return listProps
+    ? createElement(List, listProps)
+    : createElement(Item, itemProps, createElement(component, componentProps));
 }
 
 RelientField.propTypes = {

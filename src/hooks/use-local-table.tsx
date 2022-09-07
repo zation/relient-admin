@@ -71,7 +71,7 @@ export interface UseLocalTableParams<Model,
   showReset?: boolean
   filters?: Filter<Model>[]
   createButton?: CreateButton
-  resetButton?: ResetButton
+  resetButton?: Partial<ResetButton> | boolean
   datePickers?: DatePicker[]
   pagination?: {
     pageSize?: number
@@ -398,6 +398,7 @@ export default function useLocalTable<Model,
         onSelect: onFilterValueChange,
       }}
       editor={editor && {
+        name: 'editor',
         ...editor,
         initialValues: getEditorInitialValues
           ? getEditorInitialValues(editItem)
@@ -415,6 +416,7 @@ export default function useLocalTable<Model,
         close: closeDetails,
       }}
       creator={creator && {
+        name: 'creator',
         ...creator,
         onSubmit: onCreatorSubmit,
         visible: creatorVisible,

@@ -1,3 +1,3 @@
-export const wrapperCol = { span: 14 };
+export const defaultWrapperCol = { span: 14 };
 
-export const labelCol = { span: 8 };
+export const defaultLabelCol = { span: 8 };

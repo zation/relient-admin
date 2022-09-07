@@ -603,12 +603,14 @@ export default function useApiTable<Model,
         close: closeDetails,
       }}
       creator={creator && {
+        name: 'creator',
         ...creator,
         onSubmit: onCreatorSubmit,
         visible: creatorVisible,
         onClose: closeCreator,
       }}
       editor={editor && {
+        name: 'editor',
         ...editor,
         initialValues: getEditorInitialValues
           ? getEditorInitialValues(editItem)

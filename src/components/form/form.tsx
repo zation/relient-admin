@@ -7,6 +7,7 @@ import {
   Form,
   Button,
   FormInstance,
+  FormProps as AntdFormProps,
 } from 'antd';
 import {
   func,
@@ -18,10 +19,14 @@ import { map } from 'lodash/fp';
 import useForm, { OnSubmit } from '../../hooks/use-form';
 import Error from './error';
 import Field, { FieldProps } from './field';
+import {
+  defaultLabelCol,
+  defaultWrapperCol,
+} from '../../constants/default-field-layout';
 
 const { Item } = Form;
 
-export interface FormProps<Values, SubmitReturn = any> {
+export interface FormProps<Values, SubmitReturn = any> extends AntdFormProps<Values> {
   initialValues?: Partial<Values>
   onSubmit: OnSubmit<Values, SubmitReturn>
   fields?: FieldProps[]
@@ -39,6 +44,9 @@ function RelientForm<Values, SubmitReturn = any>({
   checkEditing,
   submitText = '提交',
   resetText = '重置',
+  labelCol = defaultLabelCol,
+  wrapperCol = defaultWrapperCol,
+  name,
 }: FormProps<Values, SubmitReturn>) {
   const {
     submit,
@@ -52,20 +60,19 @@ function RelientForm<Values, SubmitReturn = any>({
   const reset = useCallback(() => form.resetFields(), [form.resetFields]);
 
   return (
-    <Form<Values> onFinish={submit} form={form} initialValues={initialValues} onFieldsChange={onFieldsChange}>
+    <Form<Values>
+      onFinish={submit}
+      form={form}
+      initialValues={initialValues}
+      onFieldsChange={onFieldsChange}
+      name={name}
+      labelCol={labelCol}
+      wrapperCol={wrapperCol}
+    >
       <Error error={defaultError} />
 
       {map<FieldProps, ReactNode>(
-        (field) => {
-          const { name, label } = field;
-          let key = '';
-          if (name) {
-            key = name.toString();
-          } else if (label) {
-            key = label.toString();
-          }
-          return <Field key={key} {...field} />;
-        },
+        (field) => (<Field key={field.name.toString()} {...field} />),
       )(fields || (getFields && getFields(form)))}
 
       <Item wrapperCol={{ span: 10, offset: 8 }}>
