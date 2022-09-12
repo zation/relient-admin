@@ -28,7 +28,7 @@ import type { FormItemProps } from 'antd/es/form';
 const { Item, List } = Form;
 
 export interface FieldProps extends Omit<FormItemProps, 'children'> {
-  component?: ComponentType
+  component?: ComponentType<any>
   name: NamePath
   element?: ReactElement
   componentProps?: Record<string, any>

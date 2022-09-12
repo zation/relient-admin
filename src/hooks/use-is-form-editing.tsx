@@ -10,12 +10,12 @@ interface Params {
   dirty: boolean
   submitSucceeded: boolean
   checkEditing?: boolean
-  visible?: boolean
+  open?: boolean
 }
 
-export default ({ dirty, submitSucceeded, checkEditing, visible }: Params) => useEffect(() => {
-  window.isFormEditing = !!checkEditing && dirty && !submitSucceeded && !!visible;
+export default ({ dirty, submitSucceeded, checkEditing, open }: Params) => useEffect(() => {
+  window.isFormEditing = !!checkEditing && dirty && !submitSucceeded && !!open;
   return () => {
     window.isFormEditing = false;
   };
-}, [dirty, submitSucceeded, checkEditing, visible]);
+}, [dirty, submitSucceeded, checkEditing, open]);

@@ -32,7 +32,7 @@ import { DomainContext } from '../../contexts';
 import { Style } from '../../interface';
 
 interface Preview {
-  visible: boolean
+  open: boolean
   title?: string
   image?: string
 }
@@ -74,7 +74,7 @@ function RelientMultipleUploader({
   authorizationCookie = 'AUTHORIZATION',
 }: MultipleUploaderProps) {
   const { cdnDomain } = useContext(DomainContext);
-  const [preview, setPreview] = useState<Preview>({ visible: false });
+  const [preview, setPreview] = useState<Preview>({ open: false });
   const defaultFileList = useMemo(() => map(({ url, ...others }: UploadFile) => ({
     url: !url || startsWith('http://')(url) || startsWith('https://')(url) ? url : `${cdnDomain}${url}`,
     status: 'done' as UploadFileStatus,
@@ -82,7 +82,7 @@ function RelientMultipleUploader({
     uid: others.uid || url || others.fileName || '',
   }))(value), [value]);
   const authorization = cookie.get(authorizationCookie);
-  const onPreviewCancel = useCallback(() => setPreview({ visible: false }), []);
+  const onPreviewCancel = useCallback(() => setPreview({ open: false }), []);
 
   return (
     <div
@@ -108,7 +108,7 @@ function RelientMultipleUploader({
         }}
         onPreview={async (file) => {
           setPreview({
-            visible: true,
+            open: true,
             title: file.name || file.url,
             image: file.url || (file.originFileObj && await getBase64(file.originFileObj)),
           });
@@ -130,7 +130,7 @@ function RelientMultipleUploader({
           )}
       </Upload>
       <Modal
-        visible={preview.visible}
+        open={preview.open}
         title={preview.title}
         footer={null}
         onCancel={onPreviewCancel}

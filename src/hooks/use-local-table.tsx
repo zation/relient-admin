@@ -139,8 +139,8 @@ export default function useLocalTable<Model,
     setQueryValue,
     filterValues,
     setFilterValues,
-    creatorVisible,
-    editorVisible,
+    creatorOpen,
+    editorOpen,
     editItem,
     openCreator,
     closeCreator,
@@ -148,7 +148,7 @@ export default function useLocalTable<Model,
     closeEditor,
     openDetails,
     closeDetails,
-    detailsVisible,
+    detailsOpen,
     detailsItem,
     reset,
   } = useBasicTable({
@@ -404,7 +404,7 @@ export default function useLocalTable<Model,
           ? getEditorInitialValues(editItem)
           : editItem as Partial<EditorValues>,
         onSubmit: onEditorSubmit,
-        visible: editorVisible,
+        open: editorOpen,
         onClose: closeEditor,
       }}
       details={details && {
@@ -412,14 +412,14 @@ export default function useLocalTable<Model,
         dataSource: getDetailsDataSource
           ? getDetailsDataSource(detailsItem!)
           : detailsItem,
-        visible: detailsVisible,
+        open: detailsOpen,
         close: closeDetails,
       }}
       creator={creator && {
         name: 'creator',
         ...creator,
         onSubmit: onCreatorSubmit,
-        visible: creatorVisible,
+        open: creatorOpen,
         onClose: closeCreator,
       }}
       openEditor={openEditor}

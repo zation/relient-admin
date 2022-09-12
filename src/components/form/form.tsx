@@ -56,7 +56,7 @@ function RelientForm<Values, SubmitReturn = any>({
     pristine,
     onFieldsChange,
     form,
-  } = useForm(onSubmit, [], checkEditing, true);
+  } = useForm(onSubmit, checkEditing, true);
   const reset = useCallback(() => form.resetFields(), [form.resetFields]);
 
   return (

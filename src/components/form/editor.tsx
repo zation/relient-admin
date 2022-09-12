@@ -11,7 +11,6 @@ import {
   object,
 } from 'prop-types';
 import tinymce, {
-  Editor as TinyMCEEditor,
   EditorOptions,
 } from 'tinymce/tinymce';
 import 'tinymce/models/dom/model';
@@ -111,7 +110,7 @@ const getImageUploadHandler = ({ uploadUrl }: { uploadUrl?: string }): EditorOpt
 });
 
 export interface EditorProps extends Omit<IProps, 'onEditorChange'>, Omit<IEvents, 'onChange'> {
-  onChange: (a: string, editor: TinyMCEEditor) => void
+  onChange: IProps['onEditorChange']
   uploadUrl?: string
   language?: 'en_US' | 'zh_CN'
 }

@@ -41,7 +41,7 @@ export interface DetailsItem<Model> {
 }
 
 export interface DetailsProps<Model> {
-  visible: boolean
+  open: boolean
   title?: ReactNode
   dataSource?: Model
   items: DetailsItem<Model>[]
@@ -49,8 +49,7 @@ export interface DetailsProps<Model> {
   itemDataStyle?: Style
   editButtonText?: string
   children?: ReactNode
-  level?: DrawerProps['level']
-  levelMove?: DrawerProps['levelMove']
+  push?: DrawerProps['push']
   editable?: boolean
   openEditor?: (dataSource?: Model) => void
   close?: () => void
@@ -58,7 +57,7 @@ export interface DetailsProps<Model> {
 }
 
 function RelientDetails<Model>({
-  visible,
+  open,
   title,
   dataSource,
   items,
@@ -69,13 +68,12 @@ function RelientDetails<Model>({
   itemTitleStyle,
   itemDataStyle,
   children,
-  level,
-  levelMove,
+  push,
   defaultDisplay = '-',
 }: DetailsProps<Model>) {
   return (
     <Drawer
-      visible={visible}
+      open={open}
       title={(
         <div className="relient-admin-details-title">
           <div
@@ -100,8 +98,7 @@ function RelientDetails<Model>({
       onClose={close}
       width={528}
       closable={false}
-      level={level}
-      levelMove={levelMove}
+      push={push}
     >
       <table className="relient-admin-details-table">
         <tbody>
@@ -179,7 +176,7 @@ function RelientDetails<Model>({
 
 // NOTICE: conflict with ts
 // Details.propTypes = {
-//   visible: bool.isRequired,
+//   open: bool.isRequired,
 //   title: node,
 //   dataSource: object,
 //   items: arrayOf(

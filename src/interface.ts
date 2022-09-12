@@ -67,15 +67,15 @@ export interface ShowTotal {
 }
 
 export interface Creator<Values, SubmitReturn = any>
-  extends Omit<FormPopProps<Values, SubmitReturn>, 'visible' | 'onClose'> {
+  extends Omit<FormPopProps<Values, SubmitReturn>, 'open' | 'onClose'> {
   onOpen?: () => void
   successMessage?: boolean | string
-  visible?: boolean
+  open?: boolean
   onClose?: () => void
 }
 
 export interface Editor<Item, Values, SubmitReturn = any>
-  extends Omit<FormPopProps<Values, SubmitReturn>, 'onSubmit' | 'visible' | 'onClose'> {
+  extends Omit<FormPopProps<Values, SubmitReturn>, 'onSubmit' | 'open' | 'onClose'> {
   onOpen?: () => void
   shouldReload?: boolean
   getInitialValues?: (item: Item | undefined) => Partial<Values>
@@ -85,7 +85,7 @@ export interface Editor<Item, Values, SubmitReturn = any>
     item: Item,
   ) => Promise<SubmitReturn>
   successMessage?: boolean | string
-  visible?: boolean
+  open?: boolean
   onClose?: () => void
 }
 

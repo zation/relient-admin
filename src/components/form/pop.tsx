@@ -20,9 +20,8 @@ import {
   array,
   object,
   number,
-  elementType,
-  ReactComponentLike,
   any,
+  oneOf,
 } from 'prop-types';
 import {
   map,
@@ -41,20 +40,20 @@ import {
 export interface FooterParams<Values, SubmitReturn = any> {
   onCancel?: () => void
   form: FormInstance<Values>
-  submit?: Submit<Values, SubmitReturn>
+  submit?: Submit<SubmitReturn>
 }
 
 export interface FormPopProps<Values, SubmitReturn = any> extends Omit<DrawerProps, 'getContainer'>,
   Omit<ModalProps, 'getContainer'>,
   Pick<FormProps<Values>, 'labelCol' | 'wrapperCol' | 'name'> {
   onSubmit: OnSubmit<Values, SubmitReturn>
-  visible: boolean
+  open: boolean
   initialValues?: Partial<Values>
   onClose: () => void
   onCancel?: () => void
   fields?: FieldProps[]
   getFields?: (form: FormInstance<Values>) => FieldProps[]
-  component?: ReactComponentLike
+  component?: 'drawer' | 'modal'
   width?: number
   checkEditing?: boolean
   getFooter?: (params: FooterParams<Values, SubmitReturn | undefined>) => ReactNode
@@ -64,7 +63,7 @@ export interface FormPopProps<Values, SubmitReturn = any> extends Omit<DrawerPro
 
 function RelientFormPop<Values, SubmitReturn = any>({
   onSubmit,
-  visible,
+  open,
   onClose,
   onCancel,
   fields,
@@ -74,7 +73,6 @@ function RelientFormPop<Values, SubmitReturn = any>({
   width = 540,
   checkEditing,
   getFooter,
-  levelMove = 370,
   submitText = '提交',
   cancelText = '取消',
   labelCol = defaultLabelCol,
@@ -84,19 +82,20 @@ function RelientFormPop<Values, SubmitReturn = any>({
 }: FormPopProps<Values, SubmitReturn>) {
   const {
     submit,
+    reset,
     submitting,
     defaultError,
     invalid,
     pristine,
     onFieldsChange,
     form,
-  } = useForm<Values, SubmitReturn>(onSubmit, [], checkEditing, true);
+  } = useForm<Values, SubmitReturn>(onSubmit, checkEditing, true);
 
   useEffect(() => {
-    if (visible) {
-      form.resetFields();
+    if (open) {
+      reset();
     }
-  }, [visible]);
+  }, [open]);
   const onCloseOrCancel = useCallback(() => {
     if (onCancel) {
       onCancel();
@@ -114,11 +113,12 @@ function RelientFormPop<Values, SubmitReturn = any>({
         {cancelText}
       </Button>
       <Button
-        htmlType="submit"
+        htmlType="button"
         style={{ marginLeft: 20 }}
         type="primary"
         loading={submitting}
         disabled={invalid || pristine}
+        onClick={submit}
       >
         {submitText}
       </Button>
@@ -129,7 +129,6 @@ function RelientFormPop<Values, SubmitReturn = any>({
       initialValues={initialValues}
       form={form}
       onFieldsChange={onFieldsChange}
-      onFinish={submit}
       labelCol={labelCol}
       wrapperCol={wrapperCol}
       name={name}
@@ -142,15 +141,14 @@ function RelientFormPop<Values, SubmitReturn = any>({
     </Form>
   );
 
-  if (component === Drawer) {
+  if (component === 'drawer') {
     return (
       <Drawer
         forceRender
-        visible={visible}
+        open={open}
         footer={finalFooter}
         onClose={onCloseOrCancel}
         width={width}
-        levelMove={levelMove}
         {...props}
       >
         {children}
@@ -161,7 +159,7 @@ function RelientFormPop<Values, SubmitReturn = any>({
   return (
     <Modal
       forceRender
-      visible={visible}
+      open={open}
       footer={finalFooter}
       onCancel={onCloseOrCancel}
       width={width}
@@ -180,10 +178,10 @@ RelientFormPop.propTypes = {
   getFields: func,
   layout: object,
   checkEditing: bool,
-  visible: bool.isRequired,
+  open: bool.isRequired,
   onCancel: func,
   width: number,
-  component: elementType.isRequired,
+  component: oneOf<'modal' | 'drawer'>(['modal', 'drawer']),
   getFooter: func,
   onClose: func.isRequired,
 };

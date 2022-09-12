@@ -20,13 +20,13 @@ export default function useTableFilter({
   filterIcon,
   showButtons,
 }: UseTableFilterParams) {
-  const [filterDropdownVisible, onFilterDropdownVisibleChange] = useState(false);
+  const [filterDropdownOpen, onFilterDropdownOpenChange] = useState(false);
   const [filteredValue, setFilteredValue] = useState<Key[]>();
 
   return useMemo(() => ({
     filters: options,
-    filterDropdownVisible,
-    onFilterDropdownVisibleChange,
+    filterDropdownOpen,
+    onFilterDropdownOpenChange,
     filteredValue,
     filterIcon,
     // TODO: change selectedKeys according to filterValue
@@ -51,7 +51,7 @@ export default function useTableFilter({
         onConfirm={() => {
           changeFilterValue(selectedKeys, dataKey);
           setFilteredValue(selectedKeys);
-          onFilterDropdownVisibleChange(false);
+          onFilterDropdownOpenChange(false);
         }}
         onReset={() => {
           if (clearFilters) {
@@ -62,5 +62,5 @@ export default function useTableFilter({
         }}
       />
     ),
-  }), [filterDropdownVisible, changeFilterValue, dataKey, multiple, filterIcon]);
+  }), [filterDropdownOpen, changeFilterValue, dataKey, multiple, filterIcon]);
 }

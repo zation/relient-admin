@@ -26,13 +26,13 @@ export default function useTableSearch({
   width,
   showButtons,
 }: UseTableSearchParams) {
-  const [filterDropdownVisible, onFilterDropdownVisibleChange] = useState(false);
+  const [filterDropdownOpen, onFilterDropdownOpenChange] = useState(false);
   const [filteredValue, setFilteredValue] = useState<Key[]>();
 
   return useMemo(
     () => ({
-      filterDropdownVisible,
-      onFilterDropdownVisibleChange,
+      filterDropdownOpen,
+      onFilterDropdownOpenChange,
       filteredValue, // used for icon highlight
       filterIcon,
       // TODO: change inputValue in TableSearch according to filterValue
@@ -51,7 +51,7 @@ export default function useTableSearch({
               changeCustomQueryValue(value, dataKey);
             }
             setFilteredValue(value ? [value] : undefined);
-            onFilterDropdownVisibleChange(false);
+            onFilterDropdownOpenChange(false);
           }}
           onReset={() => {
             if (clearFilters) {
@@ -69,7 +69,7 @@ export default function useTableSearch({
       ),
     }),
     [
-      filterDropdownVisible,
+      filterDropdownOpen,
       changeFilterValue,
       dataKey,
       filterIcon,

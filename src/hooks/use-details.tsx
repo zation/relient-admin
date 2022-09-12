@@ -9,24 +9,24 @@ export default function useDetails<Item>({
   detailsOnOpen,
   detailsOnClose,
 }: UseDetails<Item> = {}) {
-  const [detailsVisible, setDetailsVisible] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const [detailsItem, setDetailsItem] = useState<Item | null>(null);
   const openDetails = useCallback((item: Item) => {
-    setDetailsVisible(true);
+    setDetailsOpen(true);
     setDetailsItem(item);
     if (detailsOnOpen) {
       detailsOnOpen(item);
     }
   }, [detailsOnOpen]);
   const closeDetails = useCallback(() => {
-    setDetailsVisible(false);
+    setDetailsOpen(false);
     setDetailsItem(null);
     if (detailsOnClose) {
       detailsOnClose();
     }
   }, [detailsOnClose]);
   return {
-    detailsVisible,
+    detailsOpen,
     detailsItem,
     openDetails,
     closeDetails,

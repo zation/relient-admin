@@ -86,10 +86,10 @@ export interface ReadAction<Model> {
   }>
 }
 
-async function onFetch<Modal>(
+async function onFetch<Model>(
   queryValue: string | null | undefined,
   queryField: string,
-  readAction: ReadAction<Modal>,
+  readAction: ReadAction<Model>,
   setPaginationData: (paginationData: PaginationData) => void,
   size: number,
   filterValues: FilterValue[],
@@ -223,8 +223,8 @@ export default function useApiTable<Model,
     setQueryValue,
     filterValues,
     setFilterValues,
-    creatorVisible,
-    editorVisible,
+    creatorOpen,
+    editorOpen,
     editItem,
     openCreator,
     closeCreator,
@@ -235,7 +235,7 @@ export default function useApiTable<Model,
     defaultFilterValues,
     openDetails,
     closeDetails,
-    detailsVisible,
+    detailsOpen,
     detailsItem,
   } = useBasicTable({
     fields,
@@ -599,14 +599,14 @@ export default function useApiTable<Model,
         dataSource: getDetailsDataSource
           ? getDetailsDataSource(detailsItem!)
           : detailsItem,
-        visible: detailsVisible,
+        open: detailsOpen,
         close: closeDetails,
       }}
       creator={creator && {
         name: 'creator',
         ...creator,
         onSubmit: onCreatorSubmit,
-        visible: creatorVisible,
+        open: creatorOpen,
         onClose: closeCreator,
       }}
       editor={editor && {
@@ -616,7 +616,7 @@ export default function useApiTable<Model,
           ? getEditorInitialValues(editItem)
           : editItem as Partial<EditorValues>,
         onSubmit: onEditorSubmit,
-        visible: editorVisible,
+        open: editorOpen,
         onClose: closeEditor,
       }}
       openEditor={openEditor}

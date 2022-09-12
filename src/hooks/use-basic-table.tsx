@@ -74,31 +74,31 @@ export default function useBasicTable<Model>({
   const [queryField, setQueryField] = useState(defaultQueryField);
   const [queryValue, setQueryValue] = useState('');
   const [filterValues, setFilterValues] = useState<FilterValue[]>(defaultFilterValues);
-  const [creatorVisible, setCreatorVisible] = useState(false);
-  const [editorVisible, setEditorVisible] = useState(false);
+  const [creatorOpen, setCreatorOpen] = useState(false);
+  const [editorOpen, setEditorOpen] = useState(false);
   const [editItem, setEditItem] = useState<Model | undefined>();
 
   const openCreator = useCallback(() => {
-    setCreatorVisible(true);
+    setCreatorOpen(true);
     if (creatorOnOpen) {
       creatorOnOpen();
     }
   }, [creatorOnOpen]);
   const closeCreator = useCallback(() => {
-    setCreatorVisible(false);
+    setCreatorOpen(false);
     if (creatorOnClose) {
       creatorOnClose();
     }
   }, [creatorOnClose]);
   const openEditor = useCallback((item: Model) => {
-    setEditorVisible(true);
+    setEditorOpen(true);
     setEditItem(item);
     if (editorOnOpen) {
       editorOnOpen(item);
     }
   }, [editorOnOpen]);
   const closeEditor = useCallback(() => {
-    setEditorVisible(false);
+    setEditorOpen(false);
     setEditItem(undefined);
     if (editorOnClose) {
       editorOnClose();
@@ -109,8 +109,8 @@ export default function useBasicTable<Model>({
     setQueryField(defaultQueryField);
     setQueryValue('');
     setFilterValues(defaultFilterValues);
-    setCreatorVisible(false);
-    setEditorVisible(false);
+    setCreatorOpen(false);
+    setEditorOpen(false);
     setEditItem(undefined);
   }, [
     defaultQueryField,
@@ -119,7 +119,7 @@ export default function useBasicTable<Model>({
 
   const {
     detailsItem,
-    detailsVisible,
+    detailsOpen,
     openDetails,
     closeDetails,
   } = useDetails({ detailsOnOpen, detailsOnClose });
@@ -135,8 +135,8 @@ export default function useBasicTable<Model>({
     setQueryValue,
     filterValues,
     setFilterValues,
-    creatorVisible,
-    editorVisible,
+    creatorOpen,
+    editorOpen,
     editItem,
     openCreator,
     closeCreator,
@@ -145,7 +145,7 @@ export default function useBasicTable<Model>({
     reset,
     openDetails,
     closeDetails,
-    detailsVisible,
+    detailsOpen,
     detailsItem,
   };
 }
