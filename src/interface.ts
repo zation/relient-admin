@@ -46,13 +46,13 @@ export interface DateValue {
   value: [string, string]
 }
 
-export type ID = string | number;
+export type RecordTypeId<RecordType> = RecordType extends { id: infer ID } ? ID : number;
 
-export interface PaginationData {
+export interface PaginationData<RecordType> {
   current: number
   size: number
   total: number
-  ids: ID[]
+  ids: RecordTypeId<RecordType>[]
 }
 
 export interface DatePicker {

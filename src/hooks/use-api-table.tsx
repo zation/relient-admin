@@ -43,9 +43,10 @@ import type {
   Details,
   Editor,
   PaginationData,
-  ID,
+  RecordTypeId,
   DatePicker,
 } from '../interface';
+import { PagedData } from '../utils/pagination';
 
 const omitEmpty = omitBy((val) => (isNil(val) || val === ''));
 
@@ -77,20 +78,15 @@ export interface ReadActionParams {
   page: number
 }
 
-export interface ReadAction<Model> {
-  (params: ReadActionParams): Promise<{
-    content: Model[]
-    number: number
-    size: number
-    totalElements: number
-  }>
+export interface ReadAction {
+  (params: ReadActionParams): Promise<PagedData<any>>
 }
 
-async function onFetch<Model>(
+async function onFetch<RecordType>(
   queryValue: string | null | undefined,
   queryField: string,
-  readAction: ReadAction<Model>,
-  setPaginationData: (paginationData: PaginationData) => void,
+  readAction: ReadAction,
+  setPaginationData: (paginationData: PaginationData<RecordType>) => void,
   size: number,
   filterValues: FilterValue[],
   dateValues: DateValue[],
@@ -122,9 +118,9 @@ async function onFetch<Model>(
 
 const onQueryFetch = debounce(500, onFetch);
 
-export interface UseApiTableParams<Model,
-  CreatorValues,
-  EditorValues,
+export interface UseApiTableParams<RecordType,
+  CreatorValues = Omit<RecordType, 'id'>,
+  EditorValues = Partial<RecordType>,
   CreatorSubmitReturn = any,
   EditorSubmitReturn = any> {
   query?: {
@@ -136,22 +132,22 @@ export interface UseApiTableParams<Model,
     fussyKey?: string
     searchWhenValueChange?: boolean
   }
-  filters?: Filter<Model>[]
+  filters?: Filter<RecordType>[]
   createButton?: CreateButton
   resetButton?: ResetButton | boolean
   datePickers?: DatePicker[]
-  getDataSource: (ids: ID[]) => Model[]
+  getDataSource: (ids: RecordTypeId<RecordType>[]) => RecordType[]
   pagination?: PaginationProps
-  paginationInitialData: PaginationData
-  readAction: ReadAction<Model>
+  paginationInitialData: PaginationData<RecordType>
+  readAction: ReadAction
   creator?: Creator<CreatorValues, CreatorSubmitReturn>
-  editor?: Editor<Model, EditorValues, EditorSubmitReturn>
-  details?: Details<Model>
+  editor?: Editor<RecordType, EditorValues, EditorSubmitReturn>
+  details?: Details<RecordType>
 }
 
-export default function useApiTable<Model,
-  CreatorValues = Omit<Model, 'id'>,
-  EditorValues = Partial<Model>,
+export default function useApiTable<RecordType,
+  CreatorValues = Omit<RecordType, 'id'>,
+  EditorValues = Partial<RecordType>,
   CreatorSubmitReturn = any,
   EditorSubmitReturn = any>({
   query,
@@ -172,7 +168,7 @@ export default function useApiTable<Model,
   editor,
   details,
   resetButton,
-}: UseApiTableParams<Model, CreatorValues, EditorValues, CreatorSubmitReturn, EditorSubmitReturn>) {
+}: UseApiTableParams<RecordType, CreatorValues, EditorValues, CreatorSubmitReturn, EditorSubmitReturn>) {
   const {
     onFieldChange,
     onValueChange,
@@ -202,7 +198,7 @@ export default function useApiTable<Model,
     onClose: detailsOnClose,
   } = details || {};
 
-  const [paginationData, setPaginationData] = useState<PaginationData>(paginationInitialData);
+  const [paginationData, setPaginationData] = useState<PaginationData<RecordType>>(paginationInitialData);
   useEffect(() => {
     if (initialCurrent !== paginationData.current
       || initialTotal !== paginationData.total
@@ -560,7 +556,7 @@ export default function useApiTable<Model,
       onChange: onPageChange,
       ...pagination,
     },
-    tableHeader: <RelientTableHeader<Model, CreatorValues, EditorValues, CreatorSubmitReturn, EditorSubmitReturn>
+    tableHeader: <RelientTableHeader<RecordType, CreatorValues, EditorValues, CreatorSubmitReturn, EditorSubmitReturn>
       query={{
         onFieldChange: onQueryFieldChange,
         onValueChange: onQueryValueChange,
@@ -574,7 +570,7 @@ export default function useApiTable<Model,
       }}
       createButton={createButton}
       filter={{
-        items: map<Filter<Model>, FilterItem>(({
+        items: map<Filter<RecordType>, FilterItem>(({
           dataKey,
           options,
           ...others

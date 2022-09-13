@@ -11,8 +11,10 @@ import {
 } from 'react-redux';
 
 type AnyAsyncThunk = AsyncThunk<any, any, any>;
+type GetReturned<T> = T extends AsyncThunk<infer Returned, any, any> ? Returned : never;
+type GetThunkArg<T> = T extends AsyncThunk<any, infer ThunkArg, any> ? ThunkArg : never;
 
-type BindThunkAction<T extends AnyAsyncThunk> = (arg: Parameters<T>[0]) => Promise<Parameters<T>[1]>;
+type BindThunkAction<T extends AnyAsyncThunk> = (arg: GetThunkArg<T>) => Promise<GetReturned<T>>;
 
 const bindThunkAction = <T extends AnyAsyncThunk, D extends ThunkDispatch<any, any, any>>(
   actionCreator: T,

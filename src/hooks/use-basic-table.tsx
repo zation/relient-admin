@@ -43,16 +43,16 @@ export const isFilterValuesSame = (
   },
 )(filterValues);
 
-export interface UseBasicTableParams<Item> extends UseDetails<Item> {
+export interface UseBasicTableParams<RecordType> extends UseDetails<RecordType> {
   fields: QueryField[] | null | undefined
-  filters: Filter<Item>[] | null | undefined
-  editorOnOpen?: (item: Item) => void
+  filters: Filter<RecordType>[] | null | undefined
+  editorOnOpen?: (item: RecordType) => void
   editorOnClose?: () => void
   creatorOnOpen?: () => void
   creatorOnClose?: () => void
 }
 
-export default function useBasicTable<Model>({
+export default function useBasicTable<RecordType>({
   fields,
   filters,
   editorOnOpen,
@@ -61,11 +61,11 @@ export default function useBasicTable<Model>({
   creatorOnClose,
   detailsOnOpen,
   detailsOnClose,
-}: UseBasicTableParams<Model>) {
+}: UseBasicTableParams<RecordType>) {
   const defaultQueryField = flow(first, prop<QueryField, 'dataKey'>('dataKey'))(fields);
   const defaultFilterValues = flow(
     reject(flow(prop('defaultValue'), isUndefined)),
-    map(({ defaultValue, dataKey }: Filter<Model>) => ({
+    map(({ defaultValue, dataKey }: Filter<RecordType>) => ({
       dataKey,
       value: defaultValue,
     })),
@@ -76,7 +76,7 @@ export default function useBasicTable<Model>({
   const [filterValues, setFilterValues] = useState<FilterValue[]>(defaultFilterValues);
   const [creatorOpen, setCreatorOpen] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
-  const [editItem, setEditItem] = useState<Model | undefined>();
+  const [editItem, setEditItem] = useState<RecordType | undefined>();
 
   const openCreator = useCallback(() => {
     setCreatorOpen(true);
@@ -90,7 +90,7 @@ export default function useBasicTable<Model>({
       creatorOnClose();
     }
   }, [creatorOnClose]);
-  const openEditor = useCallback((item: Model) => {
+  const openEditor = useCallback((item: RecordType) => {
     setEditorOpen(true);
     setEditItem(item);
     if (editorOnOpen) {

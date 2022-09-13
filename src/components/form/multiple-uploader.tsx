@@ -59,6 +59,8 @@ export interface MultipleUploaderProps {
   className?: string
 }
 
+const getDefaultAction = () => `${window.location.origin}/api/resource`;
+
 function RelientMultipleUploader({
   onChange,
   value,
@@ -90,7 +92,7 @@ function RelientMultipleUploader({
       style={style}
     >
       <Upload
-        action={action || `${global.location.origin}/api/resource`}
+        action={action || getDefaultAction}
         listType="picture-card"
         data={{ fileType }}
         defaultFileList={defaultFileList}

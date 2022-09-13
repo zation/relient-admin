@@ -47,16 +47,16 @@ import type {
   DatePicker,
 } from '../interface';
 
-export interface CustomQuery<Model> {
+export interface CustomQuery<RecordType> {
   dataKey: string
-  onFilter: (item: Model, field: string, value: string | undefined | null) => boolean
+  onFilter: (item: RecordType, field: string, value: string | undefined | null) => boolean
 }
 
 export type CustomQueryValue = Record<string, undefined | string | null>;
 
-export interface UseLocalTableParams<Model,
-  CreatorValues,
-  EditorValues,
+export interface UseLocalTableParams<RecordType,
+  CreatorValues = Omit<RecordType, 'id'>,
+  EditorValues = Partial<RecordType>,
   CreatorSubmitReturn = any,
   EditorSubmitReturn = any> {
   query?: {
@@ -67,9 +67,9 @@ export interface UseLocalTableParams<Model,
     placeholder?: string
     fussy?: boolean
   }
-  customQueries?: CustomQuery<Model>[]
+  customQueries?: CustomQuery<RecordType>[]
   showReset?: boolean
-  filters?: Filter<Model>[]
+  filters?: Filter<RecordType>[]
   createButton?: CreateButton
   resetButton?: Partial<ResetButton> | boolean
   datePickers?: DatePicker[]
@@ -77,15 +77,15 @@ export interface UseLocalTableParams<Model,
     pageSize?: number
     showTotal?: ShowTotal
   }
-  paginationInitialData?: PaginationData
+  paginationInitialData?: PaginationData<RecordType>
   creator?: Creator<CreatorValues, CreatorSubmitReturn>
-  editor?: Editor<Model, EditorValues, EditorSubmitReturn>
-  details?: Details<Model>
+  editor?: Editor<RecordType, EditorValues, EditorSubmitReturn>
+  details?: Details<RecordType>
 }
 
-export default function useLocalTable<Model,
-  CreatorValues = Omit<Model, 'id'>,
-  EditorValues = Partial<Model>,
+export default function useLocalTable<RecordType,
+  CreatorValues = Omit<RecordType, 'id'>,
+  EditorValues = Partial<RecordType>,
   CreatorSubmitReturn = any,
   EditorSubmitReturn = any>({
   query,
@@ -99,7 +99,7 @@ export default function useLocalTable<Model,
   creator,
   editor,
   details,
-}: UseLocalTableParams<Model, CreatorValues, EditorValues, CreatorSubmitReturn, EditorSubmitReturn>) {
+}: UseLocalTableParams<RecordType, CreatorValues, EditorValues, CreatorSubmitReturn, EditorSubmitReturn>) {
   const {
     onFieldChange,
     onValueChange,
@@ -277,7 +277,7 @@ export default function useLocalTable<Model,
     editItem,
   ]);
   const getDataSource = useCallback(filter(
-    (item: Model) => {
+    (item: RecordType) => {
       let queryResult = true;
       if (queryValue) {
         const match = (key: string) => flow(
@@ -318,7 +318,7 @@ export default function useLocalTable<Model,
       let filterResult = true;
       if (filterValues.length > 0) {
         filterResult = every(({ dataKey, value }: FilterValue) => {
-          const onFilter: OnFilter<Model> = flow(find(propEq('dataKey', dataKey)), prop('onFilter'))(filters);
+          const onFilter: OnFilter<RecordType> = flow(find(propEq('dataKey', dataKey)), prop('onFilter'))(filters);
           if (isArray(value)) {
             return onFilter
               ? onFilter(item, dataKey, value)
@@ -373,7 +373,7 @@ export default function useLocalTable<Model,
       current: currentPage,
       ...pagination,
     },
-    tableHeader: <RelientTableHeader<Model, CreatorValues, EditorValues, CreatorSubmitReturn, EditorSubmitReturn>
+    tableHeader: <RelientTableHeader<RecordType, CreatorValues, EditorValues, CreatorSubmitReturn, EditorSubmitReturn>
       query={{
         onFieldChange: onQueryFieldChange,
         onValueChange: onQueryValueChange,

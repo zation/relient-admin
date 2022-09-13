@@ -62,7 +62,7 @@ export interface ResetButton {
   type?: ButtonProps['type']
 }
 
-export interface TableHeaderProps<Model,
+export interface TableHeaderProps<RecordType,
   CreatorValues,
   EditorValues,
   CreatorSubmitReturn = any,
@@ -88,14 +88,18 @@ export interface TableHeaderProps<Model,
     items: DatePickerItem[]
     onSelect: (selectedValue: [string, string], dataKey: string) => void
   }
-  details?: DetailsProps<Model>
+  details?: DetailsProps<RecordType>
   creator?: FormPopProps<CreatorValues, CreatorSubmitReturn>
   editor?: FormPopProps<EditorValues, EditorSubmitReturn>
   openCreator?: () => void
   openEditor?: (dataSource?: any) => void
 }
 
-function RelientTableHeader<Model, CreatorValues, EditorValues, CreatorSubmitReturn = any, EditorSubmitReturn = any>({
+function RelientTableHeader<RecordType,
+  CreatorValues,
+  EditorValues,
+  CreatorSubmitReturn = any,
+  EditorSubmitReturn = any>({
   query,
   createButton,
   filter,
@@ -105,10 +109,10 @@ function RelientTableHeader<Model, CreatorValues, EditorValues, CreatorSubmitRet
   creator,
   openCreator,
   editor,
-}: TableHeaderProps<Model, CreatorValues, EditorValues, CreatorSubmitReturn, EditorSubmitReturn>) {
+}: TableHeaderProps<RecordType, CreatorValues, EditorValues, CreatorSubmitReturn, EditorSubmitReturn>) {
   return (
     <div className="relient-admin-table-header-root">
-      {details && createElement((RelientDetails<Model>), details)}
+      {details && createElement((RelientDetails<RecordType>), details)}
 
       {creator && createElement((FormPop<CreatorValues, CreatorSubmitReturn>), creator)}
 

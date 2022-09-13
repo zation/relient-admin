@@ -25,6 +25,8 @@ export interface SingleUploaderProps {
   className?: string
 }
 
+const getDefaultAction = () => `${window.location.origin}/api/resource`;
+
 function RelientSingleUploader({
   onChange,
   value,
@@ -59,7 +61,7 @@ function RelientSingleUploader({
       {!disabled
       && (
         <Dragger
-          action={action || `${global.location.origin}/api/resource`}
+          action={action || getDefaultAction}
           onChange={({ file: { response, status } }) => {
             if (status === 'done') {
               if (onUploaded) {
