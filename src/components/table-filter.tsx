@@ -1,5 +1,13 @@
-import React, { useCallback, useContext, Key } from 'react';
-import { array, func, bool } from 'prop-types';
+import React, {
+  useCallback,
+  useContext,
+  Key,
+} from 'react';
+import {
+  array,
+  func,
+  bool,
+} from 'prop-types';
 import {
   Menu,
   Button,
@@ -7,41 +15,42 @@ import {
   Radio,
   MenuProps,
 } from 'antd';
-import { map, toString } from 'lodash/fp';
+import {
+  map,
+  toString,
+} from 'lodash/fp';
 import type { ColumnFilterItem } from 'antd/es/table/interface';
 import { Context } from '../context';
 
-const { SubMenu, Item: MenuItem } = Menu;
-
-function renderFilterItems(
+function getFilterItems(
   filters: ColumnFilterItem[],
   prefixCls: string,
   filteredKeys: Key[],
   multiple: boolean,
-) {
+): MenuProps['items'] {
   return filters.map((filter, index) => {
     const key = String(filter.value);
 
     if (filter.children) {
-      return (
-        <SubMenu
-          key={key || index}
-          title={filter.text}
-          popupClassName={`${prefixCls}-dropdown-submenu`}
-        >
-          {renderFilterItems(filter.children, prefixCls, filteredKeys, multiple)}
-        </SubMenu>
-      );
+      return {
+        key: key || index,
+        label: filter.text,
+        popupClassName: `${prefixCls}-dropdown-submenu`,
+        children: getFilterItems(filter.children, prefixCls, filteredKeys, multiple),
+      };
     }
 
     const Component = multiple ? Checkbox : Radio;
 
-    return (
-      <MenuItem key={filter.value !== undefined ? key : index}>
-        <Component checked={filteredKeys.includes(key)} />
-        <span>{filter.text}</span>
-      </MenuItem>
-    );
+    return {
+      key: filter.value !== undefined ? key : index,
+      label: (
+        <>
+          <Component checked={filteredKeys.includes(key)} />
+          <span>{filter.text}</span>
+        </>
+      ),
+    };
   });
 }
 
@@ -88,14 +97,8 @@ function RelientTableFilter({
         onSelect={select}
         onDeselect={select}
         selectedKeys={map(toString)(selectedKeys)}
-      >
-        {renderFilterItems(
-          filters || [],
-          prefixCls,
-          selectedKeys,
-          multiple,
-        )}
-      </Menu>
+        items={getFilterItems(filters || [], prefixCls, selectedKeys, multiple)}
+      />
       {showButtons && (
         <div className={`${prefixCls}-dropdown-btns`}>
           <Button type="link" size="small" disabled={selectedKeys.length === 0} onClick={onReset}>
