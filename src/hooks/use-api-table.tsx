@@ -20,7 +20,6 @@ import {
   reduce,
   reject,
   join,
-  isArray,
 } from 'lodash/fp';
 import {
   FormInstance,
@@ -52,12 +51,7 @@ const omitEmpty = omitBy((val) => (isNil(val) || val === ''));
 
 const getFilterParams = flow(
   keyBy('dataKey'),
-  mapValues(({ value }: FilterValue) => {
-    if (isArray(value)) {
-      return join(',')(value);
-    }
-    return value;
-  }),
+  mapValues(flow(prop('value'), join(','))),
 );
 
 const getDateParams = reduce((result, { dataKey, value }) => {

@@ -25,8 +25,12 @@ export interface QueryField {
   label?: string
 }
 
-export interface ChangeCustomQueryValue {
+export interface ChangeCustomFilterValue {
   (value: FilterValue['value'], dataKey: string): void | Promise<void>
+}
+
+export interface ChangeCustomSearchValue {
+  (value: string, dataKey: string): void | Promise<void>
 }
 
 export interface OnFilter<Model> {
@@ -40,7 +44,7 @@ export interface Filter<Model> extends FilterItem {
 
 export interface FilterValue {
   dataKey: string
-  value: Key[] | Key | undefined | null
+  value: Key[] | undefined | null
 }
 
 export interface DateValue {

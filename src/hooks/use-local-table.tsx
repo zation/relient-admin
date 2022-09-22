@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useEffect,
   useState,
+  Key,
 } from 'react';
 import {
   concat,
@@ -45,15 +46,22 @@ import type {
   DateValue,
   OnFilter,
   DatePicker,
-  ChangeCustomQueryValue,
+  ChangeCustomFilterValue,
+  ChangeCustomSearchValue,
 } from '../interface';
 
-export interface CustomQuery<RecordType> {
+export interface CustomFilter<RecordType> {
   dataKey: string
   onFilter?: (item: RecordType, value: FilterValue['value'], dataKey: string) => boolean
 }
 
-export type CustomQueryValue = Record<string, FilterValue['value']>;
+export interface CustomSearch<RecordType> {
+  dataKey: string
+  onSearch?: (item: RecordType, value: string, dataKey: string) => boolean
+}
+
+export type CustomFilterValue = Record<string, FilterValue['value']>;
+export type CustomSearchValue = Record<string, string>;
 
 export interface UseLocalTableParams<RecordType,
   CreatorValues = Omit<RecordType, 'id'>,
@@ -68,7 +76,8 @@ export interface UseLocalTableParams<RecordType,
     placeholder?: string
     fussy?: boolean
   }
-  customQueries?: CustomQuery<RecordType>[]
+  customFilters?: CustomFilter<RecordType>[]
+  customSearches?: CustomSearch<RecordType>[]
   showReset?: boolean
   filters?: Filter<RecordType>[]
   createButton?: CreateButton
@@ -90,7 +99,8 @@ export default function useLocalTable<RecordType,
   CreatorSubmitReturn = any,
   EditorSubmitReturn = any>({
   query,
-  customQueries,
+  customFilters,
+  customSearches,
   resetButton,
   filters = [],
   createButton,
@@ -164,7 +174,8 @@ export default function useLocalTable<RecordType,
   });
   const [currentPage, setCurrentPage] = useState(initialCurrent);
   const [pageSize, setPageSize] = useState(initialSize);
-  const [customQueryValues, setCustomQueryValues] = useState<CustomQueryValue>({});
+  const [customFilterValue, setCustomFilterValue] = useState<CustomFilterValue>({});
+  const [customSearchValue, setCustomSearchValue] = useState<CustomSearchValue>({});
 
   useEffect(() => {
     if (initialSize !== pageSize) {
@@ -178,8 +189,9 @@ export default function useLocalTable<RecordType,
   const onReset = useCallback(() => {
     reset();
     setCurrentPage(initialCurrent);
-    setCustomQueryValues({});
-  }, [setCustomQueryValues, setCurrentPage, reset, initialCurrent]);
+    setCustomFilterValue({});
+    setCustomSearchValue({});
+  }, [setCustomFilterValue, setCurrentPage, reset, initialCurrent]);
 
   const onPageChange = useCallback((newCurrentPage: number, newPageSize: number) => {
     if (newCurrentPage !== currentPage) {
@@ -190,11 +202,17 @@ export default function useLocalTable<RecordType,
     }
   }, [currentPage, pageSize]);
 
-  const changeCustomQueryValue: ChangeCustomQueryValue = useCallback((value, dataKey) => {
-    if (customQueryValues[dataKey] !== value) {
-      setCustomQueryValues({ ...customQueryValues, [dataKey]: value });
+  const changeCustomFilterValue: ChangeCustomFilterValue = useCallback((value, dataKey) => {
+    if (customFilterValue[dataKey] !== value) {
+      setCustomFilterValue({ ...customFilterValue, [dataKey]: value });
     }
-  }, [customQueryValues, setCustomQueryValues]);
+  }, [customFilterValue, setCustomFilterValue]);
+
+  const changeCustomSearchValue: ChangeCustomSearchValue = useCallback((value, dataKey) => {
+    if (customSearchValue[dataKey] !== value) {
+      setCustomSearchValue({ ...customSearchValue, [dataKey]: value });
+    }
+  }, [customSearchValue, setCustomSearchValue]);
 
   const onQueryFieldChange = useCallback((fieldKey: string) => {
     if (isFunction(onFieldChange)) {
@@ -302,27 +320,50 @@ export default function useLocalTable<RecordType,
         }
       }
 
-      let customQueryResult = true;
-      if (!isEmpty(customQueryValues) && customQueries && customQueries.length > 0) {
-        customQueryResult = flow(
+      let customFilterResult = true;
+      if (!isEmpty(customFilterValue) && customFilters && customFilters.length > 0) {
+        customFilterResult = flow(
           keys,
           every((dataKey: string) => {
-            const value = customQueryValues[dataKey];
-            const customQuery = find(propEq('dataKey', dataKey))(customQueries);
-            if (!customQuery) {
-              console.warn(`CustomQuery is not config for ${dataKey}`);
+            const value = customFilterValue[dataKey];
+            const customFilter = find<CustomFilter<RecordType>>(propEq('dataKey', dataKey))(customFilters);
+            if (!customFilter) {
+              console.warn(`CustomFilter is not config for ${dataKey}`);
               return true;
             }
-            const { onFilter } = customQuery;
+            const { onFilter } = customFilter;
             if (onFilter) {
               return onFilter(item, value, dataKey);
+            }
+            if (value) {
+              return includes<Key>(prop(dataKey)(item))(value);
+            }
+            return true;
+          }),
+        )(customFilterValue);
+      }
+
+      let customSearchResult = true;
+      if (!isEmpty(customSearchValue) && customSearches && customSearches.length > 0) {
+        customSearchResult = flow(
+          keys,
+          every((dataKey: string) => {
+            const value = customSearchValue[dataKey];
+            const customSearch = find<CustomSearch<RecordType>>(propEq('dataKey', dataKey))(customSearches);
+            if (!customSearch) {
+              console.warn(`CustomSearch is not config for ${dataKey}`);
+              return true;
+            }
+            const { onSearch } = customSearch;
+            if (onSearch) {
+              return onSearch(item, value, dataKey);
             }
             if (value) {
               return propEq(dataKey, value)(item);
             }
             return true;
           }),
-        )(customQueryValues);
+        )(customSearchValue);
       }
 
       let filterResult = true;
@@ -353,7 +394,7 @@ export default function useLocalTable<RecordType,
         })(dateValues);
       }
 
-      return filterResult && queryResult && datesResult && customQueryResult;
+      return filterResult && queryResult && datesResult && customFilterResult && customSearchResult;
     },
   ), [
     queryValue,
@@ -361,11 +402,13 @@ export default function useLocalTable<RecordType,
     filterValues,
     dateValues,
     filters,
-    customQueries,
+    customFilters,
+    customSearches,
   ]);
 
   return {
-    changeCustomQueryValue,
+    changeCustomFilterValue,
+    changeCustomSearchValue,
     getDataSource,
     filterValues,
     changeFilterValue: onFilterValueChange,
