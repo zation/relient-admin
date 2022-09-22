@@ -2,6 +2,7 @@
 import React, {
   ReactNode,
   useCallback,
+  useContext,
 } from 'react';
 import {
   Form,
@@ -23,6 +24,7 @@ import {
   defaultLabelCol,
   defaultWrapperCol,
 } from '../../constants/default-field-layout';
+import { Context } from '../../context';
 
 const { Item } = Form;
 
@@ -42,8 +44,8 @@ function RelientForm<Values, SubmitReturn = any>({
   fields,
   getFields,
   checkEditing,
-  submitText = '提交',
-  resetText = '重置',
+  submitText,
+  resetText,
   labelCol = defaultLabelCol,
   wrapperCol = defaultWrapperCol,
   name,
@@ -58,6 +60,7 @@ function RelientForm<Values, SubmitReturn = any>({
     form,
   } = useForm(onSubmit, checkEditing, true);
   const reset = useCallback(() => form.resetFields(), [form.resetFields]);
+  const { locale } = useContext(Context);
 
   return (
     <Form<Values>
@@ -84,10 +87,10 @@ function RelientForm<Values, SubmitReturn = any>({
           loading={submitting}
           disabled={invalid || pristine}
         >
-          {submitText}
+          {submitText || locale.submit}
         </Button>
         <Button size="large" htmlType="button" onClick={reset}>
-          {resetText}
+          {resetText || locale.reset}
         </Button>
       </Item>
     </Form>

@@ -4,9 +4,7 @@ import type {
 } from 'react';
 import type { FormInstance } from 'antd/es/form';
 import { Moment } from 'moment';
-import type { FormPopProps } from './components/form/pop';
-import type { DetailsProps } from './components/details';
-import type { FilterItem } from './components/table-header';
+import type { FormPopProps, DetailsProps, FilterItem } from './components';
 
 export interface I18N {
   (
@@ -27,8 +25,12 @@ export interface QueryField {
   label?: string
 }
 
+export interface ChangeCustomQueryValue {
+  (value: FilterValue['value'], dataKey: string): void | Promise<void>
+}
+
 export interface OnFilter<Model> {
-  (item: Model, dataKey: string, value: Key[] | Key | undefined | null): boolean
+  (item: Model, value: FilterValue['value'], dataKey: string): boolean
 }
 
 export interface Filter<Model> extends FilterItem {

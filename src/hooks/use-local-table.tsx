@@ -45,14 +45,15 @@ import type {
   DateValue,
   OnFilter,
   DatePicker,
+  ChangeCustomQueryValue,
 } from '../interface';
 
 export interface CustomQuery<RecordType> {
   dataKey: string
-  onFilter: (item: RecordType, field: string, value: string | undefined | null) => boolean
+  onFilter?: (item: RecordType, value: FilterValue['value'], dataKey: string) => boolean
 }
 
-export type CustomQueryValue = Record<string, undefined | string | null>;
+export type CustomQueryValue = Record<string, FilterValue['value']>;
 
 export interface UseLocalTableParams<RecordType,
   CreatorValues = Omit<RecordType, 'id'>,
@@ -163,10 +164,8 @@ export default function useLocalTable<RecordType,
   });
   const [currentPage, setCurrentPage] = useState(initialCurrent);
   const [pageSize, setPageSize] = useState(initialSize);
-  const onReset = useCallback(() => {
-    reset();
-    setCurrentPage(initialCurrent);
-  }, []);
+  const [customQueryValues, setCustomQueryValues] = useState<CustomQueryValue>({});
+
   useEffect(() => {
     if (initialSize !== pageSize) {
       setPageSize(initialSize);
@@ -175,6 +174,13 @@ export default function useLocalTable<RecordType,
       setCurrentPage(initialCurrent);
     }
   }, [initialSize, initialCurrent]);
+
+  const onReset = useCallback(() => {
+    reset();
+    setCurrentPage(initialCurrent);
+    setCustomQueryValues({});
+  }, [setCustomQueryValues, setCurrentPage, reset, initialCurrent]);
+
   const onPageChange = useCallback((newCurrentPage: number, newPageSize: number) => {
     if (newCurrentPage !== currentPage) {
       setCurrentPage(newCurrentPage);
@@ -184,11 +190,9 @@ export default function useLocalTable<RecordType,
     }
   }, [currentPage, pageSize]);
 
-  const [customQueryValues, setCustomQueryValues] = useState<CustomQueryValue>({});
-
-  const changeCustomQueryValue = useCallback((value: undefined | string | null, field: keyof CustomQueryValue) => {
-    if (customQueryValues[field] !== value) {
-      setCustomQueryValues({ ...customQueryValues, [field]: value });
+  const changeCustomQueryValue: ChangeCustomQueryValue = useCallback((value, dataKey) => {
+    if (customQueryValues[dataKey] !== value) {
+      setCustomQueryValues({ ...customQueryValues, [dataKey]: value });
     }
   }, [customQueryValues, setCustomQueryValues]);
 
@@ -205,6 +209,7 @@ export default function useLocalTable<RecordType,
     onFieldChange,
     onValueChange,
   ]);
+
   const onQueryValueChange: ChangeEventHandler<HTMLInputElement> = useCallback(({ target: { value } }) => {
     if (isFunction(onValueChange)) {
       onValueChange(value);
@@ -214,6 +219,7 @@ export default function useLocalTable<RecordType,
   }, [
     onValueChange,
   ]);
+
   const onFilterValueChange = useCallback((value: FilterValue['value'], dataKey: FilterValue['dataKey']) => {
     if (isFilterValuesSame(value, dataKey, filterValues)) {
       return;
@@ -234,6 +240,7 @@ export default function useLocalTable<RecordType,
     filters,
     filterValues,
   ]);
+
   const onDateChange = useCallback((value: DateValue['value'], dataKey: DateValue['dataKey']) => {
     const onChange = flow(find(propEq('dataKey', dataKey)), prop('onDateChange'))(datePickers);
     if (isFunction(onChange)) {
@@ -251,6 +258,7 @@ export default function useLocalTable<RecordType,
     datePickers,
     dateValues,
   ]);
+
   const onCreatorSubmit = useCallback(async (values: CreatorValues, formInstance: FormInstance<CreatorValues>) => {
     const submitReturn = await creatorSubmit!(values, formInstance);
     closeCreator();
@@ -263,6 +271,7 @@ export default function useLocalTable<RecordType,
   }, [
     creatorSubmit,
   ]);
+
   const onEditorSubmit = useCallback(async (values: EditorValues, formInstance: FormInstance<EditorValues>) => {
     const submitReturn = await editorSubmit!(values, formInstance, editItem!);
     closeEditor();
@@ -276,6 +285,7 @@ export default function useLocalTable<RecordType,
     editorSubmit,
     editItem,
   ]);
+
   const getDataSource = useCallback(filter(
     (item: RecordType) => {
       let queryResult = true;
@@ -305,7 +315,7 @@ export default function useLocalTable<RecordType,
             }
             const { onFilter } = customQuery;
             if (onFilter) {
-              return onFilter(item, dataKey, value);
+              return onFilter(item, value, dataKey);
             }
             if (value) {
               return propEq(dataKey, value)(item);
@@ -321,11 +331,11 @@ export default function useLocalTable<RecordType,
           const onFilter: OnFilter<RecordType> = flow(find(propEq('dataKey', dataKey)), prop('onFilter'))(filters);
           if (isArray(value)) {
             return onFilter
-              ? onFilter(item, dataKey, value)
+              ? onFilter(item, value, dataKey)
               : includes(prop(dataKey)(item))(value);
           }
           return isNil(value) || (onFilter
-            ? onFilter(item, dataKey, value)
+            ? onFilter(item, value, dataKey)
             : propEq(dataKey, value)(item));
         })(filterValues);
       }

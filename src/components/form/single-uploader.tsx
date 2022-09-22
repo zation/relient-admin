@@ -5,8 +5,8 @@ import cookie from 'js-cookie';
 import { map, prop } from 'lodash/fp';
 import { PlusOutlined } from '@ant-design/icons';
 import { UploadFile } from 'antd/es/upload/interface';
-import { DomainContext } from '../../contexts';
 import { Style } from '../../interface';
+import { Context } from '../../context';
 
 const { Dragger } = Upload;
 
@@ -25,8 +25,6 @@ export interface SingleUploaderProps {
   className?: string
 }
 
-const getDefaultAction = () => `${window.location.origin}/api/resource`;
-
 function RelientSingleUploader({
   onChange,
   value,
@@ -41,7 +39,7 @@ function RelientSingleUploader({
   authorizationCookie = 'AUTHORIZATION',
   className,
 }: SingleUploaderProps) {
-  const { cdnDomain } = useContext(DomainContext);
+  const { cdnDomain, uploadUrl } = useContext(Context);
   const authorization = cookie.get(authorizationCookie);
 
   return (
@@ -61,7 +59,7 @@ function RelientSingleUploader({
       {!disabled
       && (
         <Dragger
-          action={action || getDefaultAction}
+          action={action || uploadUrl}
           onChange={({ file: { response, status } }) => {
             if (status === 'done') {
               if (onUploaded) {

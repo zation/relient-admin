@@ -28,7 +28,7 @@ import type {
   UploadFile,
   UploadFileStatus,
 } from 'antd/es/upload/interface';
-import { DomainContext } from '../../contexts';
+import { Context } from '../../context';
 import { Style } from '../../interface';
 
 interface Preview {
@@ -59,8 +59,6 @@ export interface MultipleUploaderProps {
   className?: string
 }
 
-const getDefaultAction = () => `${window.location.origin}/api/resource`;
-
 function RelientMultipleUploader({
   onChange,
   value,
@@ -75,7 +73,7 @@ function RelientMultipleUploader({
   className,
   authorizationCookie = 'AUTHORIZATION',
 }: MultipleUploaderProps) {
-  const { cdnDomain } = useContext(DomainContext);
+  const { cdnDomain, uploadUrl } = useContext(Context);
   const [preview, setPreview] = useState<Preview>({ open: false });
   const defaultFileList = useMemo(() => map(({ url, ...others }: UploadFile) => ({
     url: !url || startsWith('http://')(url) || startsWith('https://')(url) ? url : `${cdnDomain}${url}`,
@@ -92,7 +90,7 @@ function RelientMultipleUploader({
       style={style}
     >
       <Upload
-        action={action || getDefaultAction}
+        action={action || uploadUrl}
         listType="picture-card"
         data={{ fileType }}
         defaultFileList={defaultFileList}

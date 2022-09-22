@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useEffect,
   ReactNode,
+  useContext,
 } from 'react';
 import {
   Button,
@@ -36,6 +37,7 @@ import {
   defaultLabelCol,
   defaultWrapperCol,
 } from '../../constants/default-field-layout';
+import { Context } from '../../context';
 
 export interface FooterParams<Values, SubmitReturn = any> {
   onCancel?: () => void
@@ -73,8 +75,8 @@ function RelientFormPop<Values, SubmitReturn = any>({
   width = 540,
   checkEditing,
   getFooter,
-  submitText = '提交',
-  cancelText = '取消',
+  submitText,
+  cancelText,
   labelCol = defaultLabelCol,
   wrapperCol = defaultWrapperCol,
   name,
@@ -90,6 +92,7 @@ function RelientFormPop<Values, SubmitReturn = any>({
     onFieldsChange,
     form,
   } = useForm<Values, SubmitReturn>(onSubmit, checkEditing, true);
+  const { locale } = useContext(Context);
 
   useEffect(() => {
     if (open) {
@@ -110,7 +113,7 @@ function RelientFormPop<Values, SubmitReturn = any>({
         type="primary"
         ghost
       >
-        {cancelText}
+        {cancelText || locale.cancel}
       </Button>
       <Button
         htmlType="button"
@@ -120,7 +123,7 @@ function RelientFormPop<Values, SubmitReturn = any>({
         disabled={invalid || pristine}
         onClick={submit}
       >
-        {submitText}
+        {submitText || locale.submit}
       </Button>
     </div>
   );

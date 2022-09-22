@@ -1,24 +1,26 @@
-/* eslint-disable react/prop-types */
 import React, { Key, useMemo, useState } from 'react';
 import type { ColumnFilterItem, ColumnType, FilterDropdownProps } from 'antd/es/table/interface';
 import TableFilter from '../components/table-filter';
+import { ChangeCustomQueryValue } from '../interface';
 
 export interface UseTableFilterParams {
-  changeFilterValue: (values: Key[], dataKey: string) => void
+  changeFilterValue?: (values: Key[], dataKey: string) => void
+  changeCustomQueryValue?: ChangeCustomQueryValue
   dataKey: string
   options: ColumnFilterItem[]
   multiple?: boolean
   showButtons?: boolean
-  filterIcon: ColumnType<never>['filterIcon'],
+  filterIcon?: ColumnType<any>['filterIcon'],
 }
 
 export default function useTableFilter({
   changeFilterValue,
+  changeCustomQueryValue,
   dataKey,
   options,
-  multiple,
+  multiple = true,
   filterIcon,
-  showButtons,
+  showButtons = true,
 }: UseTableFilterParams) {
   const [filterDropdownOpen, onFilterDropdownOpenChange] = useState(false);
   const [filteredValue, setFilteredValue] = useState<Key[]>();
@@ -44,12 +46,22 @@ export default function useTableFilter({
         filters={filters}
         onSelect={(newSelectedKeys) => {
           if (!showButtons) {
-            changeFilterValue(newSelectedKeys, dataKey);
+            if (changeFilterValue) {
+              changeFilterValue(newSelectedKeys, dataKey);
+            }
+            if (changeCustomQueryValue) {
+              changeCustomQueryValue(selectedKeys, dataKey);
+            }
             setFilteredValue(newSelectedKeys);
           }
         }}
         onConfirm={() => {
-          changeFilterValue(selectedKeys, dataKey);
+          if (changeFilterValue) {
+            changeFilterValue(selectedKeys, dataKey);
+          }
+          if (changeCustomQueryValue) {
+            changeCustomQueryValue(selectedKeys, dataKey);
+          }
           setFilteredValue(selectedKeys);
           onFilterDropdownOpenChange(false);
         }}
@@ -57,8 +69,14 @@ export default function useTableFilter({
           if (clearFilters) {
             clearFilters();
           }
+          if (changeFilterValue) {
+            changeFilterValue([], dataKey);
+          }
+          if (changeCustomQueryValue) {
+            changeCustomQueryValue([], dataKey);
+          }
           setFilteredValue(undefined);
-          changeFilterValue([], dataKey);
+          onFilterDropdownOpenChange(false);
         }}
       />
     ),

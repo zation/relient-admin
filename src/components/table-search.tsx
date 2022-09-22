@@ -5,9 +5,8 @@ import React, {
   useState,
 } from 'react';
 import { func, string, bool } from 'prop-types';
-import { Input, Button, ConfigProvider } from 'antd';
-
-const { ConfigContext } = ConfigProvider;
+import { Input, Button } from 'antd';
+import { Context } from '../context';
 
 export interface TableSearchProps {
   width?: number
@@ -24,7 +23,7 @@ function RelientTableSearch({
   onReset,
   showButtons = true,
 }: TableSearchProps) {
-  const { locale, getPrefixCls } = useContext(ConfigContext);
+  const { locale, getPrefixCls } = useContext(Context);
 
   const [inputValue, setInputValue] = useState('');
 
@@ -59,14 +58,14 @@ function RelientTableSearch({
       {showButtons && (
         <div className={`${prefixCls}-dropdown-btns`}>
           <Button type="link" onClick={onFinalReset} size="small" disabled={inputValue === ''}>
-            {locale?.Table?.filterReset}
+            {locale.reset}
           </Button>
           <Button
             type="primary"
             size="small"
             onClick={onFinalConfirm}
           >
-            {locale?.Table?.filterConfirm}
+            {locale.confirm}
           </Button>
         </div>
       )}

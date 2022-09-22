@@ -1,6 +1,5 @@
 import React, { useCallback, useContext, Key } from 'react';
 import { array, func, bool } from 'prop-types';
-import { ConfigContext } from 'antd/lib/config-provider';
 import {
   Menu,
   Button,
@@ -10,6 +9,7 @@ import {
 } from 'antd';
 import { map, toString } from 'lodash/fp';
 import type { ColumnFilterItem } from 'antd/es/table/interface';
+import { Context } from '../context';
 
 const { SubMenu, Item: MenuItem } = Menu;
 
@@ -69,7 +69,7 @@ function RelientTableFilter({
   multiple = true,
   showButtons = true,
 }: TableFilterProps) {
-  const { locale, getPrefixCls } = useContext(ConfigContext);
+  const { locale, getPrefixCls } = useContext(Context);
   const select = useCallback<NonNullable<MenuProps['onSelect']>>(({ selectedKeys: newSelectedKeys }) => {
     setSelectedKeys(newSelectedKeys);
     if (onSelect) {
@@ -99,10 +99,10 @@ function RelientTableFilter({
       {showButtons && (
         <div className={`${prefixCls}-dropdown-btns`}>
           <Button type="link" size="small" disabled={selectedKeys.length === 0} onClick={onReset}>
-            {locale?.Table?.filterReset}
+            {locale.reset}
           </Button>
           <Button type="primary" size="small" onClick={onConfirm}>
-            {locale?.Table?.filterConfirm}
+            {locale.confirm}
           </Button>
         </div>
       )}

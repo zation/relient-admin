@@ -1,7 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, {
   createElement,
-  Key,
   MouseEventHandler,
   ReactNode,
 } from 'react';
@@ -30,6 +29,7 @@ import type { DetailsProps } from './details';
 import FormPop, { FormPopProps } from './form/pop';
 import RelientDetails from './details';
 import type { QueryField } from '../interface';
+import { FilterValue } from '../interface';
 
 const { Search } = Input;
 const { Option } = Select;
@@ -81,7 +81,7 @@ export interface TableHeaderProps<RecordType,
   createButton?: CreateButton
   filter: {
     items: FilterItem[]
-    onSelect: (selectedValue: Key[] | Key | null | undefined, dataKey: string) => void
+    onSelect: (selectedValue: FilterValue['value'], dataKey: string) => void
   }
   resetButton?: ResetButton
   datePicker?: {

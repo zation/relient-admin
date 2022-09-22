@@ -1,20 +1,20 @@
-/* eslint-disable react/prop-types */
 import React, { Key, useMemo, useState } from 'react';
 import { SearchOutlined } from '@ant-design/icons';
 import type { ColumnType } from 'antd/es/table/interface';
 import { FilterDropdownProps } from 'antd/es/table/interface';
 import TableSearch from '../components/table-search';
+import { ChangeCustomQueryValue } from '../interface';
 
 const defaultFilterIcon = <SearchOutlined />;
 
 export interface UseTableSearchParams {
   changeFilterValue?: (values: Key[], dataKey: string) => void
-  changeCustomQueryValue?: (value: string | undefined | null, dataKey: string) => void
+  changeCustomQueryValue?: ChangeCustomQueryValue
   dataKey: string
   placeholder?: string
   width?: number
   showButtons?: boolean
-  filterIcon: ColumnType<never>['filterIcon'],
+  filterIcon?: ColumnType<any>['filterIcon'],
 }
 
 export default function useTableSearch({
@@ -64,6 +64,7 @@ export default function useTableSearch({
               changeCustomQueryValue(undefined, dataKey);
             }
             setFilteredValue(undefined);
+            onFilterDropdownOpenChange(false);
           }}
         />
       ),

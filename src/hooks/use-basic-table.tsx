@@ -1,7 +1,6 @@
 import {
   useState,
   useCallback,
-  Key,
 } from 'react';
 import {
   clone,
@@ -20,7 +19,7 @@ import useDetails, { UseDetails } from './use-details';
 import type { QueryField, Filter, FilterValue, DateValue } from '../interface';
 
 export const isFilterValuesSame = (
-  value: Key[] | Key | undefined | null,
+  value: FilterValue['value'],
   dataKey: string,
   filterValues: FilterValue[],
 ) => flow(

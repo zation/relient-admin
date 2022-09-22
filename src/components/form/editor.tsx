@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading,prefer-promise-reject-errors */
 import React, {
-  useMemo,
+  useCallback,
+  useContext,
 } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import type { IProps } from '@tinymce/tinymce-react/lib/es2015/main/ts/components/Editor';
@@ -53,61 +54,9 @@ import contentCss from 'tinymce/skins/content/default/content.min.css?inline';
 import contentUiCss from 'tinymce/skins/ui/oxide/content.min.css?inline';
 
 import zhCN from './editor-zh';
+import { Context } from '../../context';
 
 tinymce.addI18n('zh_CN', zhCN);
-
-const getImageUploadHandler = ({ uploadUrl }: { uploadUrl?: string }): EditorOptions['images_upload_handler'] => (
-  blobInfo,
-  progress,
-) => new Promise((resolve, reject) => {
-  const xhr = new XMLHttpRequest();
-  xhr.open('POST', uploadUrl || `${window.location.origin}/api/resource`);
-
-  xhr.upload.onprogress = (e) => {
-    if (progress) {
-      progress((e.loaded / e.total) * 100);
-    }
-  };
-
-  xhr.onload = () => {
-    if (xhr.status === 403) {
-      reject({
-        message: `HTTP Error: ${xhr.status}`,
-        remove: true,
-      });
-      return;
-    }
-
-    if (xhr.status < 200 || xhr.status >= 300) {
-      reject({
-        message: `HTTP Error: ${xhr.status}`,
-      });
-      return;
-    }
-
-    const json = JSON.parse(xhr.responseText);
-
-    if (!json || typeof json.url !== 'string') {
-      reject({
-        message: `Response missing url: ${xhr.responseText}`,
-      });
-      return;
-    }
-
-    resolve(json.url);
-  };
-
-  xhr.onerror = () => {
-    reject({
-      message: `Image upload failed due to a XHR Transport error. Code: ${xhr.status}`,
-    });
-  };
-
-  const formData = new FormData();
-  formData.append('file', blobInfo.blob(), blobInfo.filename());
-
-  xhr.send(formData);
-});
 
 export interface EditorProps extends Omit<IProps, 'onEditorChange'>, Omit<IEvents, 'onChange'> {
   onChange: IProps['onEditorChange']
@@ -140,7 +89,59 @@ function RelientEditor({
   language = 'zh_CN',
   ...props
 }: EditorProps) {
-  const imageUploadHandler = useMemo(() => getImageUploadHandler({ uploadUrl }), [uploadUrl]);
+  const { uploadUrl: defaultUploadUrl } = useContext(Context);
+  const imageUploadHandler = useCallback<NonNullable<EditorOptions['images_upload_handler']>>((
+    blobInfo,
+    progress,
+  ) => new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', uploadUrl || defaultUploadUrl);
+
+    xhr.upload.onprogress = (e) => {
+      if (progress) {
+        progress((e.loaded / e.total) * 100);
+      }
+    };
+
+    xhr.onload = () => {
+      if (xhr.status === 403) {
+        reject({
+          message: `HTTP Error: ${xhr.status}`,
+          remove: true,
+        });
+        return;
+      }
+
+      if (xhr.status < 200 || xhr.status >= 300) {
+        reject({
+          message: `HTTP Error: ${xhr.status}`,
+        });
+        return;
+      }
+
+      const json = JSON.parse(xhr.responseText);
+
+      if (!json || typeof json.url !== 'string') {
+        reject({
+          message: `Response missing url: ${xhr.responseText}`,
+        });
+        return;
+      }
+
+      resolve(json.url);
+    };
+
+    xhr.onerror = () => {
+      reject({
+        message: `Image upload failed due to a XHR Transport error. Code: ${xhr.status}`,
+      });
+    };
+
+    const formData = new FormData();
+    formData.append('file', blobInfo.blob(), blobInfo.filename());
+
+    xhr.send(formData);
+  }), [uploadUrl, defaultUploadUrl]);
 
   return (
     <Editor
