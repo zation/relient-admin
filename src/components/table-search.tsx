@@ -2,7 +2,6 @@ import React, {
   ChangeEventHandler,
   useCallback,
   useContext,
-  useState,
 } from 'react';
 import { func, string, bool } from 'prop-types';
 import { Input, Button } from 'antd';
@@ -14,6 +13,8 @@ export interface TableSearchProps {
   onConfirm: (value?: string) => void
   onReset: () => void
   showButtons?: boolean
+  inputValue: string
+  setInputValue: (inputValue: string) => void
 }
 
 function RelientTableSearch({
@@ -21,11 +22,11 @@ function RelientTableSearch({
   placeholder,
   onConfirm,
   onReset,
+  inputValue,
+  setInputValue,
   showButtons = true,
 }: TableSearchProps) {
   const { locale, getPrefixCls } = useContext(Context);
-
-  const [inputValue, setInputValue] = useState('');
 
   const onInputChange: ChangeEventHandler<HTMLInputElement> = useCallback(({ target: { value } }) => {
     setInputValue(value);

@@ -48,6 +48,8 @@ import type {
   DatePicker,
   ChangeCustomFilterValue,
   ChangeCustomSearchValue,
+  CustomFilterValue,
+  CustomSearchValue,
 } from '../interface';
 
 export interface CustomFilter<RecordType> {
@@ -59,9 +61,6 @@ export interface CustomSearch<RecordType> {
   dataKey: string
   onSearch?: (item: RecordType, value: string, dataKey: string) => boolean
 }
-
-export type CustomFilterValue = Record<string, FilterValue['value']>;
-export type CustomSearchValue = Record<string, string>;
 
 export interface UseLocalTableParams<RecordType,
   CreatorValues = Omit<RecordType, 'id'>,
@@ -78,7 +77,6 @@ export interface UseLocalTableParams<RecordType,
   }
   customFilters?: CustomFilter<RecordType>[]
   customSearches?: CustomSearch<RecordType>[]
-  showReset?: boolean
   filters?: Filter<RecordType>[]
   createButton?: CreateButton
   resetButton?: Partial<ResetButton> | boolean
@@ -407,7 +405,9 @@ export default function useLocalTable<RecordType,
   ]);
 
   return {
+    customFilterValue,
     changeCustomFilterValue,
+    customSearchValue,
     changeCustomSearchValue,
     getDataSource,
     filterValues,

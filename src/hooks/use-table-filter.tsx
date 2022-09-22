@@ -1,4 +1,5 @@
 import React, {
+  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -8,9 +9,13 @@ import type {
   FilterDropdownProps,
 } from 'antd/es/table/interface';
 import TableFilter from '../components/table-filter';
-import { ChangeCustomFilterValue } from '../interface';
+import {
+  ChangeCustomFilterValue,
+  CustomFilterValue,
+} from '../interface';
 
 export interface UseTableFilterParams {
+  customFilterValue?: CustomFilterValue,
   changeCustomFilterValue?: ChangeCustomFilterValue
   dataKey: string
   options: ColumnFilterItem[]
@@ -20,6 +25,7 @@ export interface UseTableFilterParams {
 }
 
 export default function useTableFilter({
+  customFilterValue,
   changeCustomFilterValue,
   dataKey,
   options,
@@ -29,6 +35,11 @@ export default function useTableFilter({
 }: UseTableFilterParams) {
   const [filterDropdownOpen, onFilterDropdownOpenChange] = useState(false);
   const [filteredValue, setFilteredValue] = useState<ColumnType<any>['filteredValue']>([]);
+
+  const propValue = customFilterValue && customFilterValue[dataKey];
+  useEffect(() => {
+    setFilteredValue(propValue || []);
+  }, [propValue]);
 
   return useMemo<Pick<ColumnType<any>,
   'filters' |

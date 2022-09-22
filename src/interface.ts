@@ -25,6 +25,10 @@ export interface QueryField {
   label?: string
 }
 
+export type CustomFilterValue = Record<string, FilterValue['value']>;
+
+export type CustomSearchValue = Record<string, string>;
+
 export interface ChangeCustomFilterValue {
   (value: FilterValue['value'], dataKey: string): void | Promise<void>
 }

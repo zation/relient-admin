@@ -1,4 +1,5 @@
 import React, {
+  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -6,11 +7,12 @@ import { SearchOutlined } from '@ant-design/icons';
 import type { ColumnType } from 'antd/es/table/interface';
 import { FilterDropdownProps } from 'antd/es/table/interface';
 import TableSearch from '../components/table-search';
-import { ChangeCustomSearchValue } from '../interface';
+import { ChangeCustomSearchValue, CustomSearchValue } from '../interface';
 
 const defaultFilterIcon = <SearchOutlined />;
 
 export interface UseTableSearchParams {
+  customSearchValue?: CustomSearchValue
   changeCustomSearchValue?: ChangeCustomSearchValue
   dataKey: string
   placeholder?: string
@@ -20,6 +22,7 @@ export interface UseTableSearchParams {
 }
 
 export default function useTableSearch({
+  customSearchValue,
   changeCustomSearchValue,
   dataKey,
   filterIcon = defaultFilterIcon,
@@ -28,7 +31,12 @@ export default function useTableSearch({
   showButtons,
 }: UseTableSearchParams) {
   const [filterDropdownOpen, onFilterDropdownOpenChange] = useState(false);
-  const [filteredValue, setFilteredValue] = useState<ColumnType<any>['filteredValue']>([]);
+  const [inputValue, setInputValue] = useState('');
+
+  const propValue = customSearchValue && customSearchValue[dataKey];
+  useEffect(() => {
+    setInputValue(propValue || '');
+  }, [propValue]);
 
   return useMemo<Pick<ColumnType<any>,
   'filterDropdownOpen' |
@@ -39,9 +47,8 @@ export default function useTableSearch({
     () => ({
       filterDropdownOpen,
       onFilterDropdownOpenChange,
-      filteredValue,
+      filteredValue: inputValue ? [inputValue] : null, // NOTICE: for filterIcon display logic
       filterIcon,
-      // TODO: change inputValue in TableSearch according to filterValue
       filterDropdown: ({
         clearFilters,
       }: FilterDropdownProps) => (
@@ -49,11 +56,12 @@ export default function useTableSearch({
           showButtons={showButtons}
           placeholder={placeholder}
           width={width}
+          inputValue={inputValue}
+          setInputValue={setInputValue}
           onConfirm={(value) => {
             if (changeCustomSearchValue) {
               changeCustomSearchValue(value || '', dataKey);
             }
-            setFilteredValue(value ? [value] : []);
             onFilterDropdownOpenChange(false);
           }}
           onReset={() => {
@@ -63,7 +71,6 @@ export default function useTableSearch({
             if (changeCustomSearchValue) {
               changeCustomSearchValue('', dataKey);
             }
-            setFilteredValue([]);
             onFilterDropdownOpenChange(false);
           }}
         />
@@ -78,8 +85,8 @@ export default function useTableSearch({
       showButtons,
       filterDropdownOpen,
       onFilterDropdownOpenChange,
-      filteredValue,
-      setFilteredValue,
+      inputValue,
+      setInputValue,
     ],
   );
 }
