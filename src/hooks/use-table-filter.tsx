@@ -1,5 +1,4 @@
 import React, {
-  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -10,14 +9,12 @@ import type {
 } from 'antd/es/table/interface';
 import TableFilter from '../components/table-filter';
 import {
-  ChangeCustomFilterValue,
-  CustomFilterValue,
+  FilterValue,
 } from '../interface';
 
 export interface UseTableFilterParams {
-  customFilterValue?: CustomFilterValue,
-  changeCustomFilterValue?: ChangeCustomFilterValue
-  dataKey: string
+  value: FilterValue['value'],
+  onChange: (value: FilterValue['value']) => void | Promise<void>
   options: ColumnFilterItem[]
   multiple?: boolean
   showButtons?: boolean
@@ -25,21 +22,14 @@ export interface UseTableFilterParams {
 }
 
 export default function useTableFilter({
-  customFilterValue,
-  changeCustomFilterValue,
-  dataKey,
+  value,
+  onChange,
   options,
   multiple = true,
   filterIcon,
   showButtons = true,
 }: UseTableFilterParams) {
   const [filterDropdownOpen, onFilterDropdownOpenChange] = useState(false);
-  const [filteredValue, setFilteredValue] = useState<ColumnType<any>['filteredValue']>([]);
-
-  const propValue = customFilterValue && customFilterValue[dataKey];
-  useEffect(() => {
-    setFilteredValue(propValue || []);
-  }, [propValue]);
 
   return useMemo<Pick<ColumnType<any>,
   'filters' |
@@ -51,7 +41,7 @@ export default function useTableFilter({
     filters: options,
     filterDropdownOpen,
     onFilterDropdownOpenChange,
-    filteredValue,
+    filteredValue: value,
     filterIcon,
     // TODO: change selectedKeys according to filterValue
     filterDropdown: ({
@@ -68,41 +58,30 @@ export default function useTableFilter({
         filters={filters}
         onSelect={(newSelectedKeys) => {
           if (!showButtons) {
-            if (changeCustomFilterValue) {
-              changeCustomFilterValue(newSelectedKeys, dataKey);
-            }
-            setFilteredValue(newSelectedKeys);
+            onChange(newSelectedKeys);
           }
         }}
         onConfirm={() => {
-          if (changeCustomFilterValue) {
-            changeCustomFilterValue(selectedKeys, dataKey);
-          }
-          setFilteredValue(selectedKeys);
+          onChange(selectedKeys);
           onFilterDropdownOpenChange(false);
         }}
         onReset={() => {
           if (clearFilters) {
             clearFilters();
           }
-          if (changeCustomFilterValue) {
-            changeCustomFilterValue([], dataKey);
-          }
-          setFilteredValue([]);
+          onChange([]);
           onFilterDropdownOpenChange(false);
         }}
       />
     ),
   }), [
-    changeCustomFilterValue,
-    dataKey,
+    onChange,
     options,
     multiple,
     filterIcon,
     showButtons,
     filterDropdownOpen,
     onFilterDropdownOpenChange,
-    filteredValue,
-    setFilteredValue,
+    value,
   ]);
 }

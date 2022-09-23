@@ -10,11 +10,11 @@ import { Context } from '../context';
 export interface TableSearchProps {
   width?: number
   placeholder?: string
-  onConfirm: (value?: string) => void
+  onConfirm: () => void
   onReset: () => void
   showButtons?: boolean
-  inputValue: string
-  setInputValue: (inputValue: string) => void
+  value: string
+  onChange: (inputValue: string) => void
 }
 
 function RelientTableSearch({
@@ -22,27 +22,23 @@ function RelientTableSearch({
   placeholder,
   onConfirm,
   onReset,
-  inputValue,
-  setInputValue,
+  value,
+  onChange,
   showButtons = true,
 }: TableSearchProps) {
   const { locale, getPrefixCls } = useContext(Context);
 
-  const onInputChange: ChangeEventHandler<HTMLInputElement> = useCallback(({ target: { value } }) => {
-    setInputValue(value);
+  const onInputChange: ChangeEventHandler<HTMLInputElement> = useCallback(({ target }) => {
+    onChange(target.value);
     if (!showButtons) {
-      onConfirm(value);
+      onConfirm();
     }
-  }, [showButtons, onConfirm, setInputValue]);
-
-  const onFinalConfirm = useCallback(() => {
-    onConfirm(inputValue);
-  }, [inputValue, onConfirm]);
+  }, [showButtons, onConfirm, onChange]);
 
   const onFinalReset = useCallback(() => {
-    setInputValue('');
+    onChange('');
     onReset();
-  }, [onReset, setInputValue]);
+  }, [onReset, onChange]);
 
   const prefixCls = getPrefixCls('table-filter');
 
@@ -51,20 +47,20 @@ function RelientTableSearch({
       <div style={{ padding: 8, width }}>
         <Input
           placeholder={placeholder}
-          value={inputValue}
+          value={value}
           onChange={onInputChange}
-          onPressEnter={onFinalConfirm}
+          onPressEnter={onConfirm}
         />
       </div>
       {showButtons && (
         <div className={`${prefixCls}-dropdown-btns`}>
-          <Button type="link" onClick={onFinalReset} size="small" disabled={inputValue === ''}>
+          <Button type="link" onClick={onFinalReset} size="small" disabled={value === ''}>
             {locale.reset}
           </Button>
           <Button
             type="primary"
             size="small"
-            onClick={onFinalConfirm}
+            onClick={onConfirm}
           >
             {locale.confirm}
           </Button>
@@ -80,6 +76,8 @@ RelientTableSearch.propTypes = {
   onReset: func.isRequired,
   width: string,
   showButtons: bool,
+  value: string,
+  onChange: func.isRequired,
 };
 
 export default RelientTableSearch;

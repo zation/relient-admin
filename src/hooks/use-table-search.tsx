@@ -7,14 +7,12 @@ import { SearchOutlined } from '@ant-design/icons';
 import type { ColumnType } from 'antd/es/table/interface';
 import { FilterDropdownProps } from 'antd/es/table/interface';
 import TableSearch from '../components/table-search';
-import { ChangeCustomSearchValue, CustomSearchValue } from '../interface';
 
 const defaultFilterIcon = <SearchOutlined />;
 
 export interface UseTableSearchParams {
-  customSearchValue?: CustomSearchValue
-  changeCustomSearchValue?: ChangeCustomSearchValue
-  dataKey: string
+  value: string
+  onChange: (value: string) => void | Promise<void>
   placeholder?: string
   width?: number
   showButtons?: boolean
@@ -22,9 +20,8 @@ export interface UseTableSearchParams {
 }
 
 export default function useTableSearch({
-  customSearchValue,
-  changeCustomSearchValue,
-  dataKey,
+  value,
+  onChange,
   filterIcon = defaultFilterIcon,
   placeholder,
   width,
@@ -33,10 +30,9 @@ export default function useTableSearch({
   const [filterDropdownOpen, onFilterDropdownOpenChange] = useState(false);
   const [inputValue, setInputValue] = useState('');
 
-  const propValue = customSearchValue && customSearchValue[dataKey];
   useEffect(() => {
-    setInputValue(propValue || '');
-  }, [propValue]);
+    setInputValue(value || '');
+  }, [value]);
 
   return useMemo<Pick<ColumnType<any>,
   'filterDropdownOpen' |
@@ -47,7 +43,7 @@ export default function useTableSearch({
     () => ({
       filterDropdownOpen,
       onFilterDropdownOpenChange,
-      filteredValue: inputValue ? [inputValue] : null, // NOTICE: for filterIcon display logic
+      filteredValue: value ? [value] : null, // NOTICE: for filterIcon display logic
       filterIcon,
       filterDropdown: ({
         clearFilters,
@@ -56,29 +52,24 @@ export default function useTableSearch({
           showButtons={showButtons}
           placeholder={placeholder}
           width={width}
-          inputValue={inputValue}
-          setInputValue={setInputValue}
-          onConfirm={(value) => {
-            if (changeCustomSearchValue) {
-              changeCustomSearchValue(value || '', dataKey);
-            }
+          value={inputValue}
+          onChange={setInputValue}
+          onConfirm={() => {
+            onChange(inputValue);
             onFilterDropdownOpenChange(false);
           }}
           onReset={() => {
             if (clearFilters) {
               clearFilters();
             }
-            if (changeCustomSearchValue) {
-              changeCustomSearchValue('', dataKey);
-            }
+            onChange('');
+            setInputValue('');
             onFilterDropdownOpenChange(false);
           }}
         />
       ),
     }),
     [
-      changeCustomSearchValue,
-      dataKey,
       filterIcon,
       placeholder,
       width,
@@ -87,6 +78,8 @@ export default function useTableSearch({
       onFilterDropdownOpenChange,
       inputValue,
       setInputValue,
+      onChange,
+      value,
     ],
   );
 }

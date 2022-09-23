@@ -50,17 +50,9 @@ import type {
   ChangeCustomSearchValue,
   CustomFilterValue,
   CustomSearchValue,
+  CustomFilter,
+  CustomSearch,
 } from '../interface';
-
-export interface CustomFilter<RecordType> {
-  dataKey: string
-  onFilter?: (item: RecordType, value: FilterValue['value'], dataKey: string) => boolean
-}
-
-export interface CustomSearch<RecordType> {
-  dataKey: string
-  onSearch?: (item: RecordType, value: string, dataKey: string) => boolean
-}
 
 export interface UseLocalTableParams<RecordType,
   CreatorValues = Omit<RecordType, 'id'>,
@@ -75,9 +67,9 @@ export interface UseLocalTableParams<RecordType,
     placeholder?: string
     fussy?: boolean
   }
+  filters?: Filter<RecordType>[]
   customFilters?: CustomFilter<RecordType>[]
   customSearches?: CustomSearch<RecordType>[]
-  filters?: Filter<RecordType>[]
   createButton?: CreateButton
   resetButton?: Partial<ResetButton> | boolean
   datePickers?: DatePicker[]

@@ -44,8 +44,14 @@ import type {
   PaginationData,
   RecordTypeId,
   DatePicker,
+  ChangeCustomSearchValue,
 } from '../interface';
 import { PagedData } from '../utils/pagination';
+import {
+  CustomFilter,
+  CustomSearch,
+  CustomSearchValue,
+} from '../interface';
 
 const omitEmpty = omitBy((val) => (isNil(val) || val === ''));
 
@@ -87,6 +93,7 @@ async function onFetch<RecordType>(
   page: number,
   setIsLoading: (isLoading: boolean) => void,
   fussyKey: string | null | undefined,
+  customSearchValue: CustomSearchValue,
 ) {
   setIsLoading(true);
   const {
@@ -100,6 +107,7 @@ async function onFetch<RecordType>(
     page,
     ...getFilterParams(filterValues),
     ...getDateParams(dateValues),
+    ...customSearchValue,
   }) as ReadActionParams);
   setIsLoading(false);
   setPaginationData({
@@ -127,6 +135,8 @@ export interface UseApiTableParams<RecordType,
     searchWhenValueChange?: boolean
   }
   filters?: Filter<RecordType>[]
+  customFilters?: CustomFilter<RecordType>[]
+  customSearches?: CustomSearch<RecordType>[]
   createButton?: CreateButton
   resetButton?: ResetButton | boolean
   datePickers?: DatePicker[]
@@ -203,6 +213,7 @@ export default function useApiTable<RecordType,
   }, [initialSize, initialCurrent, initialTotal, join(',')(initialIds)]);
   const dataSource = getDataSource(paginationData.ids);
   const [isLoading, setIsLoading] = useState(false);
+  const [customSearchValue, setCustomSearchValue] = useState<CustomSearchValue>({});
 
   const {
     dateValues,
@@ -258,6 +269,7 @@ export default function useApiTable<RecordType,
       initialCurrent,
       setIsLoading,
       fussyKey,
+      customSearchValue,
     );
   }, [
     readAction,
@@ -268,6 +280,7 @@ export default function useApiTable<RecordType,
     onFieldChange,
     onValueChange,
     fussyKey,
+    customSearchValue,
   ]);
   const onSearch = useCallback(() => {
     if (!searchWhenValueChange) {
@@ -282,6 +295,7 @@ export default function useApiTable<RecordType,
         initialCurrent,
         setIsLoading,
         fussyKey,
+        customSearchValue,
       );
     }
   }, [
@@ -295,6 +309,7 @@ export default function useApiTable<RecordType,
     initialCurrent,
     setIsLoading,
     fussyKey,
+    customSearchValue,
   ]);
   const onQueryValueChange: ChangeEventHandler<HTMLInputElement> = useCallback(({ target: { value } }) => {
     if (isFunction(onValueChange)) {
@@ -313,6 +328,7 @@ export default function useApiTable<RecordType,
         initialCurrent,
         setIsLoading,
         fussyKey,
+        customSearchValue,
       );
     }
   }, [
@@ -325,6 +341,7 @@ export default function useApiTable<RecordType,
     dateValues,
     fussyKey,
     searchWhenValueChange,
+    customSearchValue,
   ]);
   const onFilterValueChange = useCallback(async (value: FilterValue['value'], dataKey: FilterValue['dataKey']) => {
     if (isFilterValuesSame(value, dataKey, filterValues)) {
@@ -353,6 +370,7 @@ export default function useApiTable<RecordType,
       initialCurrent,
       setIsLoading,
       fussyKey,
+      customSearchValue,
     );
   }, [
     filters,
@@ -364,6 +382,7 @@ export default function useApiTable<RecordType,
     dateValues,
     fussyKey,
     filterValues,
+    customSearchValue,
   ]);
   const onDateChange = useCallback(async (value: DateValue['value'], dataKey: DateValue['dataKey']) => {
     if (flow(
@@ -395,6 +414,7 @@ export default function useApiTable<RecordType,
       initialCurrent,
       setIsLoading,
       fussyKey,
+      customSearchValue,
     );
   }, [
     datePickers,
@@ -406,9 +426,11 @@ export default function useApiTable<RecordType,
     initialCurrent,
     filterValues,
     fussyKey,
+    customSearchValue,
   ]);
   const onReset = useCallback(() => {
     reset();
+    setCustomSearchValue({});
 
     onFetch(
       null,
@@ -421,14 +443,18 @@ export default function useApiTable<RecordType,
       initialCurrent,
       setIsLoading,
       fussyKey,
+      {},
     );
   }, [
     defaultQueryField,
+    readAction,
+    setPaginationData,
+    paginationData.size,
     defaultFilterValues,
     initialCurrent,
-    readAction,
     reset,
     fussyKey,
+    setIsLoading,
   ]);
   const onPageChange = useCallback((page: number, pageSize: number) => {
     const { current, size } = paginationData;
@@ -444,17 +470,21 @@ export default function useApiTable<RecordType,
         page - 1,
         setIsLoading,
         fussyKey,
+        customSearchValue,
       );
     }
   }, [
+    paginationData.size,
+    paginationData.current,
     queryValue,
     queryField,
     readAction,
-    paginationData.size,
+    setPaginationData,
     filterValues,
     dateValues,
+    setIsLoading,
     fussyKey,
-    paginationData.current,
+    customSearchValue,
   ]);
   const onReload = useCallback((page = paginationData.current) => onFetch(
     queryValue,
@@ -467,15 +497,19 @@ export default function useApiTable<RecordType,
     page,
     setIsLoading,
     fussyKey,
+    customSearchValue,
   ), [
     queryValue,
     queryField,
     readAction,
+    setPaginationData,
     paginationData.size,
     filterValues,
     dateValues,
     paginationData.current,
     fussyKey,
+    setIsLoading,
+    customSearchValue,
   ]);
   const onCreatorSubmit = useCallback(async (values: CreatorValues, formInstance: FormInstance<CreatorValues>) => {
     const submitReturn = await creatorSubmit!(values, formInstance);
@@ -490,6 +524,7 @@ export default function useApiTable<RecordType,
       initialCurrent,
       setIsLoading,
       fussyKey,
+      customSearchValue,
     );
     closeCreator();
     if (typeof creatorSuccessMessage === 'string') {
@@ -503,11 +538,14 @@ export default function useApiTable<RecordType,
     queryValue,
     queryField,
     readAction,
+    setPaginationData,
     paginationData.size,
     initialCurrent,
+    setIsLoading,
     filterValues,
     dateValues,
     fussyKey,
+    customSearchValue,
   ]);
   const onEditorSubmit = useCallback(async (values: EditorValues, formInstance: FormInstance<EditorValues>) => {
     const submitReturn = await editorSubmit!(values, formInstance, editItem!);
@@ -527,6 +565,39 @@ export default function useApiTable<RecordType,
     shouldReload,
     onReload,
   ]);
+  const changeCustomSearchValue: ChangeCustomSearchValue = useCallback((value, dataKey) => {
+    setCustomSearchValue((previous) => {
+      const newValue = {
+        ...previous,
+        [dataKey]: value,
+      };
+      onFetch(
+        queryValue,
+        queryField,
+        readAction,
+        setPaginationData,
+        paginationData.size,
+        filterValues,
+        dateValues,
+        paginationData.current,
+        setIsLoading,
+        fussyKey,
+        newValue,
+      );
+      return newValue;
+    });
+  }, [
+    queryValue,
+    queryField,
+    readAction,
+    setPaginationData,
+    paginationData.size,
+    filterValues,
+    dateValues,
+    paginationData.current,
+    setIsLoading,
+    fussyKey,
+  ]);
 
   return {
     dataSource,
@@ -542,6 +613,8 @@ export default function useApiTable<RecordType,
     filterValues,
     changeFilterValue: onFilterValueChange,
     changeDate: onDateChange,
+    changeCustomSearchValue,
+    customSearchValue,
     pagination: {
       showTotal: ((total) => `共 ${total} 条`) as ShowTotal,
       pageSize: paginationData.size,

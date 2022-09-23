@@ -29,6 +29,16 @@ export type CustomFilterValue = Record<string, FilterValue['value']>;
 
 export type CustomSearchValue = Record<string, string>;
 
+export interface CustomFilter<RecordType> {
+  dataKey: string
+  onFilter?: (item: RecordType, value: FilterValue['value'], dataKey: string) => boolean
+}
+
+export interface CustomSearch<RecordType> {
+  dataKey: string
+  onSearch?: (item: RecordType, value: string, dataKey: string) => boolean
+}
+
 export interface ChangeCustomFilterValue {
   (value: FilterValue['value'], dataKey: string): void | Promise<void>
 }
