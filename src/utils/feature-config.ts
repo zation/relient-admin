@@ -7,6 +7,7 @@ import {
   map,
   omit,
   prop,
+  startsWith,
 } from 'lodash/fp';
 
 export interface FeatureConfig<Key> {
@@ -40,6 +41,7 @@ export const getFlatFeatures = <T extends string>(
         fullPath: flow(
           map<FeatureConfig<T>, string>(prop<FeatureConfig<T>, 'path'>('path')),
           join('/'),
+          (path) => (startsWith('/')(path) ? path : `/${path}`),
         )(configsWithParents),
         keysWithParent: map(prop('key'))(configsWithParents),
       };
