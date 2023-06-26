@@ -6,7 +6,7 @@ import {
 } from 'lodash/fp';
 
 const datetime = ({
-  formatter = 'yyyy-MM-dd HH:mm:ss',
+  formatter = 'YYYY-MM-DD HH:mm:ss',
   defaultDisplay = '--',
 } = {}) => (value: number | Date | string | Dayjs): string => {
   try {
@@ -22,7 +22,7 @@ const datetime = ({
 };
 
 export const date = ({
-  formatter = 'yyyy-MM-dd',
+  formatter = 'YYYY-MM-DD',
   defaultDisplay = '--',
 } = {}) => datetime({ formatter, defaultDisplay });
 
