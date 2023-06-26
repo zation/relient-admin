@@ -1,6 +1,4 @@
-import format from 'date-fns/fp/format';
-import parseISO from 'date-fns/fp/parseISO';
-import isValid from 'date-fns/fp/isValid';
+import dayjs, { Dayjs } from 'dayjs';
 import {
   isFinite,
   trim,
@@ -10,12 +8,11 @@ import {
 const datetime = ({
   formatter = 'yyyy-MM-dd HH:mm:ss',
   defaultDisplay = '--',
-  parse = parseISO,
-} = {}) => (value: number | Date | string): string => {
+} = {}) => (value: number | Date | string | Dayjs): string => {
   try {
-    const dateValue = typeof value === 'string' ? parse(value) : value;
-    if (isValid(dateValue)) {
-      return format(formatter)(dateValue);
+    const dayjsValue = dayjs(value);
+    if (dayjsValue.isValid()) {
+      return dayjsValue.format(formatter);
     }
     return defaultDisplay;
   } catch (e) {
@@ -27,8 +24,7 @@ const datetime = ({
 export const date = ({
   formatter = 'yyyy-MM-dd',
   defaultDisplay = '--',
-  parse = parseISO,
-} = {}) => datetime({ formatter, defaultDisplay, parse });
+} = {}) => datetime({ formatter, defaultDisplay });
 
 export const time = datetime;
 
