@@ -24,7 +24,7 @@ import {
   prop,
 } from 'lodash/fp';
 import type { SearchProps } from 'antd/lib/input';
-import type { Moment } from 'moment';
+import { Dayjs } from 'dayjs';
 import type { DetailsProps } from './details';
 import FormPop, { FormPopProps } from './form/pop';
 import RelientDetails from './details';
@@ -43,7 +43,7 @@ export interface FilterItem extends SelectProps {
 export interface DatePickerItem {
   label?: string
   dataKey: string
-  disabledDate?: (date: Moment) => boolean
+  disabledDate?: (date: Dayjs) => boolean
 }
 
 export interface CreateButton {
@@ -86,7 +86,7 @@ export interface TableHeaderProps<RecordType,
   resetButton?: ResetButton
   datePicker?: {
     items: DatePickerItem[]
-    onSelect: (selectedValue: [string, string], dataKey: string) => void
+    onSelect: (selectedValue: [Dayjs | null, Dayjs | null] | null, dataKey: string) => void
   }
   details?: DetailsProps<RecordType>
   creator?: FormPopProps<CreatorValues, CreatorSubmitReturn>
@@ -145,15 +145,11 @@ function RelientTableHeader<RecordType,
           </div>
         ))(filter.items)}
 
-        {datePicker && map(({ label, dataKey, disabledDate }) => (
+        {datePicker && map<DatePickerItem, ReactNode>(({ label, dataKey, disabledDate }) => (
           <div key={dataKey}>
             <span className="relient-admin-table-header-operation-label">{label}</span>
             <RangePicker
-              format="YYYY-MM-DD"
-              onChange={(
-                _,
-                selectedValue,
-              ) => datePicker.onSelect(selectedValue, dataKey)}
+              onChange={(value) => datePicker.onSelect(value, dataKey)}
               disabledDate={disabledDate}
             />
           </div>
@@ -168,7 +164,7 @@ function RelientTableHeader<RecordType,
                 className="relient-admin-table-header-operation-label"
                 dropdownMatchSelectWidth={false}
               >
-                {map(({ dataKey, label }: QueryField) => (
+                {map<QueryField, ReactNode>(({ dataKey, label }) => (
                   <Option
                     value={dataKey || ''}
                     key={dataKey}

@@ -17,7 +17,6 @@ import {
   omitBy,
   prop,
   propEq,
-  reduce,
   reject,
   join,
 } from 'lodash/fp';
@@ -60,12 +59,12 @@ const getFilterParams = flow(
   mapValues(flow(prop('value'), join(','))),
 );
 
-const getDateParams = reduce((result, { dataKey, value }) => {
+const getDateParams = (dateValues: DateValue[]) => dateValues.reduce((result, { dataKey, value }) => {
   if (value && value.length > 1) {
     return {
       ...result,
-      [`${dataKey}After`]: value[0] ? new Date(value[0]).toISOString() : undefined,
-      [`${dataKey}Before`]: value[1] ? new Date(value[1]).toISOString() : undefined,
+      [`${dataKey}After`]: value[0] ? value[0].toISOString() : undefined,
+      [`${dataKey}Before`]: value[1] ? value[1].toISOString() : undefined,
     };
   }
   return result;

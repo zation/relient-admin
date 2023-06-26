@@ -28,7 +28,7 @@ import {
   FormInstance,
   message,
 } from 'antd';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import RelientTableHeader, {
   CreateButton,
   ResetButton,
@@ -377,8 +377,8 @@ export default function useLocalTable<RecordType,
           if (value && value.length > 1) {
             const selectedDate = prop(dataKey)(item);
             const [startDate, endDate] = value;
-            return moment(new Date(startDate)).isBefore(selectedDate)
-              && moment(new Date(endDate)).isAfter(selectedDate);
+            return dayjs(startDate).isBefore(selectedDate)
+              && dayjs(endDate).isAfter(selectedDate);
           }
           return true;
         })(dateValues);

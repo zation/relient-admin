@@ -3,7 +3,7 @@ import type {
   Key,
 } from 'react';
 import type { FormInstance } from 'antd/es/form';
-import { Moment } from 'moment';
+import { Dayjs } from 'dayjs';
 import type { FormPopProps, DetailsProps, FilterItem } from './components';
 
 export interface I18N {
@@ -63,7 +63,7 @@ export interface FilterValue {
 
 export interface DateValue {
   dataKey: string
-  value: [string, string]
+  value: [Dayjs | null, Dayjs | null] | null
 }
 
 export type RecordTypeId<RecordType> = RecordType extends { id: infer ID } ? ID : number;
@@ -79,7 +79,7 @@ export interface DatePicker {
   dataKey: string,
   label: string,
   onDateChange: (value: [string, string]) => void
-  disabledDate: (date: Moment) => boolean
+  disabledDate: (date: Dayjs) => boolean
 }
 
 export interface ShowTotal {
